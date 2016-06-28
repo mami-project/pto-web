@@ -33,5 +33,6 @@ def teardown_request(exception):
 
 
 import ptoweb.api
+import ptoweb.page
 
 
