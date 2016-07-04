@@ -19,14 +19,48 @@
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
 
     <script>
+     function getDataTotal() {
+       var msg = '<span>Loading...</span>';
+      document.getElementById('show_data_total').innerHTML = 
+            '<tr><td>' + msg + '</td><td>' + msg + '</td></tr>';
+
+       var name = encodeURIComponent($('#cond_name').val());
+
+       $.ajax({
+         'url': '/api/conditions_total?name=' + name})
+       .done(function(data) {
+         var rows = []
+
+         $.each(data, function(key, item) {
+            rows.push('<tr><td>' + item._id + '</td><td>' + item.count + '</td></tr>');
+          });
+
+         document.getElementById('show_data_total').innerHTML = rows.join("\n");
+
+         if(rows.length == 0) {
+           var err = '<span class="info">(no data to show)</span>';
+         document.getElementById('show_data_total').innerHTML = 
+            '<tr><td>' + err + '</td><td>' + err + '</td></tr>';
+         }
+
+        })
+       .fail(function() {
+         var err = '<span class="error">(error: could not load data)</span>';
+         document.getElementById('show_data_total').innerHTML = 
+            '<tr><td>' + err + '</td><td>' + err + '</td></tr>';
+        });
+     }
+
+
      function getData() {
       var msg = '<span>Loading...</span>';
-         document.getElementById('show_data').innerHTML = 
+      document.getElementById('show_data').innerHTML = 
             '<tr><td>' + msg + '</td><td>' + msg + '</td><td>' + msg + '</td></tr>';
 
-      var dip = $('#dip_ip').val();
+      var dip = encodeURIComponent($('#dip_ip').val());
+      var sip = encodeURIComponent($('#sip_ip').val());
       $.ajax({
-         'url': '/api/conditions?dip=' + dip})
+         'url': '/api/conditions?dip=' + dip + '&sip=' + sip})
        .done(function(data) {
          var rows = []
 
@@ -90,12 +124,17 @@
 
       <h1>Observatory</h1>
 
-      <p id="test">Show conditions for an endpoint.</p>
+      <p>Show conditions for an endpoint. Startpoint can be left blank.</p>
 
       <div style="width: 55%;">
       <form action="javascript:getData()">
         <fieldset class="form-group">
-          <label>Endpoint</label>
+          <label>Startpoint (optional)</label>
+          <input id="sip_ip" type="text" class="form-control" placeholder="">
+          <small class="text-muted">Enter an IPv4 or IPv6 address.</small> 
+        </fieldset>
+        <fieldset class="form-group">
+          <label>Endpoint (required)</label>
           <input id="dip_ip" type="text" class="form-control" placeholder="*">
           <small class="text-muted">Enter an IPv4 or IPv6 address.</small>
         </fieldset>
@@ -110,6 +149,31 @@
         </thead>
         <tbody id="show_data">
           <tr><td><span class="info">(no data to show)</span></td><td id="uploads_total"><span class="info">(no data to show)</span></td><td><span class="info">(no data to show)</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>Show total condition counts.</p>
+
+
+      <div style="width: 55%;">
+      <form action="javascript:getDataTotal()">
+        <fieldset class="form-group">
+          <label>Condition name</label>
+          <input id="cond_name" type="text" class="form-control" placeholder="ecn.connectivity.works, ecn.connectivity.broken">
+          <small class="text-muted">Enter the name of a condition. Use comma to separate multiple conditions.</small> 
+        </fieldset>
+        <button type="submit" class="btn btn-primary">Query data</button>
+      </form>
+      </div>
+
+      <div style="width: 55%;">
+      <table class="table">
+        <thead>
+          <tr><th>Condition</th><th>Occurences #</th></tr>
+        </thead>
+        <tbody id="show_data_total">
+          <tr><td id="uploads_total"><span class="info">(no data to show)</span></td><td><span class="info">(no data to show)</span></td></tr>
         </tbody>
       </table>
       </div>

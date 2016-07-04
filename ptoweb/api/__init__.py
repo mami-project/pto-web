@@ -16,22 +16,52 @@ def api_index():
 
   return json200({'status':'running'})
 
+@app.route('/api/conditions_total')
+def api_conditions_total():
+
+  observations = get_observations_collection()
+
+  conditions = list(map(lambda a: a.strip(), request.args.get('name').split(',')))
+
+  pipeline = [
+    {'$unwind' :'$conditions'}, 
+    {'$match' : {'conditions' : {'$in' : conditions}}},
+    {'$group' : {'_id' : '$conditions', 'count': {'$sum' : 1}}},
+    {'$sort' : {'count' : -1}}
+   ]
+
+  result = list(observations.aggregate(pipeline))
+  print(result)
+
+  return json200(result)
+
 
 @app.route('/api/conditions')
 def api_conditions():
   """
+  Path: /api/conditions
+
+  Retrieve statistics about how many times a condition was observed on a path
+  (currently: an endpoint).
   """
 
   dip = request.args.get('dip')
+  sip = request.args.get('sip')
   
   uploads = get_observations_collection()
+
+  sip_match = {}
+
+  if(sip != None and sip != ''):
+    sip_match = {'sip' : sip}
 
   pipeline = [
       {'$match' : {'path' : dip}},
       {'$unwind' : '$conditions'}, 
       {'$project' : {'_id' : 1, 'conditions' : 1, 'sip' : { '$arrayElemAt': ['$path',0] },
                      'dip' : { '$arrayElemAt' : ['$path', -1]}}},
-      {'$match' : {'dip' : dip}},
+      {'$match' : sip_match},
+      {'$match' : {'dip': dip}},
       {'$group' : {'_id' : { 'condition' : '$conditions', 'dip' : '$dip'}, 'count' : {'$sum' : 1}}},
       {'$group' : {'_id' : '$_id.dip', 'data' : {'$addToSet' : { 'condition' : '$_id.condition', 'count' : '$count'}}}}
     ]
