@@ -16,33 +16,6 @@ def api_index():
   return json200({'status':'running'})
 
 
-@app.route('/api/uploads/<uploader>')
-@require_auth
-def api_uploads(uploader):
-  """
-  Path: /api/uploads/<uploader>
-
-  - uploader: Name of the uploader
-
-  Retrieve the number of uploads by an uploader.
-  
-  Returns: `{"uploads":<number>,"uploader":"<uploader>"}`
-  """
-
-  mongo_client = g.mongo_client
-  db = mongo_client['uploads']
-  uploads = db['uploads']
-
-  if(uploader == ""):
-    result = uploads.count({})
-  else:
-    result = uploads.count({'uploader':uploader})
-
-  js = {'uploads' : result, 'uploader':uploader}
-
-  return json200(js)
-
-
 @app.route('/api/conditions')
 def api_conditions():
   """
@@ -80,9 +53,7 @@ def api_upload_statistics():
   Retrieve basic statistics about uploads.
   """
 
-  mongo_client = g.mongo_client
-  db = mongo_client['uploads']
-  uploads = db['uploads']
+  uploads = get_uploads_collection()
 
   total = uploads.count({})
 
