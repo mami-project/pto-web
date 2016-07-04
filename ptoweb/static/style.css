@@ -10,3 +10,7 @@ body {
 span.error {
   color: red;
 }
+
+span.info {
+  color: orange;
+}
