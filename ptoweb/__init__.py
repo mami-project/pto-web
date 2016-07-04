@@ -4,6 +4,9 @@ from pymongo import MongoClient
 app = Flask(__name__)
 app.config.from_envvar('PTO_SETTINGS', silent=False)
 
+from werkzeug.contrib.cache import FileSystemCache
+cache = FileSystemCache('/tmp/ptoweb')
+
 
 def get_mongo_client_uploads():
   """

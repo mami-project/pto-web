@@ -1,4 +1,4 @@
-from ptoweb import app, get_uploads_collection, get_observations_collection
+from ptoweb import cache, app, get_uploads_collection, get_observations_collection
 from flask import Response, g, request
 import json
 from ptoweb.api.auth import require_auth
@@ -23,6 +23,12 @@ def api_conditions_total():
 
   conditions = list(map(lambda a: a.strip(), request.args.get('name').split(',')))
 
+  cache_key = '/api/conditions_total/' + ','.join(conditions)
+
+  result = cache.get(cache_key)
+  if result != None:
+    return json200(result)
+
   pipeline = [
     {'$unwind' :'$conditions'}, 
     {'$match' : {'conditions' : {'$in' : conditions}}},
@@ -31,7 +37,7 @@ def api_conditions_total():
    ]
 
   result = list(observations.aggregate(pipeline))
-  print(result)
+  cache.set(cache_key, result, timeout = 60*60*60)
 
   return json200(result)
 
@@ -47,6 +53,12 @@ def api_conditions():
 
   dip = request.args.get('dip')
   sip = request.args.get('sip')
+
+  cache_key = '/api/conditions/' + dip + '/' + sip
+
+  result = cache.get(cache_key)
+  if result != None:
+    return json200(result)
   
   uploads = get_observations_collection()
 
@@ -67,7 +79,7 @@ def api_conditions():
     ]
 
   result = list(uploads.aggregate(pipeline, allowDiskUse = True))
-  print(result)
+  cache.set(cache_key, result, timeout = 60*60*60)
 
   return json200(result)
 
