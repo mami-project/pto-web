@@ -6,3 +6,7 @@ body {
   padding-top: 5em;
   text-align: center;
 }
+
+span.error {
+  color: red;
+}

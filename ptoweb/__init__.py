@@ -5,7 +5,7 @@ app = Flask(__name__)
 app.config.from_envvar('PTO_SETTINGS', silent=False)
 
 
-def get_mongo_client():
+def get_mongo_client_uploads():
   """
   Connect to MongoDB based on configuration.
   """
@@ -13,12 +13,28 @@ def get_mongo_client():
   return MongoClient(app.config['MONGO_URI'])
 
 
+def get_mongo_client_observations():
+
+  return MongoClient(app.config['MONGO_URI'])
+
+
+def get_uploads_collection():
+
+  return g.mongo_client_uploads['uploads']['uploads']
+
+
+def get_observations_collection():
+
+  return g.mongo_client_observations['ptodev-obs']['observations']
+
+
 @app.before_request
 def before_request():
   """
   Executed before every request.
   """
-  g.mongo_client = get_mongo_client()
+  g.mongo_client_uploads = get_mongo_client_uploads()
+  g.mongo_client_observations = get_mongo_client_observations()
 
 
 @app.teardown_request
@@ -27,7 +43,11 @@ def teardown_request(exception):
   Executed after every request.
   """
 
-  mongo_client = getattr(g, 'mongo_client', None)
+  mongo_client = getattr(g, 'mongo_client_uploads', None)
+  if mongo_client is not None:
+    mongo_client.close()
+
+  mongo_client = getattr(g, 'mongo_client_observations', None)
   if mongo_client is not None:
     mongo_client.close()
 

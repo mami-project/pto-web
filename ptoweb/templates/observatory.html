@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <title>PTO - Upload statistics</title>
+    <title>PTO - Observatory</title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -19,25 +19,28 @@
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
 
     <script>
-     function getUploadStatistics() {
+     function getData() {
+      alert('muh');
       $.ajax({
-         'url': '/api/uploadstats'})
+         'url': '/api/conditions'})
        .done(function(data) {
-         document.getElementById('uploads_total').innerHTML = data.total;
-
          var rows = []
 
-         $.each(data.msmntCampaigns, function(key, item) {
-            rows.push('<tr><td>'+item._id+'</td><td>'+item.count+'</td></tr>')
+         $.each(data, function(key, item) {
+            alert(item._id);
+            var sip = item._id;
+            var conditions = item.data;
+            $.each(conditions, function(key, item_condition) {
+               rows.push('<tr><td>'+sip+'</td><td>' + item_condition.condition + '</td><td>'+item_condition.count+'</td></tr>');
+            });
           });
 
-         document.getElementById('measurement_campaigns').innerHTML = rows.join("\n");
+         document.getElementById('show_data').innerHTML = rows.join("\n");
         })
        .fail(function() {
          err = '<span class="error">(error: could not load data)</span>';
-         document.getElementById('uploads_total').innerHTML = err;
          document.getElementById('measurement_campaigns').innerHTML = 
-            '<tr><td>' + err + '</td><td>' + err + '</td></tr>';
+            '<tr><td>' + err + '</td><td>' + err + '</td><td>' + err + '</td></tr>';
         });
      }
     </script>
@@ -49,7 +52,7 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
-  <body onload="getUploadStatistics()">
+  <body>
     
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -66,8 +69,8 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
-            <li class="active"><a href="/uploadstats">Upload statistics</a></li>
-            <li><a href="/observatory">Observatory</a></li>
+            <li><a href="/uploadstats">Upload statistics</a></li>
+            <li class="active"><a href="/observatory">Observatory</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -75,30 +78,28 @@
 
     <div class="container">
 
-      <h1>Upload statistics</h1>
+      <h1>Observatory</h1>
 
-      <p>Lorem ipsum</p>
+      <p>Show conditions for an endpoint.</p>
 
       <div style="width: 55%;">
-      <table class="table">
-        <thead>
-          <tr><th>Statistic</th><th>Value</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Uploads total</td><td id="uploads_total">Loading...</td></tr>
-        </tbody>
-      </table>
+      <form action="javascript:getData()">
+        <fieldset class="form-group">
+          <label>Endpoint</label>
+          <input type="text" class="form-control" placeholder="*">
+          <small class="text-muted">Enter an IPv4 or IPv6 address.</small>
+        </fieldset>
+        <button type="submit" class="btn btn-primary">Query data</button>
+      </form>
       </div>
-
-      <h2>Measurement campaigns</h2>
       
       <div style="width: 55%;">
       <table class="table">
         <thead>
-          <tr><th>Name</th><th>Number of uploads</th></tr>
+          <tr><th>Endpoint</th><th>Condition</th><th>Occurences #</th></tr>
         </thead>
-        <tbody id="measurement_campaigns">
-          <tr><td>Loading...</td><td id="uploads_total">Loading...</td></tr>
+        <tbody id="show_data">
+          <tr><td>Loading...</td><td id="uploads_total">Loading...</td><td>Loading...</td></tr>
         </tbody>
       </table>
       </div>

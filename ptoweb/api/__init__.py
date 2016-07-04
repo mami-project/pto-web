@@ -1,5 +1,5 @@
-from ptoweb import app
-from flask import Response, g
+from ptoweb import app, get_uploads_collection, get_observations_collection
+from flask import Response, g, request
 import json
 from ptoweb.api.auth import require_auth
 
@@ -41,6 +41,35 @@ def api_uploads(uploader):
   js = {'uploads' : result, 'uploader':uploader}
 
   return json200(js)
+
+
+@app.route('/api/conditions')
+def api_conditions():
+  """
+  """
+
+  dip = request.args.get('dip')
+  
+  uploads = get_observations_collection()
+
+  pipeline = [
+      {'$match' : {'path' : '104.24.104.16'}},
+      {'$unwind' : '$conditions'}, 
+      {'$project' : {'_id' : 1, 'conditions' : 1, 'sip' : { '$arrayElemAt': ['$path',0] },
+                     'dip' : { '$arrayElemAt' : ['$path', -1]}}},
+      {'$match' : {'dip' : '104.24.104.16'}},
+      {'$group' : {'_id' : { 'condition' : '$conditions', 'dip' : '$dip'}, 'count' : {'$sum' : 1}}},
+      {'$group' : {'_id' : '$_id.dip', 'data' : {'$addToSet' : { 'condition' : '$_id.condition', 'count' : '$count'}}}}
+    ]
+
+  pipeline2 = [
+      {'$unwind' : '$conditions'}
+    ]
+
+  result = list(uploads.aggregate(pipeline, allowDiskUse = True))
+  print(result)
+
+  return json200(result)
 
 
 @app.route('/api/uploadstats')

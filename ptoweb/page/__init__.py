@@ -13,3 +13,6 @@ def uploadstats():
   return render_template("uploadstats.html")
 
 
+@app.route('/observatory')
+def observatory():
+  return render_template("observatory.html")
