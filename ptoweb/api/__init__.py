@@ -50,6 +50,70 @@ def api_index():
 
   return json200({'status':'running'})
 
+
+def from_comma_separated(data):
+  if(data == None or data == ''):
+    return []
+  return list(map(lambda a: a.strip(), data.split(',')))
+
+def from_colon_separated(data):
+  if(data == None or data == ''):
+    return []
+  return list(map(lambda a: a.strip(), data.split(':')))
+
+
+@app.route('/api/advanced')
+def api_advanced():
+
+  observations = get_observations_collection()
+
+  on_path = from_comma_separated(request.args.get('on_path'))
+
+  if(len(on_path) == 0):
+    on_path_match = {}
+  else:
+    on_path_match = {'path' : {'$in' : on_path}}
+
+  condition_criterias = from_comma_separated(request.args.get('condition_criterias'))
+
+  condition_matches_must = []
+
+  for condition_criterion in condition_criterias:
+    parts = from_colon_separated(condition_criterion)
+    print(parts)
+
+    if(parts[0] == 'must'):
+      operator = parts[1]
+      cond_name = parts[2]
+      cond_value = parts[3]
+      if(operator == '?'):
+        condition_matches_must.append({'$match' : {'conditions' : cond_name}})
+
+
+
+  pipeline = [
+     {'$match' : on_path_match}]
+
+  pipeline += condition_matches_must
+
+  pipeline += [
+     {'$project' : {'_id' : 0, 'path' : 1, 'conditions' : 1,
+                    
+       }},
+   ]
+
+  results = []
+  count = 0
+  for e in observations.aggregate(pipeline):
+    count += 1
+    if(count <= 10):
+      results.append(e)
+
+  print(count)
+
+  return json200({'count' : count, 'results' : results})
+
+
 @app.route('/api/conditions_total')
 def api_conditions_total():
 
@@ -115,6 +179,7 @@ def api_conditions():
     sip_match = {'sip' : sip}
 
   pipeline = [
+      {'$match' : {'action_ids.0.valid' : True}},
       {'$match' : {'path' : dip}},
       {'$unwind' : '$conditions'}, 
       {'$project' : {'_id' : 1, 'conditions' : 1, 'sip' : { '$arrayElemAt': ['$path',0] },

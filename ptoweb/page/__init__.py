@@ -16,3 +16,8 @@ def uploadstats():
 @app.route('/observatory')
 def observatory():
   return render_template("observatory.html")
+
+
+@app.route('/advanced')
+def advanced():
+  return render_template("advanced.html")
