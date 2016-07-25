@@ -1,5 +1,6 @@
 from ptoweb import cache, app, get_uploads_collection, get_observations_collection
 from flask import Response, g, request
+from bson import json_util
 import json
 from ptoweb.api.auth import require_auth
 import re
@@ -39,7 +40,7 @@ def put_to_cache(key, value):
 
 
 def json200(obj):
-  return Response(json.dumps(obj), status=200, mimetype='application/json')
+  return Response(json.dumps(obj, default=json_util.default), status=200, mimetype='application/json')
 
 
 @app.route('/api/')
@@ -61,6 +62,26 @@ def from_colon_separated(data):
     return []
   return list(map(lambda a: a.strip(), data.split(':')))
 
+@app.route('/api/refresh')
+def api_refresh():
+  observations = get_observations_collection()
+
+  pipeline = [
+     {'$match' : {'action_ids.0.valid' : True}},
+     {'$project' : {'_id' : 0, 'path' : 1, 'conditions' : 1,
+                    'time' : 1, 'value' : 1
+       }},
+     {'$group': {'_id' : '$path', 'path': {'$first' : '$path'}, 'observations': 
+           {'$addToSet': {'conditions': '$conditions', 'time': '$time', 'value': '$value'}}}},
+     {'$project' : {'_id' : 0, 'path' : 1, 'observations' : 1}},
+     {'$limit' : 10},
+     {'$out' : 'observations_pre'}
+    ]
+
+  observations.aggregate(pipeline, allowDiskUse = True)
+
+  return json200({'ok' : True})
+
 
 @app.route('/api/advanced')
 def api_advanced():
@@ -68,15 +89,28 @@ def api_advanced():
   observations = get_observations_collection()
 
   on_path = from_comma_separated(request.args.get('on_path'))
+  sip = from_comma_separated(request.args.get('sip'))
+  dip = from_comma_separated(request.args.get('dip'))
 
   if(len(on_path) == 0):
     on_path_match = {}
   else:
     on_path_match = {'path' : {'$in' : on_path}}
 
+  if(len(sip) == 0):
+    sip_match = {}
+  else:
+    sip_match = {'sip' : {'$in' : sip}}
+
+  if(len(dip) == 0):
+    dip_match = {}
+  else:
+    dip_match = {'dip' : {'$in' : dip}}
+
   condition_criterias = from_comma_separated(request.args.get('condition_criterias'))
 
   condition_matches_must = []
+  or_filter = []
 
   for condition_criterion in condition_criterias:
     parts = from_colon_separated(condition_criterion)
@@ -86,25 +120,39 @@ def api_advanced():
       operator = parts[1]
       cond_name = parts[2]
       cond_value = parts[3]
-      if(operator == '?'):
-        condition_matches_must.append({'$match' : {'conditions' : cond_name}})
 
+      if(len(cond_name) < 2):
+        continue;
+
+      if(operator == '?'):
+        condition_matches_must.append({'$match' : {'observations.conditions' : cond_name}})
+      or_filter.append({'conditions' : cond_name})
 
 
   pipeline = [
-     {'$match' : on_path_match}]
+     {'$match' : {'action_ids.0.valid' : True}},
+     {'$match' : on_path_match},
+     {'$match' : {'$or' : or_filter}},
+     {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
+                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
+                    'dip' : { '$arrayElemAt' : ['$path', -1]},
+                    'sip' : { '$arrayElemAt' : ['$path',  0]}
+       }},
+     {'$match' : sip_match},
+     {'$match' : dip_match},
+     {'$group': {'_id' : '$path', 'observations': 
+           {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
+    ]
 
   pipeline += condition_matches_must
 
-  pipeline += [
-     {'$project' : {'_id' : 0, 'path' : 1, 'conditions' : 1,
-                    
-       }},
-   ]
+  pipeline += [{'$limit' : 10}]
+
+  print(pipeline)
 
   results = []
   count = 0
-  for e in observations.aggregate(pipeline):
+  for e in observations.aggregate(pipeline, allowDiskUse = True):
     count += 1
     if(count <= 10):
       results.append(e)

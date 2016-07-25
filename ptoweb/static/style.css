@@ -14,3 +14,14 @@ span.error {
 span.info {
   color: orange;
 }
+
+.obs_obs {
+  margin-left: 1em;
+  margin-bottom: 1em;
+}
+
+.obs_path {
+  border: solid 0.1em gray;
+  padding: 0.3em;
+  margin-bottom: 1em;
+}

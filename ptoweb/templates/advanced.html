@@ -20,26 +20,83 @@
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
 
     <script>
+     function addCriterion() {
+       if($('#c0').css('display') == 'none')
+         $('#c2').css('display','block');
+       else if($('#c1').css('display') == 'none')
+         $('#c1').css('display','block');
+       else if($('#c2').css('display') == 'none')
+         $('#c2').css('display','block');
+       else if($('#c3').css('display') == 'none')
+         $('#c3').css('display','block');
+     }
+
+     function removeCriterion() {
+       if($('#c3').css('display') == 'block') {
+         $('#c3').css('display','none');
+         $('#c3_cond_name').val('');
+       }
+       else if($('#c2').css('display') == 'block') {
+         $('#c2').css('display','none');
+         $('#c2_cond_name').val('');
+       }
+       else if($('#c1').css('display') == 'block') {
+         $('#c1').css('display','none');
+         $('#c1_cond_name').val('');
+       }
+     }
+
+
+     function getCriterion(prefix) {
+       var criterion =
+          $(prefix + '_combinator').val() + ':' + $(prefix + '_operator').val() + ':'
+             + $(prefix + '_cond_name').val() + ':' + $(prefix + '_cond_value').val();
+       return criterion;
+     }
+
+     function formatTime(timestamp) {
+       var d = new Date(timestamp);
+       return d.toUTCString();
+     }
+
      function getData() {
        var on_path = encodeURIComponent($('#on_path_ips').val());
-       var condition_criterion1 = $('#c_combinator').val() + ':' + $('#c_operator').val() + ':'
-                                  + $('#c_cond_name').val() + ':' + $('#c_cond_value').val();
-       condition_criterion1 = encodeURIComponent(condition_criterion1);
+       var sip = encodeURIComponent($('#sip_ips').val());
+       var dip = encodeURIComponent($('#dip_ips').val());
+
+
+       var crit0 = getCriterion('#c0');
+       var crit1 = getCriterion('#c1');
+       var crit2 = getCriterion('#c2');
+       var crit3 = getCriterion('#c3');
+
+
+       var condition_criteria = crit0 + ',' + crit1 + ',' + crit2 + ',' + crit3;
+
+       $('#show_data').text('Loading....');
 
        $.ajax({
-          'url' : '/api/advanced?on_path=' + on_path + '&condition_criterias=' + condition_criterion1
+          'url' : '/api/advanced?on_path=' + on_path + '&condition_criterias=' + encodeURIComponent(condition_criteria) + '&sip=' + sip + '&dip=' + dip
         }).done(function(data) {
               var count = data.count;
               data = data.results;
               $('#results_total').text(count);
               $('#results').text(data.length);
-              var rows = [];
+              var entries = [];
               $.each(data, function(k, v) {
-                  var paths = v.path.join('<br>');
-                  var conditions = v.conditions.join('<br>');
-                  rows.push('<tr><td>' + paths + '</td><td>' + conditions + '</td></tr>')
+                  entries.push('<div class="obs_path">');
+                  entries.push('<b><i>' + v._id.join(' - ') + '</b></i><br>');
+                  entries.push('<p class="obs_obs">We have ' + v.observations.length + ' observation(s) on this path.</p>');
+                  $.each(v.observations, function(k1, v1) {
+                       entries.push('<div class="obs_obs">');
+                       entries.push('<b>Analyzer: </b> ' + v1.analyzer + '<br>');
+                       entries.push('<b>Time: </b> ' + formatTime(v1.time.from['$date']) + ' to ' + formatTime(v1.time.to['$date']) + '<br>');
+                       entries.push('<b>Conditions:</b> ' + v1.conditions.join(', ') + '<br>');
+                       entries.push('</div>');
+                    });
+                  entries.push('</div>');
                 });
-              document.getElementById('show_data').innerHTML = rows.join("\n");
+              document.getElementById('show_data').innerHTML = entries.join("\n");
         }).fail(function(data) {
               alert("failed");
         });
@@ -95,21 +152,21 @@
 
       <div style="width: 55%;">
       
-        <fieldset class="form-group">
+        <div class="form-group">
           <label>Startpoint</label>
-          <input id="sip_ip" type="text" class="form-control" placeholder="">
+          <input id="sip_ips" type="text" class="form-control" placeholder="">
           <small class="text-muted">Enter an IPv4 or IPv6 address.</small> 
-        </fieldset>
-        <fieldset class="form-group">
+        </div>
+        <div class="form-group">
           <label>On path</label>
           <input id="on_path_ips" type="text" class="form-control" placeholder="">
           <small class="text-muted">Enter IPv4 or IPv6 addresses that should be contained within the path. Use comma to separate multiple addresses.</small>
-        </fieldset>
-        <fieldset class="form-group">
+        </div>
+        <div class="form-group">
           <label>Endpoint</label>
-          <input id="dip_ip" type="text" class="form-control" placeholder="">
+          <input id="dip_ips" type="text" class="form-control" placeholder="">
           <small class="text-muted">Enter an IPv4 or IPv6 address.</small>
-        </fieldset>
+        </div>
       </div>
 
 
@@ -119,41 +176,133 @@
         Specify filter criteria for path conditions.
       </p>
 
-      <h3>Criterion 1</h3>
 
-      <div style="width: 55%; border: solid 0.2em gray; padding: 0.2em;" class="row-fluid-well">
-        <fieldset class="form-group">
+      <fieldset style="width: 55%; padding: 0.2em;" id="c0">
+        <legend>Criterion 1</legend>
+        <div class="form-group">
           <label>Combinator</label>
-          <select id="c_combinator" class="form-control">
+          <select id="c0_combinator" class="form-control">
             <option value="must">MUST</option>
             <option value="one_of">ONE OF</option>
           </select>
-        </fieldset>
-        <fieldset class="form-group">
+        </div>
+        <div class="form-group">
           <label>Operator</label>
-          <select id="c_operator" class="form-control">
+          <select id="c0_operator" class="form-control">
             <option value="==">equals</option>
             <option value="!=">not equals</option>
             <option value="?">exists</option>
           </select>
           <small class="text-muted">Select an operator.</small>
-        </fieldset>
-        <fieldset class="form-group">
+        </div>
+        <div class="form-group">
           <label>Condition</label>
-          <input id="c_cond_name" type="text" class="form-control" placeholder="">
+          <input id="c0_cond_name" type="text" class="form-control" placeholder="">
           <small class="text-muted">Enter the name of a condition.</small>
-        </fieldset>
-        <fieldset class="form-group">
+        </div>
+        <div class="form-group">
           <label>Value</label>
-          <input id="c_cond_value" type="text" class="form-control" placeholder="">
+          <input id="c0_cond_value" type="text" class="form-control" placeholder="">
           <small class="text-muted">Enter a value.</small>
-        </fieldset>
-      </div>
+        </div>
+      </fieldset>
+
+      <fieldset style="width: 55%; padding: 0.2em; display: none;" id="c1">
+        <legend>Criterion 2</legend>
+        <div class="form-group">
+          <label>Combinator</label>
+          <select id="c1_combinator" class="form-control">
+            <option value="must">MUST</option>
+            <option value="one_of">ONE OF</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Operator</label>
+          <select id="c1_operator" class="form-control">
+            <option value="==">equals</option>
+            <option value="!=">not equals</option>
+            <option value="?">exists</option>
+          </select>
+          <small class="text-muted">Select an operator.</small>
+        </div>
+        <div class="form-group">
+          <label>Condition</label>
+          <input id="c1_cond_name" type="text" class="form-control" placeholder="">
+          <small class="text-muted">Enter the name of a condition.</small>
+        </div>
+        <div class="form-group">
+          <label>Value</label>
+          <input id="c1_cond_value" type="text" class="form-control" placeholder="">
+          <small class="text-muted">Enter a value.</small>
+        </div>
+      </fieldset>
+
+      <fieldset style="width: 55%; padding: 0.2em; display: none;" id="c2">
+        <legend>Criterion 3</legend>
+        <div class="form-group">
+          <label>Combinator</label>
+          <select id="c2_combinator" class="form-control">
+            <option value="must">MUST</option>
+            <option value="one_of">ONE OF</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Operator</label>
+          <select id="c2_operator" class="form-control">
+            <option value="==">equals</option>
+            <option value="!=">not equals</option>
+            <option value="?">exists</option>
+          </select>
+          <small class="text-muted">Select an operator.</small>
+        </div>
+        <div class="form-group">
+          <label>Condition</label>
+          <input id="c2_cond_name" type="text" class="form-control" placeholder="">
+          <small class="text-muted">Enter the name of a condition.</small>
+        </div>
+        <div class="form-group">
+          <label>Value</label>
+          <input id="c2_cond_value" type="text" class="form-control" placeholder="">
+          <small class="text-muted">Enter a value.</small>
+        </div>
+      </fieldset>
+
+
+      <fieldset style="width: 55%; padding: 0.2em; display: none; " id="c3">
+        <legend>Criterion 4</legend>
+        <div class="form-group">
+          <label>Combinator</label>
+          <select id="c3_combinator" class="form-control">
+            <option value="must">MUST</option>
+            <option value="one_of">ONE OF</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Operator</label>
+          <select id="c3_operator" class="form-control">
+            <option value="==">equals</option>
+            <option value="!=">not equals</option>
+            <option value="?">exists</option>
+          </select>
+          <small class="text-muted">Select an operator.</small>
+        </div>
+        <div class="form-group">
+          <label>Condition</label>
+          <input id="c3_cond_name" type="text" class="form-control" placeholder="">
+          <small class="text-muted">Enter the name of a condition.</small>
+        </div>
+        <div class="form-group">
+          <label>Value</label>
+          <input id="c3_cond_value" type="text" class="form-control" placeholder="">
+          <small class="text-muted">Enter a value.</small>
+        </div>
+      </fieldset>
 
      <p></p>
 
         <button type="submit" class="btn btn-primary">Query data</button>
-        <button type="submit" class="btn btn-primary">Add criterion</button>
+        <button type="button" onclick="addCriterion();" class="btn btn-primary">Add new criterion</button>
+        <button type="button" onclick="removeCriterion();" class="btn btn-primary">Remove last criterion</button>
       </form>
 
       <h2>Results</h2>
@@ -161,14 +310,7 @@
       <p>Showing <span id="results">0</span> out of <span id="results_total">0</span> results.</p>
       
       <div style="max-width: 75%;">
-      <table class="table">
-        <thead>
-          <tr><th>Path</th><th>Conditions</th></tr>
-        </thead>
-        <tbody id="show_data">
-          <tr><td><span class="info">(no data to show)</span></td><td id="uploads_total"><span class="info">(no data to show)</span></td></tr>
-        </tbody>
-      </table>
+      <div id="show_data"></div>
       </div>
 
       
