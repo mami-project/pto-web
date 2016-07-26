@@ -55,6 +55,17 @@ def teardown_request(exception):
     mongo_client.close()
 
 
+def from_comma_separated(data):
+  if(data == None or data == ''):
+    return []
+  return list(map(lambda a: a.strip(), data.split(',')))
+
+def from_colon_separated(data):
+  if(data == None or data == ''):
+    return []
+  return list(map(lambda a: a.strip(), data.split(':')))
+
+
 import ptoweb.api
 import ptoweb.page
 

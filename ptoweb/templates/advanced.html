@@ -75,8 +75,11 @@
 
        $('#show_data').text('Loading....');
 
+       var urlpart = 'advanced?on_path=' + on_path + '&condition_criteria=' + encodeURIComponent(condition_criteria) + '&sip=' + sip + '&dip=' + dip;
+       $('#directlink').attr('href',urlpart);
+
        $.ajax({
-          'url' : '/api/advanced?on_path=' + on_path + '&condition_criterias=' + encodeURIComponent(condition_criteria) + '&sip=' + sip + '&dip=' + dip
+          'url' : '/api/' + urlpart
         }).done(function(data) {
               var count = data.count;
               data = data.results;
@@ -154,17 +157,17 @@
       
         <div class="form-group">
           <label>Startpoint</label>
-          <input id="sip_ips" type="text" class="form-control" placeholder="">
+          <input id="sip_ips" type="text" class="form-control" placeholder="" value="{{ ','.join(sip) }}">
           <small class="text-muted">Enter an IPv4 or IPv6 address.</small> 
         </div>
         <div class="form-group">
           <label>On path</label>
-          <input id="on_path_ips" type="text" class="form-control" placeholder="">
+          <input id="on_path_ips" type="text" class="form-control" placeholder="" value="{{ ','.join(on_path) }}">
           <small class="text-muted">Enter IPv4 or IPv6 addresses that should be contained within the path. Use comma to separate multiple addresses.</small>
         </div>
         <div class="form-group">
           <label>Endpoint</label>
-          <input id="dip_ips" type="text" class="form-control" placeholder="">
+          <input id="dip_ips" type="text" class="form-control" placeholder="" value="{{ ','.join(dip) }}">
           <small class="text-muted">Enter an IPv4 or IPv6 address.</small>
         </div>
       </div>
@@ -176,127 +179,42 @@
         Specify filter criteria for path conditions.
       </p>
 
-
-      <fieldset style="width: 55%; padding: 0.2em;" id="c0">
-        <legend>Criterion 1</legend>
+       
+      {% set i = 0 %}
+      {% for prefix in ['c0','c1','c2','c3'] %}
+      <fieldset style="width: 55%; padding: 0.2em; display: {{ "block" if i == 0 or i < count else "none"}}" id="{{prefix}}">
+        <legend>Criterion {{i + 1}}</legend>
         <div class="form-group">
           <label>Combinator</label>
-          <select id="c0_combinator" class="form-control">
-            <option value="must">MUST</option>
-            <option value="one_of">ONE OF</option>
+          <select id="{{prefix}}_combinator" class="form-control">
+            {% for combinator in [('must','MUST'),('one_of','ONE OF')] %}
+            <option value="{{combinator[0]}}" {{ "selected" if condition_criteria[i][0] == combinator[0] else "" }}>{{combinator[1]}}</option>
+            {% endfor %}
           </select>
         </div>
         <div class="form-group">
           <label>Operator</label>
-          <select id="c0_operator" class="form-control">
-            <option value="==">equals</option>
-            <option value="!=">not equals</option>
-            <option value="?">exists</option>
+          <select id="{{prefix}}_operator" class="form-control">
+            {% for operator in [('==','equals'),('!=','not equals'),('?','exists')] %}
+            <option value="{{operator[0]}}" {{ "selected" if condition_criteria[i][1] == operator[0] else "" }}>{{operator[1]}}</option>
+            {% endfor %}
           </select>
           <small class="text-muted">Select an operator.</small>
         </div>
         <div class="form-group">
           <label>Condition</label>
-          <input id="c0_cond_name" type="text" class="form-control" placeholder="">
+          <input id="{{prefix}}_cond_name" type="text" class="form-control" placeholder="" value="{{condition_criteria[i][2]}}">
           <small class="text-muted">Enter the name of a condition.</small>
         </div>
         <div class="form-group">
           <label>Value</label>
-          <input id="c0_cond_value" type="text" class="form-control" placeholder="">
+          <input id="{{prefix}}_cond_value" type="text" class="form-control" placeholder="" value="{{condition_criteria[i][3]}}">
           <small class="text-muted">Enter a value.</small>
         </div>
       </fieldset>
-
-      <fieldset style="width: 55%; padding: 0.2em; display: none;" id="c1">
-        <legend>Criterion 2</legend>
-        <div class="form-group">
-          <label>Combinator</label>
-          <select id="c1_combinator" class="form-control">
-            <option value="must">MUST</option>
-            <option value="one_of">ONE OF</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Operator</label>
-          <select id="c1_operator" class="form-control">
-            <option value="==">equals</option>
-            <option value="!=">not equals</option>
-            <option value="?">exists</option>
-          </select>
-          <small class="text-muted">Select an operator.</small>
-        </div>
-        <div class="form-group">
-          <label>Condition</label>
-          <input id="c1_cond_name" type="text" class="form-control" placeholder="">
-          <small class="text-muted">Enter the name of a condition.</small>
-        </div>
-        <div class="form-group">
-          <label>Value</label>
-          <input id="c1_cond_value" type="text" class="form-control" placeholder="">
-          <small class="text-muted">Enter a value.</small>
-        </div>
-      </fieldset>
-
-      <fieldset style="width: 55%; padding: 0.2em; display: none;" id="c2">
-        <legend>Criterion 3</legend>
-        <div class="form-group">
-          <label>Combinator</label>
-          <select id="c2_combinator" class="form-control">
-            <option value="must">MUST</option>
-            <option value="one_of">ONE OF</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Operator</label>
-          <select id="c2_operator" class="form-control">
-            <option value="==">equals</option>
-            <option value="!=">not equals</option>
-            <option value="?">exists</option>
-          </select>
-          <small class="text-muted">Select an operator.</small>
-        </div>
-        <div class="form-group">
-          <label>Condition</label>
-          <input id="c2_cond_name" type="text" class="form-control" placeholder="">
-          <small class="text-muted">Enter the name of a condition.</small>
-        </div>
-        <div class="form-group">
-          <label>Value</label>
-          <input id="c2_cond_value" type="text" class="form-control" placeholder="">
-          <small class="text-muted">Enter a value.</small>
-        </div>
-      </fieldset>
-
-
-      <fieldset style="width: 55%; padding: 0.2em; display: none; " id="c3">
-        <legend>Criterion 4</legend>
-        <div class="form-group">
-          <label>Combinator</label>
-          <select id="c3_combinator" class="form-control">
-            <option value="must">MUST</option>
-            <option value="one_of">ONE OF</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Operator</label>
-          <select id="c3_operator" class="form-control">
-            <option value="==">equals</option>
-            <option value="!=">not equals</option>
-            <option value="?">exists</option>
-          </select>
-          <small class="text-muted">Select an operator.</small>
-        </div>
-        <div class="form-group">
-          <label>Condition</label>
-          <input id="c3_cond_name" type="text" class="form-control" placeholder="">
-          <small class="text-muted">Enter the name of a condition.</small>
-        </div>
-        <div class="form-group">
-          <label>Value</label>
-          <input id="c3_cond_value" type="text" class="form-control" placeholder="">
-          <small class="text-muted">Enter a value.</small>
-        </div>
-      </fieldset>
+      {% set i = i + 1 %}
+      {% endfor %}
+     
 
      <p></p>
 
@@ -305,9 +223,12 @@
         <button type="button" onclick="removeCriterion();" class="btn btn-primary">Remove last criterion</button>
       </form>
 
+      <p><a href="#" id="directlink">Direct link.</a></p>
+
       <h2>Results</h2>
 
       <p>Showing <span id="results">0</span> out of <span id="results_total">0</span> results.</p>
+      
       
       <div style="max-width: 75%;">
       <div id="show_data"></div>

@@ -1,4 +1,4 @@
-from ptoweb import cache, app, get_uploads_collection, get_observations_collection
+from ptoweb import cache, app, get_uploads_collection, get_observations_collection, from_comma_separated, from_colon_separated
 from flask import Response, g, request
 from bson import json_util
 import json
@@ -52,16 +52,6 @@ def api_index():
   return json200({'status':'running'})
 
 
-def from_comma_separated(data):
-  if(data == None or data == ''):
-    return []
-  return list(map(lambda a: a.strip(), data.split(',')))
-
-def from_colon_separated(data):
-  if(data == None or data == ''):
-    return []
-  return list(map(lambda a: a.strip(), data.split(':')))
-
 @app.route('/api/refresh')
 def api_refresh():
   observations = get_observations_collection()
@@ -107,12 +97,12 @@ def api_advanced():
   else:
     dip_match = {'dip' : {'$in' : dip}}
 
-  condition_criterias = from_comma_separated(request.args.get('condition_criterias'))
+  condition_criteria = from_comma_separated(request.args.get('condition_criteria'))
 
   condition_matches_must = []
   or_filter = []
 
-  for condition_criterion in condition_criterias:
+  for condition_criterion in condition_criteria:
     parts = from_colon_separated(condition_criterion)
     print(parts)
 
@@ -189,6 +179,7 @@ def api_conditions_total():
     return json200(result + non_existing)
 
   pipeline = [
+    {'$match' : {'action_ids.0.valid' : True}},
     {'$unwind' :'$conditions'}, 
     {'$match' : {'conditions' : {'$in' : conditions_filtered}}},
     {'$group' : {'_id' : '$conditions', 'count': {'$sum' : 1}}},
