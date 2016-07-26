@@ -53,6 +53,7 @@ def api_index():
 
 
 @app.route('/api/refresh')
+@require_auth
 def api_refresh():
   observations = get_observations_collection()
 
