@@ -31,6 +31,11 @@ def get_observations_collection():
   return g.mongo_client_observations['ptodev-obs']['observations']
 
 
+def get_obversations_collection_pre_grouped():
+
+  return g.mongo_client_observations['ptodev-obs']['observations_web']
+
+
 @app.before_request
 def before_request():
   """

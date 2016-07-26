@@ -81,19 +81,21 @@
        $.ajax({
           'url' : '/api/' + urlpart
         }).done(function(data) {
+              var max_count = data.max;
               var count = data.count;
               data = data.results;
               $('#results_total').text(count);
               $('#results').text(data.length);
+              $('#results_max').text(max_count);
               var entries = [];
               $.each(data, function(k, v) {
                   entries.push('<div class="obs_path">');
-                  entries.push('<b><i>' + v._id.join(' - ') + '</b></i><br>');
+                  entries.push('<b class="path"><i>' + v.path.join(' - ') + '</b></i><br>');
                   entries.push('<p class="obs_obs">We have ' + v.observations.length + ' observation(s) on this path.</p>');
                   $.each(v.observations, function(k1, v1) {
                        entries.push('<div class="obs_obs">');
                        entries.push('<b>Analyzer: </b> ' + v1.analyzer + '<br>');
-                       entries.push('<b>Time: </b> ' + formatTime(v1.time.from['$date']) + ' to ' + formatTime(v1.time.to['$date']) + '<br>');
+                       entries.push('<b>Time: </b> ' + formatTime(v1.time.from['$date']) + ' <b>to</b> ' + formatTime(v1.time.to['$date']) + '<br>');
                        entries.push('<b>Conditions:</b> ' + v1.conditions.join(', ') + '<br>');
                        entries.push('</div>');
                     });
@@ -153,7 +155,7 @@
         no filtering for the field should be done.
       </p>
 
-      <div style="width: 55%;">
+      <div style="max-width: 45em;">
       
         <div class="form-group">
           <label>Startpoint</label>
@@ -182,7 +184,7 @@
        
       {% set i = 0 %}
       {% for prefix in ['c0','c1','c2','c3'] %}
-      <fieldset style="width: 55%; padding: 0.2em; display: {{ "block" if i == 0 or i < count else "none"}}" id="{{prefix}}">
+      <fieldset style="max-width: 45em; padding: 0.2em; display: {{ "block" if i == 0 or i < count else "none"}}" id="{{prefix}}">
         <legend>Criterion {{i + 1}}</legend>
         <div class="form-group">
           <label>Combinator</label>
@@ -227,10 +229,10 @@
 
       <h2>Results</h2>
 
-      <p>Showing <span id="results">0</span> out of <span id="results_total">0</span> results.</p>
+      <p>Showing <span id="results">0</span> out of <span id="results_total">0</span> matching paths. Currently we know about <span id="results_max">0</span> paths in total.</p>
       
       
-      <div style="max-width: 75%;">
+      <div style="max-width: 50em;">
       <div id="show_data"></div>
       </div>
 

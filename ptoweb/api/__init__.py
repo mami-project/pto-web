@@ -1,4 +1,4 @@
-from ptoweb import cache, app, get_uploads_collection, get_observations_collection, from_comma_separated, from_colon_separated
+from ptoweb import cache, app, get_uploads_collection, get_observations_collection, from_comma_separated, from_colon_separated, get_obversations_collection_pre_grouped
 from flask import Response, g, request
 from bson import json_util
 import json
@@ -58,15 +58,18 @@ def api_refresh():
 
   pipeline = [
      {'$match' : {'action_ids.0.valid' : True}},
-     {'$project' : {'_id' : 0, 'path' : 1, 'conditions' : 1,
-                    'time' : 1, 'value' : 1
+     {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
+                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
+                    'dip' : { '$arrayElemAt' : ['$path', -1]},
+                    'sip' : { '$arrayElemAt' : ['$path',  0]}
        }},
-     {'$group': {'_id' : '$path', 'path': {'$first' : '$path'}, 'observations': 
-           {'$addToSet': {'conditions': '$conditions', 'time': '$time', 'value': '$value'}}}},
-     {'$project' : {'_id' : 0, 'path' : 1, 'observations' : 1}},
-     {'$limit' : 10},
-     {'$out' : 'observations_pre'}
+     {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
+           {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
+     {'$project' : {'_id' : 0, 'path' : '$_id', 'observations' : 1, 'dip' : 1, 'sip' : 1}},
+     {'$out' : 'observations_web'}
     ]
+
+  print(pipeline)
 
   observations.aggregate(pipeline, allowDiskUse = True)
 
@@ -76,11 +79,17 @@ def api_refresh():
 @app.route('/api/advanced')
 def api_advanced():
 
-  observations = get_observations_collection()
+  observations = get_obversations_collection_pre_grouped()
 
   on_path = from_comma_separated(request.args.get('on_path'))
   sip = from_comma_separated(request.args.get('sip'))
   dip = from_comma_separated(request.args.get('dip'))
+
+  cache_key = "/api/advanced/max"
+  max_path_count = get_from_cache(cache_key)
+  if(max_path_count == None):
+    max_path_count = observations.count()
+    put_to_cache(cache_key, max_path_count)
 
   if(len(on_path) == 0):
     on_path_match = {}
@@ -115,41 +124,34 @@ def api_advanced():
         continue;
 
       if(operator == '?'):
-        condition_matches_must.append({'$match' : {'observations.conditions' : cond_name}})
+        condition_matches_must.append({'observations.conditions' : cond_name})
       or_filter.append({'conditions' : cond_name})
 
 
-  pipeline = [
-     {'$match' : {'action_ids.0.valid' : True}},
-     {'$match' : on_path_match},
-     {'$match' : {'$or' : or_filter}},
-     {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
-                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
-                    'dip' : { '$arrayElemAt' : ['$path', -1]},
-                    'sip' : { '$arrayElemAt' : ['$path',  0]}
-       }},
-     {'$match' : sip_match},
-     {'$match' : dip_match},
-     {'$group': {'_id' : '$path', 'observations': 
-           {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
-    ]
+  matches = {}
 
-  pipeline += condition_matches_must
+  if(dip_match != {}):
+    matches.update(dip_match)
+  if(sip_match != {}):
+    matches.update(sip_match)
+  if(on_path_match != {}):
+    matches.update(on_path_match)
+  
+  for condition_match_must in condition_matches_must:
+    matches.update(condition_match_must)
 
-  pipeline += [{'$limit' : 10}]
+  
 
-  print(pipeline)
+  print(matches)
 
   results = []
   count = 0
-  for e in observations.aggregate(pipeline, allowDiskUse = True):
-    count += 1
-    if(count <= 10):
-      results.append(e)
+  results = list(observations.find(matches).limit(10))
+  count = observations.count(matches)
 
   print(count)
 
-  return json200({'count' : count, 'results' : results})
+  return json200({'count' : count, 'results' : results, 'max' : max_path_count})
 
 
 @app.route('/api/conditions_total')

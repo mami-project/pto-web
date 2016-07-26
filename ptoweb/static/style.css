@@ -24,4 +24,10 @@ span.info {
   border: solid 0.1em gray;
   padding: 0.3em;
   margin-bottom: 1em;
+  overflow: auto;
+  line-height: 150%;
+}
+
+.path {
+  font-size: 90%;
 }
