@@ -22,6 +22,12 @@ def observatory():
   return render_template("observatory.html")
 
 
+def to_int(value):
+  try:
+    return int(value, 10)
+  except:
+    return 0
+
 @app.route('/advanced')
 def advanced():
   
@@ -29,6 +35,9 @@ def advanced():
   sip = from_comma_separated(request.args.get('sip'))
   dip = from_comma_separated(request.args.get('dip'))
   condition_criteria = from_comma_separated(request.args.get('condition_criteria'))
+  force_load = True if request.args.get('l') == 'y' else False
+
+  page_num = to_int(request.args.get('page_num'))
 
   if(len(condition_criteria) > 4):
     return err400("Too many condition criteria (max. 4 allowed): " + str(condition_criteria))
@@ -47,10 +56,12 @@ def advanced():
 
   count = len(condition_criteria)
 
+  
+
   while len(condition_criteria) < 4:
     condition_criteria.append(['must','?','',''])
 
   return render_template("advanced.html" ,
                          on_path = on_path, sip = sip, dip = dip,
                          condition_criteria = condition_criteria,
-                         count = count)
+                         count = count, page_num = str(page_num), force_load = force_load)

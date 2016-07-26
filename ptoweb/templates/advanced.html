@@ -59,7 +59,12 @@
        return d.toUTCString();
      }
 
-     function getData() {
+     function nextPage() {
+       var page_num = parseInt($('#page_num').text());
+       getData(page_num);
+     }
+
+     function getData(page_num) {
        var on_path = encodeURIComponent($('#on_path_ips').val());
        var sip = encodeURIComponent($('#sip_ips').val());
        var dip = encodeURIComponent($('#dip_ips').val());
@@ -75,8 +80,9 @@
 
        $('#show_data').text('Loading....');
 
-       var urlpart = 'advanced?on_path=' + on_path + '&condition_criteria=' + encodeURIComponent(condition_criteria) + '&sip=' + sip + '&dip=' + dip;
-       $('#directlink').attr('href',urlpart);
+       var urlbase = 'advanced?on_path=' + on_path + '&condition_criteria=' + encodeURIComponent(condition_criteria) + '&sip=' + sip + '&dip=' + dip
+       var urlpart = urlbase + '&page_num=' + page_num;
+       $('#directlink').attr('href',urlpart + '&l=y');
 
        $.ajax({
           'url' : '/api/' + urlpart
@@ -102,6 +108,7 @@
                   entries.push('</div>');
                 });
               document.getElementById('show_data').innerHTML = entries.join("\n");
+              $('#page_num').text(page_num + 1);
         }).fail(function(data) {
               alert("failed");
         });
@@ -118,7 +125,7 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
   </head>
-  <body>
+  <body onload={{"getData(" + page_num + ");" if force_load else ""}}>
     
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -146,7 +153,7 @@
 
       <h1>Observatory</h1>
 
-      <form action="javascript:getData()">
+      <form action="javascript:getData(0)">
 
       <h2>Path criteria</h2>
  
@@ -225,7 +232,7 @@
         <button type="button" onclick="removeCriterion();" class="btn btn-primary">Remove last criterion</button>
       </form>
 
-      <p><a href="#" id="directlink">Direct link.</a></p>
+      
 
       <h2>Results</h2>
 
@@ -233,8 +240,11 @@
       
       
       <div style="max-width: 50em;">
-      <div id="show_data"></div>
+      <div id="show_data"><span class="info">(no data to show)</span></div>
       </div>
+
+      <p>Page# <span id="page_num">{{page_num}}</span> <a id="nextlink" href="#show_data" onclick="nextPage()">(next page)</a></p>
+      <p><a href="#" id="directlink">Direct link.</a></p>
 
       
 

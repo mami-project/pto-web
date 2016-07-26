@@ -75,6 +75,12 @@ def api_refresh():
 
   return json200({'ok' : True})
 
+def to_int(value):
+  try:
+    return int(value, 10)
+  except:
+    return 0
+
 
 @app.route('/api/advanced')
 def api_advanced():
@@ -84,6 +90,8 @@ def api_advanced():
   on_path = from_comma_separated(request.args.get('on_path'))
   sip = from_comma_separated(request.args.get('sip'))
   dip = from_comma_separated(request.args.get('dip'))
+
+  page_num = to_int(request.args.get('page_num'))
 
   cache_key = "/api/advanced/max"
   max_path_count = get_from_cache(cache_key)
@@ -146,7 +154,7 @@ def api_advanced():
 
   results = []
   count = 0
-  results = list(observations.find(matches).limit(10))
+  results = list(observations.find(matches).skip(page_num*10).limit(10))
   count = observations.count(matches)
 
   print(count)
