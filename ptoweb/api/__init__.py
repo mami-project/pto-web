@@ -133,8 +133,7 @@ def api_advanced():
         continue;
 
       if(operator == '?'):
-        condition_matches_must.append({'observations.conditions' : cond_name})
-      or_filter.append({'conditions' : cond_name})
+        condition_matches_must.append(cond_name)
 
 
   matches = {}
@@ -146,8 +145,7 @@ def api_advanced():
   if(on_path_match != {}):
     matches.update(on_path_match)
   
-  for condition_match_must in condition_matches_must:
-    matches.update(condition_match_must)
+  matches['observations.conditions'] = {'$all' : condition_matches_must}
 
   
 
