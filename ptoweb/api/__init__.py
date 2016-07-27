@@ -145,7 +145,8 @@ def api_advanced():
   if(on_path_match != {}):
     matches.update(on_path_match)
   
-  matches['observations.conditions'] = {'$all' : condition_matches_must}
+  if(len(condition_matches_must) > 0):
+    matches['observations.conditions'] = {'$all' : condition_matches_must}
 
   
 
