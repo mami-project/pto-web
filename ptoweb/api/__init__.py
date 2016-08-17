@@ -39,8 +39,12 @@ def put_to_cache(key, value):
   cache.set(key, value, timeout = (app.config['CACHE_TIMEOUT']))
 
 
+def cors(resp):
+  resp.headers['Access-Control-Allow-Origin'] = '*'
+  return resp
+
 def json200(obj):
-  return Response(json.dumps(obj, default=json_util.default), status=200, mimetype='application/json')
+  return cors(Response(json.dumps(obj, default=json_util.default), status=200, mimetype='application/json'))
 
 
 @app.route('/api/')
@@ -67,7 +71,7 @@ def api_refresh():
      {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
            {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
      {'$project' : {'_id' : 0, 'path' : '$_id', 'observations' : 1, 'dip' : 1, 'sip' : 1}},
-     {'$out' : 'observations_web'}
+     {'$out' : 'observations_exp'}
     ]
 
   print(pipeline)
