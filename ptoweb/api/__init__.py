@@ -4,6 +4,7 @@ from bson import json_util
 import json
 from ptoweb.api.auth import require_auth
 import re
+from datetime import datetime
 
 
 def condition_exists(name):
@@ -90,7 +91,7 @@ def to_int(value):
 @app.route('/api/advanced')
 def api_advanced():
 
-  observations = get_obversations_collection_pre_grouped()
+  observations = get_observations_collection()
 
   on_path = from_comma_separated(request.args.get('on_path'))
   sip = from_comma_separated(request.args.get('sip'))
@@ -121,6 +122,15 @@ def api_advanced():
 
   condition_criteria = from_comma_separated(request.args.get('condition_criteria'))
 
+  time_from = to_int(request.args.get('from'))
+  time_to = to_int(request.args.get('to'))
+
+  if(time_from == 0 and time_to == 0):
+    time_to = 1567204529149
+
+  time_from = datetime.utcfromtimestamp(time_from / 1000.0)
+  time_to = datetime.utcfromtimestamp(time_to / 1000.0)
+
   condition_matches_must = []
   or_filter = []
 
@@ -140,26 +150,70 @@ def api_advanced():
         condition_matches_must.append(cond_name)
 
 
-  matches = {}
+  matches_paths = {}
 
   if(dip_match != {}):
-    matches.update(dip_match)
+    matches_paths.update(dip_match)
   if(sip_match != {}):
-    matches.update(sip_match)
+    matches_paths.update(sip_match)
   if(on_path_match != {}):
-    matches.update(on_path_match)
+    matches_paths.update(on_path_match)
+
+  matches_conditions = {}
   
   if(len(condition_matches_must) > 0):
-    matches['observations.conditions'] = {'$all' : condition_matches_must}
+    matches_conditions = {'$all' : condition_matches_must}
+
+  
+  pipeline = [
+    # First filter for results with a recent valid action_id
+    {'$match' : {'action_ids.0.valid' : True}}, 
+
+    # Then do a projection for extracting dip and sip
+    {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
+                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
+                    'dip' : { '$arrayElemAt' : ['$path', -1]},
+                    'sip' : { '$arrayElemAt' : ['$path',  0]}
+       }},
+
+    # Filter for time
+    {'$match' : {'time.from' : {'$gte' : time_from}, 'time.to' : {'$lte' : time_to}}},
+
+    # Filter for paths
+    {'$match' : matches_paths},
+
+    # Now group by path
+    {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
+           {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
+
+    # Some projection to remove _id for the final result
+    {'$project' : {'_id' : 0, 'path' : '$_id', 'observations' : 1, 'dip' : 1, 'sip' : 1}},
+
+    # Now filter for condition criteria
+    {'$match' : {'observations.conditions' : matches_conditions}},
+   
+    
+  ]
+ 
+  pipeline_skip_n_limit = [
+    # Skip'n'limit
+    {'$skip' : page_num*10},
+    {'$limit' : 10}
+  ]
+
+  pipeline_count = [
+    # Count
+    {'$group' : {'_id' : None, 'count' : {'$sum' : 1}}}
+  ]
 
   
 
-  print(matches)
+  print(pipeline)
 
   results = []
   count = 0
-  results = list(observations.find(matches).skip(page_num*10).limit(10))
-  count = observations.count(matches)
+  results = list(observations.aggregate(pipeline + pipeline_skip_n_limit, allowDiskUse=True))
+  count = list(observations.aggregate(pipeline + pipeline_count, allowDiskUse=True))[0]['count']
 
   print(count)
 
