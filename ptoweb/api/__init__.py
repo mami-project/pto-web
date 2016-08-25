@@ -99,12 +99,6 @@ def api_advanced():
 
   page_num = to_int(request.args.get('page_num'))
 
-  cache_key = "/api/advanced/max"
-  max_path_count = get_from_cache(cache_key)
-  if(max_path_count == None):
-    max_path_count = observations.count()
-    put_to_cache(cache_key, max_path_count)
-
   if(len(on_path) == 0):
     on_path_match = {}
   else:
@@ -194,30 +188,20 @@ def api_advanced():
    
     
   ]
- 
-  pipeline_skip_n_limit = [
-    # Skip'n'limit
-    {'$skip' : page_num*10},
-    {'$limit' : 10}
-  ]
-
-  pipeline_count = [
-    # Count
-    {'$group' : {'_id' : None, 'count' : {'$sum' : 1}}}
-  ]
-
   
 
   print(pipeline)
 
   results = []
   count = 0
-  results = list(observations.aggregate(pipeline + pipeline_skip_n_limit, allowDiskUse=True))
-  count = list(observations.aggregate(pipeline + pipeline_count, allowDiskUse=True))[0]['count']
+  results = list(observations.aggregate(pipeline, allowDiskUse=True))
+  
+  for e in results:
+    count += 1
 
   print(count)
 
-  return json200({'count' : count, 'results' : results, 'max' : max_path_count})
+  return json200({'count' : count, 'results' : results[:10]})
 
 
 @app.route('/api/conditions_total')
