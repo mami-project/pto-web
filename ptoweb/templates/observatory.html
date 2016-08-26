@@ -28,7 +28,7 @@
        var name = encodeURIComponent($('#cond_name').val());
 
        $.ajax({
-         'url': '/api/conditions_total?name=' + name})
+         'url': './api/conditions_total?name=' + name})
        .done(function(data) {
          var rows = []
 

@@ -85,7 +85,7 @@
        $('#directlink').attr('href',urlpart + '&l=y');
 
        $.ajax({
-          'url' : '/api/' + urlpart
+          'url' : './api/' + urlpart
         }).done(function(data) {
               var max_count = data.max;
               var count = data.count;

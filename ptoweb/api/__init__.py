@@ -5,6 +5,7 @@ import json
 from ptoweb.api.auth import require_auth
 import re
 from datetime import datetime
+import pymongo.errors
 
 
 def condition_exists(name):
@@ -46,6 +47,9 @@ def cors(resp):
 
 def json200(obj):
   return cors(Response(json.dumps(obj, default=json_util.default), status=200, mimetype='application/json'))
+
+def json400(obj):
+  return cors(Response(json.dumps(obj, default=json_util.default), status=400, mimetype='application/json'))
 
 
 @app.route('/api/')
@@ -99,23 +103,6 @@ def api_advanced():
 
   page_num = to_int(request.args.get('page_num'))
 
-  if(len(on_path) == 0):
-    on_path_match = {}
-  else:
-    on_path_match = {'path' : {'$in' : on_path}}
-
-  if(len(sip) == 0):
-    sip_match = {}
-  else:
-    sip_match = {'sip' : {'$in' : sip}}
-
-  if(len(dip) == 0):
-    dip_match = {}
-  else:
-    dip_match = {'dip' : {'$in' : dip}}
-
-  condition_criteria = from_comma_separated(request.args.get('condition_criteria'))
-
   time_from = to_int(request.args.get('from'))
   time_to = to_int(request.args.get('to'))
 
@@ -124,6 +111,21 @@ def api_advanced():
 
   time_from = datetime.utcfromtimestamp(time_from / 1000.0)
   time_to = datetime.utcfromtimestamp(time_to / 1000.0)
+
+  pre_matches = {'$match' : {'action_ids.0.valid' : True, 'time.from' : {'$gte' : time_from}, 'time.to' : {'$lte' : time_to}}}
+
+  if(len(on_path) > 0):
+    pre_matches['$match']['path'] = {'$in' : on_path}
+
+  if(len(sip) > 0):
+    pre_matches['$match']['path.0'] = {'$in' : sip}
+
+  if(len(dip) == 0):
+    dip_match = {}
+  else:
+    dip_match = {'dip' : {'$in' : dip}}
+
+  condition_criteria = from_comma_separated(request.args.get('condition_criteria'))
 
   condition_matches_must = []
   or_filter = []
@@ -143,39 +145,36 @@ def api_advanced():
       if(operator == '?'):
         condition_matches_must.append(cond_name)
 
+      or_filter.append(cond_name)
 
-  matches_paths = {}
-
-  if(dip_match != {}):
-    matches_paths.update(dip_match)
-  if(sip_match != {}):
-    matches_paths.update(sip_match)
-  if(on_path_match != {}):
-    matches_paths.update(on_path_match)
+  pre_matches['$match']['conditions'] = {'$in' : or_filter}
 
   matches_conditions = {}
   
   if(len(condition_matches_must) > 0):
     matches_conditions = {'$all' : condition_matches_must}
-
   
-  pipeline = [
-    # First filter for results with a recent valid action_id
-    {'$match' : {'action_ids.0.valid' : True}}, 
 
+  pipeline = []
+
+  # Match as much as possible before $project
+  pipeline.append(pre_matches)
+
+  # Do the projection
+  pipeline.append(
     # Then do a projection for extracting dip and sip
     {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
                     'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
                     'dip' : { '$arrayElemAt' : ['$path', -1]},
                     'sip' : { '$arrayElemAt' : ['$path',  0]}
-       }},
+       }}
+  )
 
-    # Filter for time
-    {'$match' : {'time.from' : {'$gte' : time_from}, 'time.to' : {'$lte' : time_to}}},
+  # Append dip_match if present
+  if(dip_match != {}): pipeline.append({'$match' : dip_match})
 
-    # Filter for paths
-    {'$match' : matches_paths},
-
+  # Match by all the condition criterias, needs grouping
+  pipeline += [
     # Now group by path
     {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
            {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
@@ -192,16 +191,20 @@ def api_advanced():
 
   print(pipeline)
 
-  results = []
-  count = 0
-  results = list(observations.aggregate(pipeline, allowDiskUse=True))
+  try:
+    results = []
+    count = 0
+    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
   
-  for e in results:
-    count += 1
+    for e in results:
+      count += 1
 
-  print(count)
+    print(count)
 
-  return json200({'count' : count, 'results' : results[:10]})
+    return json200({'count' : count, 'results' : results[:10]})
+
+  except pymongo.errors.ExecutionTimeout:
+    return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
 
 
 @app.route('/api/conditions_total')

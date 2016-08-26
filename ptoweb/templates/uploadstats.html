@@ -21,7 +21,7 @@
     <script>
      function getUploadStatistics() {
       $.ajax({
-         'url': '/api/uploadstats'})
+         'url': './api/uploadstats'})
        .done(function(data) {
          document.getElementById('uploads_total').innerHTML = data.total;
 
