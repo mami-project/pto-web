@@ -124,7 +124,7 @@ def api_observations_conditions():
                 That is: a,b:c,d is (a AND b) OR (c AND d).
     time.from:  Time window `from`.
     time.to:    Time window `to`.
-    n:          Most n recent observations only.
+    n:          Limit query to n observations only.
     skip:       How many results to skip.
     limit:      How many results to return.
     sip:        Startpoints (comma separated)
@@ -186,19 +186,20 @@ def api_observations_conditions():
   pipeline = []
  
 
-  if(sip_filter != {} or dip_filter != {}):
-    pipeline += [{'$match':{'action_ids.0.valid' : True, 'path' : {'$in' : ips}}}, {'$limit' : n}]
+  path_match = {}
+  if(len(ips) > 0):
+    path_match = {'$in' : ips}
 
 
   pipeline += [
-    {'$sort' : OrderedDict([('time.from' , -1), ('time.to' , -1)])},
-    {'$limit' : n},
     {'$match' : {'action_ids.0.valid' : True,
                  '$or' : filters,
                  'time.from' : {'$gte' : time_from}, 
-                 'time.to' : {'$lte' : time_to}
+                 'time.to' : {'$lte' : time_to}, 
+                 'path' : path_match
                 }
     },
+    {'$limit' : n},
     {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
                     'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
                     'dip' : { '$arrayElemAt' : ['$path', -1]},
