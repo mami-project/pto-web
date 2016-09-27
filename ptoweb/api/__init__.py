@@ -184,21 +184,22 @@ def api_observations_conditions():
 
 
   pipeline = []
- 
+  
 
-  path_match = {}
-  if(len(ips) > 0):
-    path_match = {'$in' : ips}
-
-
-  pipeline += [
-    {'$match' : {'action_ids.0.valid' : True,
+  pre_matches = {
+     '$match' : {'action_ids.0.valid' : True,
                  '$or' : filters,
                  'time.from' : {'$gte' : time_from}, 
                  'time.to' : {'$lte' : time_to}, 
-                 'path' : path_match
                 }
-    },
+    }
+
+  if(len(ips) > 0):
+    pre_matches['$match']['path'] = {'$in' : ips}  
+
+
+  pipeline += [
+    pre_matches,
     {'$limit' : n},
     {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
                     'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
