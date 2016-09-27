@@ -211,7 +211,8 @@ def api_observations_conditions():
     {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
            {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
     {'$skip' : skip},
-    {'$limit' : limit}
+    {'$limit' : limit},
+    {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])}
   ]
 
   print(pipeline)
