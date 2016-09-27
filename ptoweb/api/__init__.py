@@ -188,11 +188,13 @@ def api_observations_conditions():
 
   pre_matches = {
      '$match' : {'action_ids.0.valid' : True,
-                 '$or' : filters,
                  'time.from' : {'$gte' : time_from}, 
                  'time.to' : {'$lte' : time_to}, 
                 }
     }
+
+  if(len(filters) > 0):
+    pre_matches['$match']['$or'] = filters
 
   if(len(ips) > 0):
     pre_matches['$match']['path'] = {'$in' : ips}  
