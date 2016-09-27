@@ -6,6 +6,7 @@ from ptoweb.api.auth import require_auth
 import re
 from datetime import datetime
 import pymongo.errors
+from collections import OrderedDict
 
 
 def condition_exists(name):
@@ -61,233 +62,22 @@ def api_index():
   return json200({'status':'running'})
 
 
-@app.route('/api/refresh')
-@require_auth
-def api_refresh():
-  observations = get_observations_collection()
-
-  pipeline = [
-     {'$match' : {'action_ids.0.valid' : True}},
-     {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
-                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
-                    'dip' : { '$arrayElemAt' : ['$path', -1]},
-                    'sip' : { '$arrayElemAt' : ['$path',  0]}
-       }},
-     {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
-           {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
-     {'$project' : {'_id' : 0, 'path' : '$_id', 'observations' : 1, 'dip' : 1, 'sip' : 1}},
-     {'$out' : 'observations_exp'}
-    ]
-
-  print(pipeline)
-
-  observations.aggregate(pipeline, allowDiskUse = True)
-
-  return json200({'ok' : True})
-
 def to_int(value):
   try:
     return int(value, 10)
   except:
     return 0
 
-
-@app.route('/api/advanced')
-def api_advanced():
-
-  observations = get_observations_collection()
-
-  on_path = from_comma_separated(request.args.get('on_path'))
-  sip = from_comma_separated(request.args.get('sip'))
-  dip = from_comma_separated(request.args.get('dip'))
-
-  page_num = to_int(request.args.get('page_num'))
-
-  time_from = to_int(request.args.get('from'))
-  time_to = to_int(request.args.get('to'))
-
-  if(time_from == 0 and time_to == 0):
-    time_to = 1567204529149
-
-  time_from = datetime.utcfromtimestamp(time_from / 1000.0)
-  time_to = datetime.utcfromtimestamp(time_to / 1000.0)
-
-  pre_matches = {'$match' : {'action_ids.0.valid' : True, 'time.from' : {'$gte' : time_from}, 'time.to' : {'$lte' : time_to}}}
-
-  if(len(on_path) > 0):
-    pre_matches['$match']['path'] = {'$in' : on_path}
-
-  if(len(sip) > 0):
-    pre_matches['$match']['path.0'] = {'$in' : sip}
-
-  if(len(dip) == 0):
-    dip_match = {}
-  else:
-    dip_match = {'dip' : {'$in' : dip}}
-
-  condition_criteria = from_comma_separated(request.args.get('condition_criteria'))
-
-  condition_matches_must = []
-  or_filter = []
-
-  for condition_criterion in condition_criteria:
-    parts = from_colon_separated(condition_criterion)
-    print(parts)
-
-    if(parts[0] == 'must'):
-      operator = parts[1]
-      cond_name = parts[2]
-      cond_value = parts[3]
-
-      if(len(cond_name) < 2):
-        continue;
-
-      if(operator == '?'):
-        condition_matches_must.append(cond_name)
-
-      or_filter.append(cond_name)
-
-  pre_matches['$match']['conditions'] = {'$in' : or_filter}
-
-  matches_conditions = {}
-  
-  if(len(condition_matches_must) > 0):
-    matches_conditions = {'$all' : condition_matches_must}
-  
-
-  pipeline = []
-
-  # Match as much as possible before $project
-  pipeline.append(pre_matches)
-
-  # Do the projection
-  pipeline.append(
-    # Then do a projection for extracting dip and sip
-    {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
-                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
-                    'dip' : { '$arrayElemAt' : ['$path', -1]},
-                    'sip' : { '$arrayElemAt' : ['$path',  0]}
-       }}
-  )
-
-  # Append dip_match if present
-  if(dip_match != {}): pipeline.append({'$match' : dip_match})
-
-  # Match by all the condition criterias, needs grouping
-  pipeline += [
-    # Now group by path
-    {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
-           {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
-
-    # Some projection to remove _id for the final result
-    {'$project' : {'_id' : 0, 'path' : '$_id', 'observations' : 1, 'dip' : 1, 'sip' : 1}},
-
-    # Now filter for condition criteria
-    {'$match' : {'observations.conditions' : matches_conditions}},
-   
-    
-  ]
-  
-
-  print(pipeline)
-
-  try:
-    results = []
-    count = 0
-    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
-  
-    for e in results:
-      count += 1
-
-    print(count)
-
-    return json200({'count' : count, 'results' : results[:10]})
-
-  except pymongo.errors.ExecutionTimeout:
-    return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
-
-
-@app.route('/api/conditions_total')
-def api_conditions_total():
-
-  observations = get_observations_collection()
-
-  conditions = list(map(lambda a: a.strip(), request.args.get('name').split(',')))
-  
-  conditions_filtered = []
-
-  non_existing = []
-
-  for condition in conditions:
-    if not condition_exists(condition):
-      non_existing.append({'_id' : condition, 'count' : -1})
-    else:
-      conditions_filtered.append(condition)
-
-  conditions_filtered = sorted(conditions_filtered)
-    
-
-  cache_key = '/api/conditions_total/' + ','.join(conditions_filtered)
-
-  result = get_from_cache(cache_key)
-  if result != None:
-    return json200(result + non_existing)
-
-  pipeline = [
-    {'$match' : {'action_ids.0.valid' : True}},
-    {'$unwind' :'$conditions'}, 
-    {'$match' : {'conditions' : {'$in' : conditions_filtered}}},
-    {'$group' : {'_id' : '$conditions', 'count': {'$sum' : 1}}},
-    {'$sort' : {'count' : -1}}
-   ]
-
-  result = list(observations.aggregate(pipeline))
-  put_to_cache(cache_key, result)
-
-  return json200(result + non_existing)
-
-
-@app.route('/api/conditions')
-def api_conditions():
+@app.route('/api/all_conditions')
+def api_all_conditions():
   """
-  Path: /api/conditions
-
-  Retrieve statistics about how many times a condition was observed on a path
-  (currently: an endpoint).
+  Path: /api/all_conditions
+  
+  Returns a dictionary of all conditions. 
+  Slow, uses cache.
   """
 
-  dip = request.args.get('dip')
-  sip = request.args.get('sip')
-
-  cache_key = '/api/conditions/' + dip + '/' + sip
-
-  result = get_from_cache(cache_key)
-  if result != None:
-    return json200(result)
-  
-  uploads = get_observations_collection()
-
-  sip_match = {}
-
-  if(sip != None and sip != ''):
-    sip_match = {'sip' : sip}
-
-  pipeline = [
-      {'$match' : {'action_ids.0.valid' : True}},
-      {'$match' : {'path' : dip}},
-      {'$unwind' : '$conditions'}, 
-      {'$project' : {'_id' : 1, 'conditions' : 1, 'sip' : { '$arrayElemAt': ['$path',0] },
-                     'dip' : { '$arrayElemAt' : ['$path', -1]}}},
-      {'$match' : sip_match},
-      {'$match' : {'dip': dip}},
-      {'$group' : {'_id' : { 'condition' : '$conditions', 'dip' : '$dip'}, 'count' : {'$sum' : 1}}},
-      {'$group' : {'_id' : '$_id.dip', 'data' : {'$addToSet' : { 'condition' : '$_id.condition', 'count' : '$count'}}}}
-    ]
-
-  result = list(uploads.aggregate(pipeline, allowDiskUse = True))
-  put_to_cache(cache_key, result)
-
-  return json200(result)
+  return json200({'conditions': enumerate_conditions()})
 
 
 @app.route('/api/uploadstats')
@@ -297,6 +87,13 @@ def api_upload_statistics():
 
   Retrieve basic statistics about uploads.
   """
+
+  cache_key = '/api/uploadstats'
+
+  js = get_from_cache(cache_key)
+
+  if(js != None):
+    return json200(js)
 
   uploads = get_uploads_collection()
 
@@ -310,5 +107,109 @@ def api_upload_statistics():
 
 
   js = {'total' : total, 'msmntCampaigns' : msmnt_campaigns}
+  put_to_cache(cache_key, js)
 
   return json200(js)
+
+
+@app.route('/api/observations')
+def api_observations_conditions():
+  """
+  Path: /api/observations
+
+  Arguments: /api/observations/?conditions=<conditions>&from=<time.from>&to=<time.to>&n=<n>&sip=<sip>&dip=<dip>
+
+    conditions: Conditions comma separated, then colon separated. Colon separated
+                conditions will be ANDed and comma separated conditions will be ORed.
+                That is: a,b:c,d is (a AND b) OR (c AND d).
+    time.from:  Time window `from`.
+    time.to:    Time window `to`.
+    n:          Most n recent observations only.
+    skip:       How many results to skip.
+    limit:      How many results to return.
+    sip:        Startpoints (comma separated)
+    dip:        Endpoints (comma separated)
+  
+   Note: dip and sip are ANDed!
+  """
+
+  conditions_all = from_comma_separated(request.args.get('conditions'))
+  limit = to_int(request.args.get('limit'))
+  skip = to_int(request.args.get('skip'))
+  n = to_int(request.args.get('n'))
+  sips = from_comma_separated(request.args.get('sip'))
+  dips = from_comma_separated(request.args.get('dip'))
+
+  time_from = to_int(request.args.get('from'))
+  time_to = to_int(request.args.get('to'))
+
+  if(time_from == 0 and time_to == 0):
+    time_to = 1567204529149
+
+  time_from = datetime.utcfromtimestamp(time_from / 1000.0)
+  time_to = datetime.utcfromtimestamp(time_to / 1000.0)
+
+  if(limit <= 0):
+    limit = 128
+  elif(limit >= 4096):
+    limit = 4096
+
+  if(n <= 0):
+    n = 128
+  elif(n >= 4096):
+    n = 4096
+
+  if(skip >= n):
+    return json400({'count' : 0, 'results' : [], 'err' : 'skip >= n'})
+
+  filters = []
+
+  for conditions_e in conditions_all:
+    conditions = from_colon_separated(conditions_e)
+    filters.append({'conditions' : {'$all' : conditions}})
+
+  sip_filter = {}
+  dip_filter = {}
+
+  ips = []
+
+  if(len(sips) > 0):
+    sip_filter = {'sip' : {'$in' : sips}}
+
+  if(len(dips) > 0):
+    dip_filter = {'dip' : {'$in' : dips}}
+
+
+  pipeline = [
+    {'$match' : {'action_ids.0.valid' : True,
+                 '$or' : filters,
+                 'time.from' : {'$gte' : time_from}, 
+                 'time.to' : {'$lte' : time_to}
+                }
+    },
+    {'$sort' : OrderedDict([('time.from' , -1), ('time.to' , -1)])},
+    {'$limit' : n},
+    {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
+                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
+                    'dip' : { '$arrayElemAt' : ['$path', -1]},
+                    'sip' : { '$arrayElemAt' : ['$path',  0]}
+       }},
+    {'$match' : dip_filter},
+    {'$match' : sip_filter},
+    {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
+           {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
+    {'$skip' : skip},
+    {'$limit' : limit}
+  ]
+
+  print(pipeline)
+
+  observations = get_observations_collection()
+
+  try:
+    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    return json200({'results' : results, 'count' : len(results)})
+
+  except pymongo.errors.ExecutionTimeout:
+    return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
+
