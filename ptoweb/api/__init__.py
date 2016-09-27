@@ -155,9 +155,9 @@ def api_observations_conditions():
     limit = 4096
 
   if(n <= 0):
-    n = 128
-  elif(n >= 4096):
-    n = 4096
+    n = 8192
+  elif(n >= 65536):
+    n = 65536
 
   if(skip >= n):
     return json400({'count' : 0, 'results' : [], 'err' : 'skip >= n'})
@@ -179,16 +179,26 @@ def api_observations_conditions():
   if(len(dips) > 0):
     dip_filter = {'dip' : {'$in' : dips}}
 
+  for sip in sips: ips.append(sip)
+  for dip in dips: ips.append(dip)
 
-  pipeline = [
+
+  pipeline = []
+ 
+
+  if(sip_filter != {} or dip_filter != {}):
+    pipeline += [{'$match':{'action_ids.0.valid' : True, 'path' : {'$in' : ips}}}, {'$limit' : n}]
+
+
+  pipeline += [
+    {'$sort' : OrderedDict([('time.from' , -1), ('time.to' , -1)])},
+    {'$limit' : n},
     {'$match' : {'action_ids.0.valid' : True,
                  '$or' : filters,
                  'time.from' : {'$gte' : time_from}, 
                  'time.to' : {'$lte' : time_to}
                 }
     },
-    {'$sort' : OrderedDict([('time.from' , -1), ('time.to' , -1)])},
-    {'$limit' : n},
     {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
                     'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
                     'dip' : { '$arrayElemAt' : ['$path', -1]},
