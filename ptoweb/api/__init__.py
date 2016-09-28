@@ -290,102 +290,6 @@ def api_conditions():
 
   except pymongo.errors.ExecutionTimeout:
     return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
-
-
-@app.route('/api/raw/path')
-def api_raw_path():
-  """
-  
-  """
-  
-  limit = to_int(request.args.get('limit'))
-  skip = to_int(request.args.get('skip'))
-  sips = from_comma_separated(request.args.get('sip'))
-  dips = from_comma_separated(request.args.get('dip'))
-  path = from_comma_separated(request.args.get('path'))
-  analyzer = request.args.get('analyzer')
-
-  no_path = path == None or len(path) < 1
-
-  time_from = to_int(request.args.get('from'))
-  time_to = to_int(request.args.get('to'))
-
-  if(time_from == 0 and time_to == 0):
-    time_to = 1567204529149
-
-  time_from = datetime.utcfromtimestamp(time_from / 1000.0)
-  time_to = datetime.utcfromtimestamp(time_to / 1000.0)
-
-  if(limit <= 0):
-    limit = 8192
-  elif(limit >= 65536):
-    limit = 65536
-
-  
-  sip_filter = {}
-  dip_filter = {}
-
-  ips = []
-
-  if(len(sips) > 0):
-    sip_filter = {'sip' : {'$in' : sips}}
-
-  if(len(dips) > 0):
-    dip_filter = {'dip' : {'$in' : dips}}
-
-  for sip in sips: ips.append(sip)
-  for dip in dips: ips.append(dip)
-
-
-  pipeline = []
-  
-
-  pre_matches = {
-     '$match' : {'action_ids.0.valid' : True,
-                 'time.from' : {'$gte' : time_from}, 
-                 'time.to' : {'$lte' : time_to}, 
-                }
-    }
-
-  if(len(ips) > 0 and no_path):
-    pre_matches['$match']['path'] = {'$in' : ips}  
-
-  if(analyzer != None and len(analyzer) > 0):
-    pre_matches['$match']['analyzer'] = analyzer
-
-  if(not no_path):
-    pre_matches['$match']['path'] = {'$in' : path}
-
-  pipeline += [
-    pre_matches
-  ]
-
-  if(not no_path):
-    pipeline += [{'$match' : {'path' : path}}]
-
-  pipeline += [
-    {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
-                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
-                    'dip' : { '$arrayElemAt' : ['$path', -1]},
-                    'sip' : { '$arrayElemAt' : ['$path',  0]},
-                    'hash' : 1, 'sources' : 1, 'action_ids' : 1
-       }},
-    {'$match' : dip_filter},
-    {'$match' : sip_filter},
-    {'$skip' : skip},
-    {'$limit' : limit},
-  ]
-
-  print(pipeline)
-
-  observations = get_observations_collection()
-
-  try:
-    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
-    return json200({'results' : results, 'count' : len(results)})
-
-  except pymongo.errors.ExecutionTimeout:
-    return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
   
 
 @app.route('/api/raw/observations')
@@ -393,7 +297,9 @@ def api_raw_observations_conditions():
   """
   Path: /api/raw/observations
 
-  Arguments: /api/raw/observations/?conditions=<conditions>&from=<time.from>&to=<time.to>&sip=<sip>&dip=<dip>&limit=<limit>&skip=<skip>
+  Arguments: /api/raw/observations/?path=<path>&conditions=<conditions>
+               &from=<time.from>&to=<time.to>&sip=<sip>&dip=<dip>&limit=<limit>&skip=<skip>
+               &on_path=<on_path>&on_path_all=<on_path_all>
 
     conditions: Conditions comma separated, then colon separated. Colon separated
                 conditions will be ANDed and comma separated conditions will be ORed.
@@ -404,6 +310,9 @@ def api_raw_observations_conditions():
     limit:      How many results to return.
     sip:        Startpoints (comma separated)
     dip:        Endpoints (comma separated)
+    path:       An exact path. Don't use sip/dip together with path. 
+    on_path:    Any of these on the path.
+    on_path_all:All of these on the path.
   
    Note: dip and sip are ANDed!
 
@@ -415,6 +324,9 @@ def api_raw_observations_conditions():
   skip = to_int(request.args.get('skip'))
   sips = from_comma_separated(request.args.get('sip'))
   dips = from_comma_separated(request.args.get('dip'))
+  path = from_comma_separated(request.args.get('path'))
+  on_path = from_comma_separated(request.args.get('on_path'))
+  on_path_all = from_comma_separated(request.args.get('on_path_all'))
 
   time_from = to_int(request.args.get('from'))
   time_to = to_int(request.args.get('to'))
@@ -449,6 +361,8 @@ def api_raw_observations_conditions():
 
   for sip in sips: ips.append(sip)
   for dip in dips: ips.append(dip)
+  for ip in on_path: ips.append(ip)
+  for ip in on_path_all: ips.append(ip)
 
 
   pipeline = []
@@ -465,11 +379,28 @@ def api_raw_observations_conditions():
     pre_matches['$match']['$or'] = filters
 
   if(len(ips) > 0):
-    pre_matches['$match']['path'] = {'$in' : ips}  
+    pre_matches['$match']['path'] = ips[-1]
+
+  if(len(path) > 0):
+    pre_matches['$match']['path'] = path[-1]
+
+  print(pre_matches)
 
 
   pipeline += [
-    pre_matches,
+    pre_matches
+  ]
+
+  if(len(ips) > 0):
+    pipeline += [{'$match' : {'path' : {'$in' : ips}}}]
+
+  if(len(path) > 0):
+    pipeline += [{'$match' : {'path' : path}}]
+
+  if(len(on_path_all) > 0):
+    pipeline += [{'$match' : {'path' : {'$all' : on_path_all}}}]
+
+  pipeline += [
     {'$project' : {'_id' : 0, 'id' : '$_id', 'path' : 1, 'conditions' : 1,
                     'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
                     'dip' : { '$arrayElemAt' : ['$path', -1]},
