@@ -112,12 +112,102 @@ def api_upload_statistics():
   return json200(js)
 
 
+@app.route('/api/conditions')
+def api_conditions():
+  """
+  Path: /api/conditions
+
+  Arguments: /api/conditions/?from=<time.from>&to=<time.to>&n=<n>&sip=<sip>&dip=<dip>
+
+    time.from:  Time window `from`.
+    time.to:    Time window `to`.
+    n:          Limit query to n observations only.
+    sip:        Startpoints (comma separated)
+    dip:        Endpoints (comma separated)
+  
+   Note: dip and sip are ANDed!
+  """
+
+  n = to_int(request.args.get('n'))
+  sips = from_comma_separated(request.args.get('sip'))
+  dips = from_comma_separated(request.args.get('dip'))
+
+  time_from = to_int(request.args.get('from'))
+  time_to = to_int(request.args.get('to'))
+
+  if(time_from == 0 and time_to == 0):
+    time_to = 1567204529149
+
+  time_from = datetime.utcfromtimestamp(time_from / 1000.0)
+  time_to = datetime.utcfromtimestamp(time_to / 1000.0)
+
+  if(n <= 0):
+    n = 8192
+  elif(n >= 65536):
+    n = 65536
+
+  
+  sip_filter = {}
+  dip_filter = {}
+
+  ips = []
+
+  if(len(sips) > 0):
+    sip_filter = {'sip' : {'$in' : sips}}
+
+  if(len(dips) > 0):
+    dip_filter = {'dip' : {'$in' : dips}}
+
+  for sip in sips: ips.append(sip)
+  for dip in dips: ips.append(dip)
+
+
+  pipeline = []
+  
+
+  pre_matches = {
+     '$match' : {'action_ids.0.valid' : True,
+                 'time.from' : {'$gte' : time_from}, 
+                 'time.to' : {'$lte' : time_to}, 
+                }
+    }
+
+  if(len(ips) > 0):
+    pre_matches['$match']['path'] = {'$in' : ips}  
+
+
+  pipeline += [
+    pre_matches,
+    {'$limit' : n},
+    {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
+                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
+                    'dip' : { '$arrayElemAt' : ['$path', -1]},
+                    'sip' : { '$arrayElemAt' : ['$path',  0]}
+       }},
+    {'$match' : dip_filter},
+    {'$match' : sip_filter},
+    {'$unwind' : '$conditions'},
+    {'$group' : {'_id' : '$conditions', 'count' : {'$sum' : 1}}},
+    {'$project' : {'_id' : 0, 'count' : 1, 'condition' : '$_id'}}
+  ]
+
+  observations = get_observations_collection()
+
+  try:
+    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    return json200({'results' : results, 'count' : len(results)})
+
+  except pymongo.errors.ExecutionTimeout:
+    return json400({'count' : 0, 'results' : {}, 'err' : 'Timeout.'})
+
+  
+
 @app.route('/api/observations')
 def api_observations_conditions():
   """
   Path: /api/observations
 
-  Arguments: /api/observations/?conditions=<conditions>&from=<time.from>&to=<time.to>&n=<n>&sip=<sip>&dip=<dip>
+  Arguments: /api/observations/?conditions=<conditions>&from=<time.from>&to=<time.to>&n=<n>&sip=<sip>&dip=<dip>&limit=<limit>&skip=<skip>
 
     conditions: Conditions comma separated, then colon separated. Colon separated
                 conditions will be ANDed and comma separated conditions will be ORed.
