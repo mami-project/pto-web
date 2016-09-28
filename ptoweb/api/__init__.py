@@ -7,6 +7,7 @@ import re
 from datetime import datetime
 import pymongo.errors
 from collections import OrderedDict
+from bson.objectid import ObjectId
 
 
 def condition_exists(name):
@@ -112,6 +113,94 @@ def api_upload_statistics():
   return json200(js)
 
 
+@app.route('/api/raw/single')
+def api_raw_single():
+  """
+  Path: /api/raw/single
+
+  Arguments: /api/raw/single?oid=<oid>
+
+    oid: ID of the observation.
+
+  Returns a single raw observation. 
+  """
+
+  try:
+    oid = request.args.get('oid')
+    oid = ObjectId(oid)
+  except:
+    return json400({'count' : 0, 'results' : [], 'err' : 'Invalid id.'})
+
+
+  query = {'$match' : {'_id' : oid}}
+
+  observations = get_observations_collection()
+  
+  try:
+    results = list(observations.aggregate([query], maxTimeMS = 5000))
+    return json200({'results' : results, 'count' : len(results)})
+
+  except pymongo.errors.ExecutionTimeout:
+    return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
+
+
+@app.route('/api/paths')
+def api_paths():
+  """
+  Path: /api/paths
+
+  Arguments: /api/conditions/?from=<time.from>&to=<time.to>&n=<n>&sip=<sip>&dip=<dip>
+
+    time.from:  Time window `from`.
+    time.to:    Time window `to`.
+    n:          Limit query to n observations only.
+
+  Returns all paths and the number of occurences in the specified time window.
+  """
+
+  n = to_int(request.args.get('n'))
+  time_from = to_int(request.args.get('from'))
+  time_to = to_int(request.args.get('to'))
+
+  if(time_from == 0 and time_to == 0):
+    time_to = 1567204529149
+
+  time_from = datetime.utcfromtimestamp(time_from / 1000.0)
+  time_to = datetime.utcfromtimestamp(time_to / 1000.0)
+
+  if(n <= 0):
+    n = 4096
+  elif(n >= 8192):
+    n = 8192
+
+  
+  pipeline = []
+  
+
+  pre_matches = {
+     '$match' : {'action_ids.0.valid' : True,
+                 'time.from' : {'$gte' : time_from}, 
+                 'time.to' : {'$lte' : time_to}, 
+                }
+    }
+
+  pipeline += [
+    pre_matches,
+    {'$limit' : n},
+    {'$group' : {'_id' : '$path', 'count' : {'$sum' : 1}}},
+    {'$project' : {'_id' : 0, 'path' : '$_id', 'count' : 1}}
+  ]
+
+  observations = get_observations_collection()
+
+  try:
+    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    return json200({'results' : results, 'count' : len(results)})
+
+  except pymongo.errors.ExecutionTimeout:
+    return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
+  
+
 @app.route('/api/conditions')
 def api_conditions():
   """
@@ -126,6 +215,8 @@ def api_conditions():
     dip:        Endpoints (comma separated)
   
    Note: dip and sip are ANDed!
+
+  Returns how many times a condition is present.
   """
 
   n = to_int(request.args.get('n'))
@@ -198,7 +289,7 @@ def api_conditions():
     return json200({'results' : results, 'count' : len(results)})
 
   except pymongo.errors.ExecutionTimeout:
-    return json400({'count' : 0, 'results' : {}, 'err' : 'Timeout.'})
+    return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
 
   
 
@@ -301,7 +392,8 @@ def api_observations_conditions():
     {'$match' : dip_filter},
     {'$match' : sip_filter},
     {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
-           {'$addToSet': {'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
+           {'$addToSet': {'id' : '$_id', 'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
+    {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}},
     {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])},
     {'$skip' : skip},
     {'$limit' : limit},
