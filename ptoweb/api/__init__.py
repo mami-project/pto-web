@@ -433,7 +433,7 @@ def api_observations_conditions():
   skip = to_int(request.args.get('skip'))
 
   if(limit <= 0):
-    limit = 512
+    limit = 10
   if(limit >= 4096):
     limit = 4096
 
