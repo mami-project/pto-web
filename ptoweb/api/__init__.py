@@ -206,15 +206,7 @@ def api_conditions():
   """
   Path: /api/conditions
 
-  Arguments: /api/conditions/?from=<time.from>&to=<time.to>&n=<n>&sip=<sip>&dip=<dip>
-
-    time.from:  Time window `from`.
-    time.to:    Time window `to`.
-    n:          Limit query to n observations only.
-    sip:        Startpoints (comma separated)
-    dip:        Endpoints (comma separated)
-  
-   Note: dip and sip are ANDed!
+  Arguments: See api_raw_observations()
 
   Returns how many times a condition is present.
   """
@@ -253,30 +245,9 @@ def api_conditions():
   for dip in dips: ips.append(dip)
 
 
-  pipeline = []
-  
-
-  pre_matches = {
-     '$match' : {'action_ids.0.valid' : True,
-                 'time.from' : {'$gte' : time_from}, 
-                 'time.to' : {'$lte' : time_to}, 
-                }
-    }
-
-  if(len(ips) > 0):
-    pre_matches['$match']['path'] = {'$in' : ips}  
-
+  pipeline = get_pipeline(add_skip_limit = False)
 
   pipeline += [
-    pre_matches,
-    {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
-                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
-                    'dip' : { '$arrayElemAt' : ['$path', -1]},
-                    'sip' : { '$arrayElemAt' : ['$path',  0]}
-       }},
-    {'$match' : dip_filter},
-    {'$match' : sip_filter},
-    {'$limit' : n},
     {'$unwind' : '$conditions'},
     {'$group' : {'_id' : '$conditions', 'count' : {'$sum' : 1}}},
     {'$project' : {'_id' : 0, 'count' : 1, 'condition' : '$_id'}}
@@ -290,35 +261,10 @@ def api_conditions():
 
   except pymongo.errors.ExecutionTimeout:
     return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
-  
 
-@app.route('/api/raw/observations')
-def api_raw_observations_conditions():
-  """
-  Path: /api/raw/observations
 
-  Arguments: /api/raw/observations/?path=<path>&conditions=<conditions>
-               &from=<time.from>&to=<time.to>&sip=<sip>&dip=<dip>&limit=<limit>&skip=<skip>
-               &on_path=<on_path>&on_path_all=<on_path_all>
 
-    conditions: Conditions comma separated, then colon separated. Colon separated
-                conditions will be ANDed and comma separated conditions will be ORed.
-                That is: a,b:c,d is (a OR (b AND c) OR d).
-    time.from:  Time window `from`.
-    time.to:    Time window `to`.
-    skip:       How many results to skip.
-    limit:      How many results to return.
-    sip:        Startpoints (comma separated)
-    dip:        Endpoints (comma separated)
-    path:       An exact path. Don't use sip/dip together with path. 
-    on_path:    Any of these on the path.
-    on_path_all:All of these on the path.
-  
-   Note: dip and sip are ANDed!
-
-  Returns raw observations. No grouping done.
-  """
-
+def get_pipeline(add_skip_limit = True, force_n = 0):
   conditions_all = from_comma_separated(request.args.get('conditions'))
   limit = to_int(request.args.get('limit'))
   skip = to_int(request.args.get('skip'))
@@ -327,6 +273,7 @@ def api_raw_observations_conditions():
   path = from_comma_separated(request.args.get('path'))
   on_path = from_comma_separated(request.args.get('on_path'))
   on_path_all = from_comma_separated(request.args.get('on_path_all'))
+  n = to_int(request.args.get('n'))
 
   time_from = to_int(request.args.get('from'))
   time_to = to_int(request.args.get('to'))
@@ -338,9 +285,15 @@ def api_raw_observations_conditions():
   time_to = datetime.utcfromtimestamp(time_to / 1000.0)
 
   if(limit <= 0):
-    limit = 128
-  elif(limit >= 4096):
     limit = 4096
+  elif(limit >= 8192):
+    limit = 8192
+
+  if(n > 65536):
+    n = 65536
+
+  if(force_n != 0):
+    n = force_n
 
   filters = []
 
@@ -384,8 +337,6 @@ def api_raw_observations_conditions():
   if(len(path) > 0):
     pre_matches['$match']['path'] = path[-1]
 
-  print(pre_matches)
-
 
   pipeline += [
     pre_matches
@@ -402,16 +353,55 @@ def api_raw_observations_conditions():
 
   pipeline += [
     {'$project' : {'_id' : 0, 'id' : '$_id', 'path' : 1, 'conditions' : 1,
-                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
+                    'time' : 1, 'value' : 1, 'analyzer' : '$analyzer_id', 
                     'dip' : { '$arrayElemAt' : ['$path', -1]},
                     'sip' : { '$arrayElemAt' : ['$path',  0]},
                     'hash' : 1, 'sources' : 1, 'action_ids' : 1
        }},
     {'$match' : dip_filter},
-    {'$match' : sip_filter},
-    {'$skip' : skip},
-    {'$limit' : limit},
+    {'$match' : sip_filter}
   ]
+
+  if(add_skip_limit):
+    pipeline += [
+      {'$skip' : skip},
+      {'$limit' : limit},
+    ]
+
+  if(n > 0):
+    pipeline += [{'$limit' : n}]
+
+  return pipeline
+
+
+@app.route('/api/raw/observations')
+def api_raw_observations_conditions():
+  """
+  Path: /api/raw/observations
+
+  Arguments: /api/raw/observations/?path=<path>&conditions=<conditions>
+               &from=<time.from>&to=<time.to>&sip=<sip>&dip=<dip>&limit=<limit>&skip=<skip>
+               &on_path=<on_path>&on_path_all=<on_path_all>
+
+    conditions: Conditions comma separated, then colon separated. Colon separated
+                conditions will be ANDed and comma separated conditions will be ORed.
+                That is: a,b:c,d is (a OR (b AND c) OR d).
+    time.from:  Time window `from`.
+    time.to:    Time window `to`.
+    skip:       How many results to skip.
+    limit:      How many results to return.
+    sip:        Startpoints (comma separated)
+    dip:        Endpoints (comma separated)
+    path:       An exact path. Don't use sip/dip together with path. 
+    on_path:    Any of these on the path.
+    on_path_all:All of these on the path.
+  
+   Note: dip and sip are ANDed!
+
+  Returns raw observations. No grouping done.
+  """
+
+  pipeline = get_pipeline()
 
   print(pipeline)
 
@@ -431,101 +421,24 @@ def api_observations_conditions():
   """
   Path: /api/observations
 
-  Arguments: /api/observations/?conditions=<conditions>&from=<time.from>&to=<time.to>&n=<n>&sip=<sip>&dip=<dip>&limit=<limit>&skip=<skip>
-
-    conditions: Conditions comma separated, then colon separated. Colon separated
-                conditions will be ANDed and comma separated conditions will be ORed.
-                That is: a,b:c,d is (a OR (b AND c) OR d).
-    time.from:  Time window `from`.
-    time.to:    Time window `to`.
-    n:          Limit query to n observations only.
-    skip:       How many results to skip.
-    limit:      How many results to return.
-    sip:        Startpoints (comma separated)
-    dip:        Endpoints (comma separated)
-  
-   Note: dip and sip are ANDed!
+  Arguments: See api_raw_observations()
 
    Returns observations grouped by path!
   """
 
-  conditions_all = from_comma_separated(request.args.get('conditions'))
-  limit = to_int(request.args.get('limit'))
-  skip = to_int(request.args.get('skip'))
-  n = to_int(request.args.get('n'))
-  sips = from_comma_separated(request.args.get('sip'))
-  dips = from_comma_separated(request.args.get('dip'))
-
-  time_from = to_int(request.args.get('from'))
-  time_to = to_int(request.args.get('to'))
-
-  if(time_from == 0 and time_to == 0):
-    time_to = 1567204529149
-
-  time_from = datetime.utcfromtimestamp(time_from / 1000.0)
-  time_to = datetime.utcfromtimestamp(time_to / 1000.0)
-
-  if(limit <= 0):
-    limit = 128
-  elif(limit >= 4096):
-    limit = 4096
-
-  if(n <= 0):
-    n = 8192
-  elif(n >= 65536):
-    n = 65536
-
-  if(skip >= n):
-    return json400({'count' : 0, 'results' : [], 'err' : 'skip >= n'})
-
-  filters = []
-
-  for conditions_e in conditions_all:
-    conditions = from_colon_separated(conditions_e)
-    filters.append({'conditions' : {'$all' : conditions}})
-
-  sip_filter = {}
-  dip_filter = {}
-
-  ips = []
-
-  if(len(sips) > 0):
-    sip_filter = {'sip' : {'$in' : sips}}
-
-  if(len(dips) > 0):
-    dip_filter = {'dip' : {'$in' : dips}}
-
-  for sip in sips: ips.append(sip)
-  for dip in dips: ips.append(dip)
-
-
-  pipeline = []
+  pipeline = get_pipeline(add_skip_limit = False, force_n = 65536)
   
 
-  pre_matches = {
-     '$match' : {'action_ids.0.valid' : True,
-                 'time.from' : {'$gte' : time_from}, 
-                 'time.to' : {'$lte' : time_to}, 
-                }
-    }
+  limit = to_int(request.args.get('limit'))
+  skip = to_int(request.args.get('skip'))
 
-  if(len(filters) > 0):
-    pre_matches['$match']['$or'] = filters
-
-  if(len(ips) > 0):
-    pre_matches['$match']['path'] = {'$in' : ips}  
+  if(limit <= 0):
+    limit = 512
+  if(limit >= 4096):
+    limit = 4096
 
 
   pipeline += [
-    pre_matches,
-    {'$project' : {'_id' : 1, 'path' : 1, 'conditions' : 1,
-                    'time' : 1, 'value' : 1, 'analyzer_id' : 1, 
-                    'dip' : { '$arrayElemAt' : ['$path', -1]},
-                    'sip' : { '$arrayElemAt' : ['$path',  0]}
-       }},
-    {'$match' : dip_filter},
-    {'$match' : sip_filter},
-    {'$limit' : n},
     {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
            {'$addToSet': {'id' : '$_id', 'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
     {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}},
