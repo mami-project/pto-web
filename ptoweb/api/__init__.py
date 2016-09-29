@@ -211,41 +211,7 @@ def api_conditions():
   Returns how many times a condition is present.
   """
 
-  n = to_int(request.args.get('n'))
-  sips = from_comma_separated(request.args.get('sip'))
-  dips = from_comma_separated(request.args.get('dip'))
-
-  time_from = to_int(request.args.get('from'))
-  time_to = to_int(request.args.get('to'))
-
-  if(time_from == 0 and time_to == 0):
-    time_to = 1567204529149
-
-  time_from = datetime.utcfromtimestamp(time_from / 1000.0)
-  time_to = datetime.utcfromtimestamp(time_to / 1000.0)
-
-  if(n <= 0):
-    n = 8192
-  elif(n >= 65536):
-    n = 65536
-
-  
-  sip_filter = {}
-  dip_filter = {}
-
-  ips = []
-
-  if(len(sips) > 0):
-    sip_filter = {'sip' : {'$in' : sips}}
-
-  if(len(dips) > 0):
-    dip_filter = {'dip' : {'$in' : dips}}
-
-  for sip in sips: ips.append(sip)
-  for dip in dips: ips.append(dip)
-
-
-  pipeline = get_pipeline(add_skip_limit = False)
+  pipeline = get_pipeline(add_skip_limit = False, force_n = 65536)
 
   pipeline += [
     {'$unwind' : '$conditions'},
@@ -262,6 +228,29 @@ def api_conditions():
   except pymongo.errors.ExecutionTimeout:
     return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
 
+
+@app.route('/api/raw/count')
+def api_raw_count():
+  """
+  Path: /api/raw/count
+
+  Arguments: See api_raw_observations()
+
+  Returns how many observations match.
+  """
+
+  pipeline = get_pipeline()
+
+  pipeline += [{'$group' : {'_id' : 1, 'count' : {'$sum' : 1}}}]
+
+  observations = get_observations_collection()
+
+  try:
+    result = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    return json200({'count' : result[0]['count']})
+
+  except pymongo.errors.ExecutionTimeout:
+    return json400({'count' : -1, 'err' : 'Timeout.'})
 
 
 def get_pipeline(add_skip_limit = True, force_n = 0):
