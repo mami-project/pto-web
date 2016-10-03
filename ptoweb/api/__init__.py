@@ -54,6 +54,20 @@ def json400(obj):
   return cors(Response(json.dumps(obj, default=json_util.default), status=400, mimetype='application/json'))
 
 
+@app.route("/test")
+def api_test():
+  observations = get_observations_collection()
+
+  hs = {}
+  rs = observations.find({"conditions":"ecn.connectivity.works"})
+  for r in rs:
+    path = ' - '.join(r['path'])
+    if path in hs:
+      continue
+    else:
+      hs[path] = True
+  return json200({"result" : len(hs)})
+
 @app.route('/api/')
 def api_index():
   """
