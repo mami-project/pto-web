@@ -53,20 +53,9 @@ def json200(obj):
 def json400(obj):
   return cors(Response(json.dumps(obj, default=json_util.default), status=400, mimetype='application/json'))
 
+def json404(obj):
+  return cors(Response(json.dumps(obj, default=json_util.default), status=404, mimetype='application/json'))
 
-@app.route("/test")
-def api_test():
-  observations = get_observations_collection()
-
-  hs = {}
-  rs = observations.find({"conditions":"ecn.connectivity.works"})
-  for r in rs:
-    path = ' - '.join(r['path'])
-    if path in hs:
-      continue
-    else:
-      hs[path] = True
-  return json200({"result" : len(hs)})
 
 @app.route('/api/')
 def api_index():
@@ -149,13 +138,33 @@ def api_raw_single():
   query = {'$match' : {'_id' : oid}}
 
   observations = get_observations_collection()
+  uploads = get_uploads_collection()
   
   try:
     results = list(observations.aggregate([query], maxTimeMS = 5000))
-    return json200({'results' : results, 'count' : len(results)})
+
+    if(len(results) != 1):
+      return json404({'err': 'Not found.'})
+
+    result = results[0] 
+
+    all_upload_entries = []
+
+    for upoid in result['sources']:
+      upload_entries = list(uploads.find({'_id' : upoid}))
+      if(len(upload_entries) < 1): continue
+      all_upload_entries.append(upload_entries[0]['meta'])
+
+    result['uploads'] = all_upload_entries
+    result['analyzer'] = result['analyzer_id']
+    del result['analyzer_id']
+
+    print(all_upload_entries)
+
+    return json200({'result' : result})
 
   except pymongo.errors.ExecutionTimeout:
-    return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
+    return json400({'result' : None, 'err' : 'Timeout.'})
 
 
 @app.route('/api/paths')
@@ -253,15 +262,22 @@ def api_raw_count():
   Returns how many observations match.
   """
 
-  pipeline = get_pipeline()
+  pipeline = get_pipeline(add_skip_limit = False)
 
-  pipeline += [{'$group' : {'_id' : 1, 'count' : {'$sum' : 1}}}]
+  pipeline += [{'$project' : {"n" : {"$literal" : 1}}}]
+
+  print(pipeline)
 
   observations = get_observations_collection()
 
   try:
-    result = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
-    return json200({'count' : result[0]['count']})
+    result = list(observations.aggregate([pipeline[0]], allowDiskUse=True, maxTimeMS = 8000))
+    
+    c = 0
+    for r in result:
+      c += 1
+
+    return json200({'count' : c})
 
   except pymongo.errors.ExecutionTimeout:
     return json400({'count' : -1, 'err' : 'Timeout.'})
