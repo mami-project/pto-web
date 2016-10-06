@@ -252,6 +252,7 @@ def api_conditions():
     return json400({'count' : 0, 'results' : [], 'err' : 'Timeout.'})
 
 
+
 @app.route('/api/raw/count')
 def api_raw_count():
   """
@@ -262,22 +263,15 @@ def api_raw_count():
   Returns how many observations match.
   """
 
-  pipeline = get_pipeline(add_skip_limit = False)
+  pipeline = get_pipeline()
 
-  pipeline += [{'$project' : {"n" : {"$literal" : 1}}}]
-
-  print(pipeline)
+  pipeline += [{'$group' : {'_id' : 1, 'count' : {'$sum' : 1}}}]
 
   observations = get_observations_collection()
 
   try:
-    result = list(observations.aggregate([pipeline[0]], allowDiskUse=True, maxTimeMS = 8000))
-    
-    c = 0
-    for r in result:
-      c += 1
-
-    return json200({'count' : c})
+    result = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    return json200({'count' : result[0]['count']})
 
   except pymongo.errors.ExecutionTimeout:
     return json400({'count' : -1, 'err' : 'Timeout.'})
@@ -459,7 +453,7 @@ def api_observations_conditions():
 
   pipeline += [
     {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
-           {'$addToSet': {'id' : '$_id', 'analyzer' : '$analyzer_id', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
+           {'$addToSet': {'id' : '$id', 'analyzer' : '$analyzer', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
     {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}},
     {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])},
     {'$skip' : skip},
