@@ -453,7 +453,7 @@ def api_observations_conditions():
 
   pipeline += [
     {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
-           {'$addToSet': {'id' : '$id', 'analyzer' : '$analyzer', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path'}}}},
+           {'$addToSet': {'id' : '$id', 'analyzer' : '$analyzer', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path', 'sources' : '$sources'}}}},
     {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}},
     {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])},
     {'$skip' : skip},
