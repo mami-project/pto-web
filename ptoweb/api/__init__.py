@@ -150,10 +150,12 @@ def api_raw_single():
 
     all_upload_entries = []
 
-    for upoid in result['sources']:
-      upload_entries = list(uploads.find({'_id' : upoid}))
-      if(len(upload_entries) < 1): continue
-      all_upload_entries.append(upload_entries[0]['meta'])
+    for source in result['sources']:
+      if 'upl' in source:
+        act_id = to_int(source['upl'])
+        upload_entries = list(uploads.find({'action_id.ptodev1' : act_id}))
+        if(len(upload_entries) < 1): continue
+        all_upload_entries.append(upload_entries[0]['meta'])
 
     result['uploads'] = all_upload_entries
     result['analyzer'] = result['analyzer_id']
