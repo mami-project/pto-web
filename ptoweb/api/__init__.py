@@ -104,10 +104,18 @@ def api_upload_statistics():
   total = uploads.count({})
 
   pipeline = [{ '$group' : { '_id' : '$meta.msmntCampaign', 'count' : { '$sum' : 1 }}},
-              { '$match' : { 'count' : { '$gt' : 1000 }}},
               { '$sort' : { '_id' : 1 }}]
 
   msmnt_campaigns = list(uploads.aggregate(pipeline))
+
+  def f(x):
+    if(x['_id'].startswith('testing') or
+       x['_id'].startswith('random') or
+       x['_id'].startswith('dummy')):
+      return False
+   return True
+
+  msmnt_campaigns = list(filter(f, msmnt_campaigns))
 
 
   js = {'total' : total, 'msmntCampaigns' : msmnt_campaigns}
