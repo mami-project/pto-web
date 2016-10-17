@@ -113,7 +113,7 @@ def api_upload_statistics():
        x['_id'].startswith('random') or
        x['_id'].startswith('dummy')):
       return False
-   return True
+    return True
 
   msmnt_campaigns = list(filter(f, msmnt_campaigns))
 
