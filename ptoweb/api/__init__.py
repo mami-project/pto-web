@@ -150,6 +150,8 @@ def api_raw_single():
 
     all_upload_entries = []
 
+    print(result)
+
     for source in result['sources']:
       if 'upl' in source:
         act_id = to_int(source['upl'])
