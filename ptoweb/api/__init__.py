@@ -295,7 +295,11 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   path = from_comma_separated(request.args.get('path'))
   on_path = from_comma_separated(request.args.get('on_path'))
   on_path_all = from_comma_separated(request.args.get('on_path_all'))
+  group_by = request.args.get('group_by')
   n = to_int(request.args.get('n'))
+
+  if not (group_by in ['path','sip','dip']):
+    group_by = 'path'
 
   time_from = to_int(request.args.get('from'))
   time_to = to_int(request.args.get('to'))
@@ -412,7 +416,7 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   # If group => group
   if(group):
     pipeline += [
-      {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
+      {'$group': {'_id' : '$' + group_by, 'path' : {'$first' : '$path'}, 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
            {'$addToSet': {'id' : '$id', 'analyzer' : '$analyzer', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path', 'sources' : '$sources'}}}},
       {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}}]
 
