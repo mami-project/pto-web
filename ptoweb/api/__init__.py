@@ -151,7 +151,7 @@ def api_raw_single():
     all_upload_entries = []
 
 
-    if 'upl' in source:
+    if 'upl' in result['sources']:
       for act_id in source['upl']:
         upload_entries = list(uploads.find({'action_id.ptodev1' : act_id}))
         if(len(upload_entries) < 1): continue
