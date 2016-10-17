@@ -141,7 +141,7 @@ def api_raw_single():
   uploads = get_uploads_collection()
   
   try:
-    results = list(observations.aggregate([query], maxTimeMS = 5000))
+    results = list(observations.aggregate([query], maxTimeMS = 10000))
 
     if(len(results) != 1):
       return json404({'err': 'Not found.'})
@@ -210,7 +210,7 @@ def api_paths():
 
   pipeline += [
     pre_matches,
-    {'$limit' : n},
+    #{'$limit' : n},
     {'$group' : {'_id' : '$path', 'count' : {'$sum' : 1}}},
     {'$project' : {'_id' : 0, 'path' : '$_id', 'count' : 1}}
   ]
@@ -218,7 +218,7 @@ def api_paths():
   observations = get_observations_collection()
 
   try:
-    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 10000))
     return json200({'results' : results, 'count' : len(results)})
 
   except pymongo.errors.ExecutionTimeout:
@@ -246,7 +246,7 @@ def api_conditions():
   observations = get_observations_collection()
 
   try:
-    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 10000))
     return json200({'results' : results, 'count' : len(results)})
 
   except pymongo.errors.ExecutionTimeout:
@@ -271,7 +271,7 @@ def api_raw_count():
   observations = get_observations_collection()
 
   try:
-    result = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    result = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 10000))
     return json200({'count' : result[0]['count']})
 
   except pymongo.errors.ExecutionTimeout:
@@ -390,8 +390,9 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
     ]
 
   # Internal safe-guard document limit :D
-  if(n > 0):
-    pipeline += [{'$limit' : n}]
+  #if(n > 0):
+  #  pipeline += [{'$limit' : n}]
+  #TODO: Deactivated for now.
 
   # If group => group
   if(group):
@@ -446,7 +447,7 @@ def api_raw_observations_conditions():
   observations = get_observations_collection()
 
   try:
-    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 10000))
     return json200({'results' : results, 'count' : len(results)})
 
   except pymongo.errors.ExecutionTimeout:
@@ -472,7 +473,7 @@ def api_observations_conditions():
   observations = get_observations_collection()
 
   try:
-    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 5000))
+    results = list(observations.aggregate(pipeline, allowDiskUse=True, maxTimeMS = 10000))
     return json200({'results' : results, 'count' : len(results)})
 
   except pymongo.errors.ExecutionTimeout:
