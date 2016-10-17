@@ -277,7 +277,7 @@ def api_raw_count():
     return json400({'count' : -1, 'err' : 'Timeout.'})
 
 
-def get_pipeline(add_skip_limit = True, force_n = 0):
+def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   conditions_all = from_comma_separated(request.args.get('conditions'))
   limit = to_int(request.args.get('limit'))
   skip = to_int(request.args.get('skip'))
@@ -312,7 +312,12 @@ def get_pipeline(add_skip_limit = True, force_n = 0):
 
   for conditions_e in conditions_all:
     conditions = from_colon_separated(conditions_e)
-    filters.append({'conditions' : {'$all' : conditions}})
+
+    # If we group, the conditions will be in 'observations.conditions'
+    if(not group):
+      filters.append({'conditions' : {'$all' : conditions}})
+    else:
+      filters.append({'observations.conditions' : {'$all' : conditions}})
 
   sip_filter = {}
   dip_filter = {}
@@ -341,7 +346,8 @@ def get_pipeline(add_skip_limit = True, force_n = 0):
                 }
     }
 
-  if(len(filters) > 0):
+  # If we group we need to put this match AFTER the group stage
+  if(len(filters) > 0 and (not group)):
     pre_matches['$match']['$or'] = filters
 
   if(len(ips) > 0):
@@ -375,14 +381,29 @@ def get_pipeline(add_skip_limit = True, force_n = 0):
     {'$match' : sip_filter}
   ]
 
-  if(add_skip_limit):
+  # If we group we need to skip, limit later
+  if(add_skip_limit and (not group)):
     pipeline += [
       {'$skip' : skip},
       {'$limit' : limit},
     ]
 
+  # Internal safe-guard document limit :D
   if(n > 0):
     pipeline += [{'$limit' : n}]
+
+  # If group => group
+  if(group):
+    pipeline += [
+      {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
+           {'$addToSet': {'id' : '$id', 'analyzer' : '$analyzer', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path', 'sources' : '$sources'}}}},
+      {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}},
+      {'$match' : {'$or' : filters}}]
+    if(add_skip_limit):
+      pipeline += [
+        {'$skip' : skip},
+        {'$limit' : limit},
+      ]
 
   return pipeline
 
@@ -439,26 +460,8 @@ def api_observations_conditions():
    Returns observations grouped by path!
   """
 
-  pipeline = get_pipeline(add_skip_limit = False, force_n = 65536)
+  pipeline = get_pipeline(add_skip_limit = True, force_n = 65536, group = True)
   
-
-  limit = to_int(request.args.get('limit'))
-  skip = to_int(request.args.get('skip'))
-
-  if(limit <= 0):
-    limit = 10
-  if(limit >= 4096):
-    limit = 4096
-
-
-  pipeline += [
-    {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
-           {'$addToSet': {'id' : '$id', 'analyzer' : '$analyzer', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path', 'sources' : '$sources'}}}},
-    {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}},
-    {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])},
-    {'$skip' : skip},
-    {'$limit' : limit},
-  ]
 
   print(pipeline)
 
