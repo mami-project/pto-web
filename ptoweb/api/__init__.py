@@ -319,8 +319,12 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
 
   filters = []
 
+  all_conditions = []
+
   for conditions_e in conditions_all:
     conditions = from_colon_separated(conditions_e)
+    for condition in conditions:
+      all_conditions.append(condition)
 
     # If we group, the conditions will be in 'observations.conditions'
     if(not group):
@@ -358,6 +362,9 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   # If we group we need to put this match AFTER the group stage
   if(len(filters) > 0 and (not group)):
     pre_matches['$match']['$or'] = filters
+
+  if(len(all_conditions) > 0 and (group)):
+    pre_matches['$match']['conditions'] = {'$in' : all_conditions}
 
   if(len(ips) > 0):
     pre_matches['$match']['path'] = ips[-1]
@@ -432,7 +439,7 @@ def api_raw_observations_conditions():
 
     conditions: Conditions comma separated, then colon separated. Colon separated
                 conditions will be ANDed and comma separated conditions will be ORed.
-                That is: a,b:c,d is (a OR (b AND c) OR d).
+                That is: a,b:c,d is a OR (b AND C) OR d.
     time.from:  Time window `from`.
     time.to:    Time window `to`.
     skip:       How many results to skip.
