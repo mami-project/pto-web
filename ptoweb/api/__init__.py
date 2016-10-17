@@ -397,8 +397,11 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
     pipeline += [
       {'$group': {'_id' : '$path', 'sip' : {'$first' : '$sip'}, 'dip' : {'$first' : '$dip'}, 'observations': 
            {'$addToSet': {'id' : '$id', 'analyzer' : '$analyzer', 'conditions': '$conditions', 'time': '$time', 'value': '$value', 'path': '$path', 'sources' : '$sources'}}}},
-      {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}},
-      {'$match' : {'$or' : filters}}]
+      {'$project' : {'_id' : 0, 'sip' : 1, 'dip' : 1, 'observations' : 1, 'path' : 1}}]
+
+    if(len(filters) > 0):
+      pipeline += [{'$match' : {'$or' : filters}}]
+
     if(add_skip_limit):
       pipeline += [
         {'$skip' : skip},
