@@ -29,7 +29,7 @@ def get_uploads_collection():
 
 def get_observations_collection():
 
-  return g.mongo_client_observations['ptodev-obs']['observations']
+  return g.mongo_client_observations['ptodev1-obs']['observations']
 
 
 def get_obversations_collection_pre_grouped():
