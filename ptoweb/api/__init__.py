@@ -311,9 +311,9 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   time_to = datetime.utcfromtimestamp(time_to / 1000.0)
 
   if(limit <= 0):
-    limit = 16384
+    limit = 4096
   elif(limit >= 16384):
-    limit = 65536
+    limit = 8192
 
   if(n > 65536):
     n = 65536
@@ -405,7 +405,7 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   if(add_skip_limit and (not group)):
     pipeline += [
       {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])},
-      {'$skip' : skip},
+      # {'$skip' : skip},
       {'$limit' : limit},
     ]
 
@@ -427,7 +427,7 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
     if(add_skip_limit):
       pipeline += [
         {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])},
-        {'$skip' : skip},
+        # {'$skip' : skip},
         {'$limit' : limit},
       ]
 
