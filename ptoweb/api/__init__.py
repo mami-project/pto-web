@@ -25,7 +25,7 @@ def enumerate_conditions():
     return dic
   
   observations = get_observations_collection()
-  conditions = observations.aggregate([{'$unwind' : '$conditions'} , {'$group' : { '_id' : "$conditions"}}])
+  conditions = observations.aggregate([{'$match' : {'action_ids.0.valid' : True}},{'$unwind' : '$conditions'} , {'$group' : { '_id' : "$conditions"}}])
   dic = {}
   for condition in conditions:
     dic[condition['_id']] = True
@@ -101,12 +101,15 @@ def api_upload_statistics():
 
   uploads = get_uploads_collection()
 
-  total = uploads.count({})
+  total = uploads.count({'complete' : True})
 
-  pipeline = [{ '$group' : { '_id' : '$meta.msmntCampaign', 'count' : { '$sum' : 1 }}},
-              { '$sort' : { '_id' : 1 }}]
+  pipeline = [
+     {'$match': {'complete' : True}},
+     {'$sort': {'meta.start_time' : 1}},
+     {'$group': {'_id' : '$meta.msmntCampaign', 'count': {'$sum' : 1}, 'last': {'$last' : '$meta.stop_time'}, 'first': {'$first' : '$meta.start_time'}}},
+     { '$sort' : { '_id' : 1 }}]
 
-  msmnt_campaigns = list(uploads.aggregate(pipeline))
+  msmnt_campaigns = list(uploads.aggregate(pipeline, allowDiskUse = True))
 
   def f(x):
     if(x['_id'].startswith('testing') or
