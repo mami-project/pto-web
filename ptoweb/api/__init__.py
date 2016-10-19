@@ -311,9 +311,9 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   time_to = datetime.utcfromtimestamp(time_to / 1000.0)
 
   if(limit <= 0):
-    limit = 4096
-  elif(limit >= 8192):
-    limit = 8192
+    limit = 16384
+  elif(limit >= 16384):
+    limit = 65536
 
   if(n > 65536):
     n = 65536
