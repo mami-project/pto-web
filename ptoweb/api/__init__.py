@@ -404,6 +404,7 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   # If we group we need to skip, limit later
   if(add_skip_limit and (not group)):
     pipeline += [
+      {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])},
       {'$skip' : skip},
       {'$limit' : limit},
     ]
@@ -425,6 +426,7 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
 
     if(add_skip_limit):
       pipeline += [
+        {'$sort' : OrderedDict([('time.from',-1),('time.to',-1)])},
         {'$skip' : skip},
         {'$limit' : limit},
       ]
