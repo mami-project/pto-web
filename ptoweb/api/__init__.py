@@ -370,7 +370,7 @@ def get_pipeline(add_skip_limit = True, force_n = 0, group = False):
   if(len(all_conditions) > 0 and (group)):
     pre_matches['$match']['conditions'] = {'$in' : all_conditions}
 
-  if(len(ips) > 0):
+  if(len(ips) == 1):
     pre_matches['$match']['path'] = ips[-1]
 
   if(len(path) > 0):
