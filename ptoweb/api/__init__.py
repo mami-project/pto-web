@@ -25,7 +25,7 @@ def enumerate_conditions():
     return dic
   
   observations = get_observations_collection()
-  conditions = observations.distinct("conditions", {'action_ids.0.valid' : True})
+  conditions = observations.distinct("conditions")
   dic = {}
   for condition in conditions:
     dic[condition] = True
