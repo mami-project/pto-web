@@ -25,10 +25,10 @@ def enumerate_conditions():
     return dic
   
   observations = get_observations_collection()
-  conditions = observations.aggregate([{'$match' : {'action_ids.0.valid' : True}},{'$unwind' : '$conditions'} , {'$group' : { '_id' : "$conditions"}}])
+  conditions = observations.distinct("conditions")
   dic = {}
   for condition in conditions:
-    dic[condition['_id']] = True
+    dic[condition] = True
   
   put_to_cache('all_conditions', dic)
 
