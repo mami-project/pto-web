@@ -14,7 +14,6 @@
 <script src="qq.js"></script>
 <script src="query.js"></script>
 <script type="text/javascript">
-var api_base = 'https://observatory.mami-project.eu/papi';
 
 function inputDays() {
 
@@ -32,64 +31,62 @@ function inputDays() {
   disableDays(true);
 }
 
-      function disableDays(set) {
-        console.log('disableDays',set);
-        disableDaysFor(set, 'i_day_from', $('#i_year_from').val(), $('#i_month_from').val());
-        disableDaysFor(set, 'i_day_to', $('#i_year_to').val(), $('#i_month_to').val());
-      }
+function disableDays(set) {
+  console.log('disableDays',set);
+  disableDaysFor(set, 'i_day_from', $('#i_year_from').val(), $('#i_month_from').val());
+  disableDaysFor(set, 'i_day_to', $('#i_year_to').val(), $('#i_month_to').val());
+}
 
-      function disableDaysFor(set, select, year, month) {
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function disableDaysFor(set, select, year, month) {
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-        month = months.indexOf(month);
+  month = months.indexOf(month);
 
-        if(typeof(year) == 'string') year = parseInt(year);
+  if(typeof(year) == 'string') year = parseInt(year);
 
-        var lastDay = new Date(Date.UTC(year, month+1,0)).getUTCDate();
+  var lastDay = new Date(Date.UTC(year, month+1,0)).getUTCDate();
 
-        console.log('lastDay', lastDay, year, month);
+  console.log('lastDay', lastDay, year, month);
 
-        for(var i = 1; i <= 31; i++) {
-          var i_s = i.toString();
-          
-          if(i_s.length < 2)
-            i_s = '0' + i_s;
+  for(var i = 1; i <= 31; i++) {
+    var i_s = i.toString();
+    
+    if(i_s.length < 2)
+      i_s = '0' + i_s;
 
-          var prop_value = undefined;
-          if(i <= lastDay)
-            prop_value = false;
-          else
-            prop_value = true;
-          
-          $('#'+select + ' option[value="' + i_s + '"]').prop('disabled', prop_value);
+    var prop_value = undefined;
+    if(i <= lastDay)
+      prop_value = false;
+    else
+      prop_value = true;
+    
+    $('#'+select + ' option[value="' + i_s + '"]').prop('disabled', prop_value);
 
-
-
-          if(select == 'i_day_to') {
-            if(i == lastDay) {
-              if(set) {
-                $('#'+select + ' option[value="' + i_s + '"]').prop('selected', true);
-              }
-            } else {
-              if(set) {
-                $('#'+select + ' option[value="' + i_s + '"]').prop('selected', false);
-              }
-            }
-          }
-
-          if(select == 'i_day_from') {
-            if(i == 1) {
-              if(set) {
-                $('#'+select + ' option[value="' + i_s + '"]').prop('selected', true);
-              }
-            } else {
-              if(set) {
-                $('#'+select + ' option[value="' + i_s + '"]').prop('selected', false);
-              }
-            }
-          }
+    if(select == 'i_day_to') {
+      if(i == lastDay) {
+        if(set) {
+          $('#'+select + ' option[value="' + i_s + '"]').prop('selected', true);
+        }
+      } else {
+        if(set) {
+          $('#'+select + ' option[value="' + i_s + '"]').prop('selected', false);
         }
       }
+    }
+
+    if(select == 'i_day_from') {
+      if(i == 1) {
+        if(set) {
+          $('#'+select + ' option[value="' + i_s + '"]').prop('selected', true);
+        }
+      } else {
+        if(set) {
+          $('#'+select + ' option[value="' + i_s + '"]').prop('selected', false);
+        }
+      }
+    }
+  }
+}
 </script>
 <body  onLoad="window.name='PTOMain';inputDays()">
 
@@ -104,7 +101,7 @@ function inputDays() {
     
     <div class="w3-display-right">
     <!--<a href="#" class="w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white">Log In</a>-->
-   <a href="https://mami-project.eu" class="w3-bar-item w3-button w3-hide-small w3-padding-small w3-white w3-hover-white" target="_blank"><img style="height: 2.7rem" src="logo.png" alt="Go to MAMI project"/></a>
+   <a href="https://mami-project.eu" class="w3-bar-item w3-button w3-hide-small w3-padding-small w3-white w3-hover-white" target="_blank"><img style="height: 2.7rem" src="img/logo.png" alt="Go to MAMI project"/></a>
    </div>
   </div>
   

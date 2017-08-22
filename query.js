@@ -1,3 +1,5 @@
+var api_base = 'https://observatory.mami-project.eu/papi';
+
 /**
  * build iql query and submit it to query queue
  */
@@ -190,21 +192,6 @@ function runQuery() {
   request.fail(process_failed_response); 
 }
 
-
-/**
- * getResults
- *  - id - query id
- *
- * Make an AJAX request to the API to download the results
- */
-function getResults(id) {
-  var request = 
-    $.ajax(
-      {'url' : api_base + '/result?id=' + encodeURIComponent(id)})
-     .done(function(data) { renderResults(data, id) })
-     .fail(showError);
-}
-
 /**
  * process_successful_response
  *
@@ -259,6 +246,52 @@ function process_successful_response_redirect(data) {
   clearPreviousResults();
   console.log(JSON.stringify(data));
   window.location.href = './queryreply.html?' + encodeURIComponent(data['query_id']);
+}
+
+/**
+ * getResults
+ *  - id - query id
+ *
+ * Make an AJAX request to the API to download the results
+ */
+function getResults(id) {
+  var request = 
+    $.ajax(
+      {'url' : api_base + '/result?id=' + encodeURIComponent(id)})
+     .done(function(data) { renderResults(data, id) })
+     .fail(showError);
+}
+
+function getRecent() {
+  var request = 
+    $.ajax(
+      {'url' : api_base + '/qq/recent'})
+     .done(function (data) { renderQQ(data) })
+     .fail(showError);
+}
+
+function getNew() {
+  var request = 
+    $.ajax(
+      {'url' : api_base + '/qq/new'})
+     .done(function (data) { renderQQ(data) })
+     .fail(showError);
+}
+
+function getRunning() {
+  var request = 
+    $.ajax(
+      {'url' : api_base + '/qq/running'})
+     .done(function (data) { renderQQ(data, true) })
+     .fail(showError);
+}
+
+function getSummaryQQ() {
+  var request =
+    $.ajax(
+      {'url' : api_base + '/qq/summary'})
+     .done(function (data) { renderSummary(data); })
+     .fail(showError);
 }
 
 /**

@@ -67,7 +67,10 @@ function renderSummary(data) {
   for(var i = 0; i < data.length; i++) {
     var tr = table.append("tr");
     var d = data[i];
-    tr.append("td").append("a").text(d['id']).attr("href","queryreply.html?" + encodeURIComponent(d['id'])).attr("target","_blank");
+    if (states[d['state']] == "completed")
+      tr.append("td").append("a").text(d['id']).attr("href","queryreply.html?" + encodeURIComponent(d['id'])).attr("target","_blank");
+    else
+      tr.append("td").text(d['id']);
     tr.append("td").text(states[d['state']]);
     tr.append("td").text(toMinutes(d['duration']));
     tr.append("td").html(toEnglish(d['iql'])).attr("class","code").attr("style", "text-align: left");
