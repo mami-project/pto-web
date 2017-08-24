@@ -1,48 +1,6 @@
 var api_base = 'https://observatory.mami-project.eu/papi';
 
 /**
- * findINJSON
- *  - query - query
- *  - what - what to look for
- *  - arr - where to place results
- *
- * searches through JSON
- */
-function findInJSON(query, what, arr) {
-  if(typeof(query) != 'object') return;
-  var keys = Object.keys(query);
-  for(var i = 0; i < keys.length; i++) {
-    if(what == keys[i]) {
-      arr.push(query[what]);
-    }
-    findInJSON(query[keys[i]], what, arr);
-  }
-}
-
-/**
- * extractTimestamps
- *  - query - query
- *
- * Tries to extract timestamps from a query and convert
- * them to human readable strings
- */
-function extractTimestamps(query) {
-  var timestamps = [];
-  findInJSON(query, 'time', timestamps);
-  for(var i = 0; i < timestamps.length; i++) {
-    if(Array.isArray(timestamps[i])) {
-      timestamps[i] = timestamps[i][0];
-      if(timestamps[i] != undefined)
-        if(typeof(timestamps[i]) == 'number') {
-          timestamps[i] = timestamps[i] + " : " + new Date(timestamps[i]*1000).toUTCString();
-        }
-    }
-  }
-  console.log('timestamps', timestamps);
-  return timestamps;
-}
-
-/**
  * renderCounts
  *  - results - results
  *  - group_order - grouping of the query
@@ -169,7 +127,7 @@ function renderCounts(results, group_order, distinct, iql) {
     }
   }
 
-  if(group_order.length >= 0) {
+  //if(group_order.length >= 0) {
 
     var group_by = group_order[0];
     var groups = {};
@@ -211,15 +169,15 @@ function renderCounts(results, group_order, distinct, iql) {
 
     renderHBarStacked(groups, title, counted_attribute);
 
-  }
-  else if(group_order.length == 0) {
-    if(distinct === true) {
-      renderHBar(results, "Counts of <i>" + escapeHtml(attrNameToDisplay(distinct_attribute)) + "</i> per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + date_str, counted_attribute);
-    }
-    else {
-      renderHBar(results, "Counts of observations per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + cond_str + " " + date_str, counted_attribute);
-    }
-  }
+  //}
+  // else if(group_order.length == 0) {
+  //   if(distinct === true) {
+  //     renderHBar(results, "Counts of <i>" + escapeHtml(attrNameToDisplay(distinct_attribute)) + "</i> per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + date_str, counted_attribute);
+  //   }
+  //   else {
+  //     renderHBar(results, "Counts of observations per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + cond_str + " " + date_str, counted_attribute);
+  //   }
+  // }
 }
 
 
@@ -542,7 +500,7 @@ function toRows(data, rows, parent_row, cols) {
 }
 
 /** DEPRECATED **/
-function renderTableStructure(data, tbl, cols, lvl) {
+/* function renderTableStructure(data, tbl, cols, lvl) {
   if($.isArray(data)) {
     console.log("got array");
     var table = tbl.append("table").attr("class","table").attr("style","margin: 1rem; margin-left: 2rem");
@@ -571,7 +529,7 @@ function renderTableStructure(data, tbl, cols, lvl) {
       renderTableStructure(data[group_keys[i]], td, cols, lvl+1);
     }
   }
-}
+} */
 
 /**
  * groupAll
@@ -643,7 +601,7 @@ function table(data) {
  * Trim long strings to max_len_ length
  * using ...
  */
-function trimLongStr(str, max_len_) {
+/* function trimLongStr(str, max_len_) {
   if(str == null || str == undefined) return "";
 
 
@@ -667,7 +625,7 @@ function trimLongStr(str, max_len_) {
   if(str.length > max_len)
     return str.substring(0,max_len-2) + "...";
   return str;
-}
+} */
 
 
 /**
@@ -676,14 +634,14 @@ function trimLongStr(str, max_len_) {
  *
  * Convert a number to e-notation
  */
-function to_e(num) {
+/* function to_e(num) {
   if(num < 10000)
     return num;
   var lg = Math.floor(Math.log10(num));
   var b = num / (Math.pow(10,lg));
       b = Math.round(10*b)/10;
   return "" + b + "e" + lg;
-}
+} */
 
 /**
  * renderHBarStacked
@@ -704,7 +662,7 @@ function renderHBarStacked(groups, title, counted_attribute) {
   //group_keys.sort()
   console.log('group_keys', group_keys);
 
-  var max_overall = 0;
+  //var max_overall = 0;
   var cols = [];
   var counted_total = {};
 
@@ -725,7 +683,7 @@ function renderHBarStacked(groups, title, counted_attribute) {
       }
     }
 
-    max_overall = d3.max([max_overall, temp]);
+    //max_overall = d3.max([max_overall, temp]);
   }
 
   //if(cols.length > 16) //abort... too much to render
@@ -733,7 +691,7 @@ function renderHBarStacked(groups, title, counted_attribute) {
 
   //cols.sort();
   console.log('cols', cols);
-  console.log('max_overall', max_overall);
+  //console.log('max_overall', max_overall);
   console.log('counted_total', counted_total);
 
 
@@ -745,7 +703,7 @@ function renderHBarStacked(groups, title, counted_attribute) {
   // Each yz[i] is an array of m non-negative numbers representing a y-value for xz[i].
   // The y01z array has the same structure as yz, but with stacked [y₀, y₁] instead of y.
   var xz = d3.range(m),
-      yz = d3.range(n).map(function(i) { return values(i); }),
+      yz = d3.range(n).map(function(d, i) { return values(i); }),
       y01z = d3.stack().keys(d3.range(n))(d3.transpose(yz)),
       yMax = d3.max(yz, function(y) { return d3.max(y); }),
       y1Max = d3.max(y01z, function(y) { return d3.max(y, function(d) { return d[1]; }); });
@@ -755,8 +713,6 @@ function renderHBarStacked(groups, title, counted_attribute) {
       width = +svg.attr("width") - margin.left - margin.right,
       height = +svg.attr("height") - margin.top - margin.bottom,
       g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-      console.log("margin", margin.top)
   
   var x = d3.scaleBand()
       .domain(xz)
@@ -775,39 +731,6 @@ function renderHBarStacked(groups, title, counted_attribute) {
   var color = d3.scaleOrdinal()
       .domain(d3.range(n))
       .range(d3.schemeCategory20c);
-
-  // add title
-  d3.select("#title").html("<center>"+title+"</center>");
-  // svg.append("text")
-  // .attr("x", (width / 2))             
-  // .attr("y", 15)
-  // .attr("text-anchor", "middle")  
-  // .style("font-size", "12px")  
-  // .text(title);
-  
-  // add legend
-  var lineheight = 15;
-  var legend = svg.append("g");
-  var offset_x = 0;
-  var offset_y = 0;
-  legend.attr("transform", "translate(0, 30)");
-      
-  for(var i = 0; i < cols.length; i++) {
-    legend.append("rect").attr("y", offset_y).attr("x",offset_x + 0).attr("width", lineheight).attr("height", lineheight).attr("fill", color(i));
-    legend.append("text").attr("x",offset_x + lineheight+5).attr("y", offset_y + lineheight /2).attr("dy", ".35em").text(cols[i] + " (" + counted_total[cols[i]] +")")
-    .attr("style","font-size: 10px")
-    .attr("fill", color(i));
-    if (m <= 4) {
-      offset_y += lineheight+5
-    }
-    else {
-    offset_x += Math.floor(width / 2);
-    if(i % 2 == 1) {
-      offset_y += lineheight+5;
-      offset_x = 0;
-    }
-    }
-  }
   
   var series = g.selectAll(".series")
     .data(y01z)
@@ -821,6 +744,47 @@ function renderHBarStacked(groups, title, counted_attribute) {
       .attr("y", height)
       .attr("width", x.bandwidth())
       .attr("height", 0);
+  
+  // add legend
+  var lineheight = 15;
+  var legend = svg.append("g");
+  var offset_x = 0;
+  var offset_y = 0;
+  legend.attr("transform", "translate(0, 30)");
+      
+  for(var i = 0; i < cols.length; i++) {
+    legend.append("rect")
+          .attr("y", offset_y).attr("x",offset_x + 0)
+          .attr("width", lineheight)
+          .attr("height", lineheight)
+          .attr("fill", color(i));
+    legend.append("text")
+          .attr("x",offset_x + lineheight+5)
+          .attr("y", offset_y + lineheight /2)
+          .attr("dy", ".35em")
+          .text(cols[i] + " (" + counted_total[cols[i]] +")")
+          .attr("style","font-size: 10px")
+          .attr("fill", color(i));
+    if (m <= 4) {
+      offset_y += lineheight+5
+    }
+    else {
+      offset_x += Math.floor(width / 2);
+      if(i % 2 == 1) {
+        offset_y += lineheight+5;
+        offset_x = 0;
+      }
+    }
+  }
+
+  // add title
+  d3.select("#title").html("<center>"+title+"</center>");
+  // svg.append("text")
+  // .attr("x", (width / 2))             
+  // .attr("y", 15)
+  // .attr("text-anchor", "middle")  
+  // .style("font-size", "12px")  
+  // .text(title);
   
   rect.transition()
       .delay(function(d, i) { return i * 10; })
@@ -1018,7 +982,7 @@ function renderHBarStacked(groups, title, counted_attribute) {
  *
  * render an hbar chart
  */
-function renderHBar(data, title, counted_attribute) {
+/* function renderHBar(data, title, counted_attribute) {
 
   console.log('renderHBar',data);
 
@@ -1094,4 +1058,46 @@ function renderHBar(data, title, counted_attribute) {
   footer.append("text").attr("x",width).attr("y", barHeight /2).attr("dy", ".35em").text(function() { return max_count + ""; }).attr("fill","black").attr("style","text-anchor: end;");
 
   $('#chart_section').css('display','block');
+} */
+
+/**
+ * findINJSON
+ *  - query - query
+ *  - what - what to look for
+ *  - arr - where to place results
+ *
+ * searches through JSON
+ */
+function findInJSON(query, what, arr) {
+  if(typeof(query) != 'object') return;
+  var keys = Object.keys(query);
+  for(var i = 0; i < keys.length; i++) {
+    if(what == keys[i]) {
+      arr.push(query[what]);
+    }
+    findInJSON(query[keys[i]], what, arr);
+  }
+}
+
+/**
+ * extractTimestamps
+ *  - query - query
+ *
+ * Tries to extract timestamps from a query and convert
+ * them to human readable strings
+ */
+function extractTimestamps(query) {
+  var timestamps = [];
+  findInJSON(query, 'time', timestamps);
+  for(var i = 0; i < timestamps.length; i++) {
+    if(Array.isArray(timestamps[i])) {
+      timestamps[i] = timestamps[i][0];
+      if(timestamps[i] != undefined)
+        if(typeof(timestamps[i]) == 'number') {
+          timestamps[i] = timestamps[i] + " : " + new Date(timestamps[i]*1000).toUTCString();
+        }
+    }
+  }
+  console.log('timestamps', timestamps);
+  return timestamps;
 }
