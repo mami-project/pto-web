@@ -254,18 +254,17 @@ function process_successful_response_redirect(data) {
  *
  * Make an AJAX request to the API to download the results
  */
-function getResults(id) {
+function getResults(id, calldone) {
   var request = 
     $.ajax(
       {'url' : api_base + '/result?id=' + encodeURIComponent(id)})
-     .done(function(data) { renderResults(data, id) })
+     .done(calldone)
      .fail(showError);
 }
 
 function getRecent() {
   var request = 
-    $.ajax(
-      {'url' : api_base + '/qq/recent'})
+    $.ajax({'url' : api_base + '/qq/recent'})
      .done(function (data) { renderQQ(data) })
      .fail(showError);
 }

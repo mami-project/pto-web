@@ -1,26 +1,102 @@
-var api_base = 'https://observatory.mami-project.eu/papi';
+/**
+ * loadResults
+ *
+ * Download results from server. Reads window.location for the query id
+ */
+function loadResults() {
+  var id = window.location.search.substring(1);
+  if(id.length > 1) {
+    getResults(id, function(data) { renderResults(data) });
+  }
+  else
+   console.log('no query string');
+}
 
 /**
- * renderCounts
- *  - results - results
- *  - group_order - grouping of the query
- *  - distinct - distinct count or regular count?
+ * showError
+ * 
+ * function for AJAX callback on error
  */
-function renderCounts(results, group_order, distinct, iql) {
-  if(!Array.isArray(group_order)) {
-    console.log("group_order not an array");
+function showError(xhr, status) {
+  console.log('estatus', xhr.status);
+  if(xhr.status == 404) {
+    $('#results_msg').empty().append('<span class="txt-warn">The supplied result id could not be found in our database. Most likely the results expired and are no longer available. Please run a new query.</span></br></br>');
+  }
+  else {
+    $('#results_msg').empty().append('<span class="txt-err">Downloading results from server failed! Please try later again. If you keep seeing this message please contact us.</span></br></br>');
+  }
+}
+
+/**
+ * renderResults
+ *  - results - result set
+ *
+ * Renders the results
+ */
+function renderResults(results) {
+
+  console.log('results', results);
+
+  var result = results['result']['results'];
+  console.log('result Object', result);
+
+  var iql = results['iql'];
+  console.log('iql', JSON.stringify(iql));
+
+  var msgDiv = d3.select('#text_sec').attr('display', 'block');
+
+  // show a message if the query run is not completed yet
+  // and return
+  if(results['state'] != 'completed' && results['state'] != 'done') {
+    msgDiv.html('<br><span class="txt-warn">Your query is not completed yet. Please come back later!</span><br><br><span>This is your query ID: ' + results['id'] + '</span><br><br>');
     return;
   }
 
-  if(results.length <= 0) {
-    console.log("empty result set");
-    return;
+  // show query ID and raw query
+  msgDiv.html('<p>Query ID: <a href="./qui.html?' + encodeURIComponent(results['id']) + '">' + results['id'] + '</a></p>');
+  msgDiv.append('p').html("<code>Raw query:</br><small>"+JSON.stringify(iql)+"</small></code>");
+
+  // IQL currently only returns at max 4096 results
+  // show the user a warning if results are limited
+  if(results.length == 4096) {
+    msgDiv.append('p').html("<b>Warning: You are viewing an incomplete result set because too many results were available!</b>");
   }
 
-  console.log('group_order', group_order);
+  // show query text
+  msgDiv.append('p').html(toEnglish(iql, "No english translation for your query available."));
 
-  var counted_attribute = group_order[group_order.length-1].substring(1);
-  var distinct_attribute = counted_attribute;
+  if(result.length == 0)
+     msgDiv.append('p').html("This query has no results.");
+
+  
+
+  /// render graph
+  var isCountDistinct = ('count-distinct' in iql['query']);
+  var groupOrder = iql['query'][isCountDistinct?'count-distinct':'count'][0];
+  if (groupOrder.length >= 1) {
+	d3.select("#title").html("<center>"+generateTitle(iql, groupOrder, isCountDistinct)+"</center>");
+  	renderCounts(result, groupOrder, isCountDistinct);
+  } else {
+    table(result);
+  }
+
+  /*var timestamps = extractTimestamps(iql);
+
+  for(var i = 0; i < timestamps.length; i++) {
+    if(i == 0)
+     $('#raw_query').append('<br><br>----<br>Timestamps in this query:<br>');
+    else
+     $('#raw_query').append('<br>');
+    $('#raw_query').append(timestamps[i]);
+  }*/
+}
+
+/**
+ * generateTitle
+ *
+ * returns the title string for the graph
+ */
+function generateTitle(iql, group_order, distinct) {
 
   var date_str = "";
   var cond_str = "";
@@ -45,7 +121,37 @@ function renderCounts(results, group_order, distinct, iql) {
   }
   catch(err) { console.log(err); }
 
-  console.log('cond_str', cond_str);
+  var title = "Counts of";
+
+  if (distinct == true) {
+     title += " distinct <i>" + escapeHtml(attrNameToDisplay(group_order[group_order.length-1])) + "</i> per <i>" + escapeHtml(attrNameToDisplay(group_order[1])) + "</i>";
+  } else {
+     title += " observations per <i>Condition</i> " + cond_str;
+  }
+
+  if (group_order.length>=2)
+     title += " </i> grouped by <i>" + escapeHtml(attrNameToDisplay(group_order[0])) + "</i>";
+
+   return title + " " + date_str;
+}
+
+/**
+ * renderCounts
+ *  - results - results
+ *  - group_order - grouping of the query
+ *  - distinct - distinct count or regular count?
+ */
+function renderCounts(results, group_order, distinct) {
+  /*if(!Array.isArray(group_order)) {
+    console.log("group_order not an array");
+    return;
+  }*/
+
+  console.log('group_order', group_order);
+
+  var counted_attribute = group_order[group_order.length-1].substring(1);
+  var distinct_attribute = counted_attribute;
+
 
   group_order.pop();
 
@@ -115,15 +221,16 @@ function renderCounts(results, group_order, distinct, iql) {
 
       console.log('part_groups', groups);
 
-      var caption = attrNameToDisplay(top_group_by) + ' ' + top_group_keys[i];
-      var title = "Counts of observations per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + cond_str + " grouped by <i>" + escapeHtml(attrNameToDisplay(bot_group_by)) + "</i> " + date_str;
+      //var caption = attrNameToDisplay(top_group_by) + ' ' + top_group_keys[i];
+      /*var title = "Counts of observations per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + cond_str + " grouped by <i>" + escapeHtml(attrNameToDisplay(bot_group_by)) + "</i> " + date_str;
 
       if(distinct === true) {
         title = "Counts of distinct <i>" + escapeHtml(attrNameToDisplay(distinct_attribute)) + "s</i> per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) +
             "</i> grouped by <i>" + escapeHtml(attrNameToDisplay(bot_group_by)) + "</i> " + date_str;
-      }
+      }*/
 
-      renderHBarStacked(groups, title, counted_attribute);
+
+      renderHBarStacked(d3.select("#chart").append("svg"), groups, counted_attribute);
     }
   }
 
@@ -148,26 +255,11 @@ function renderCounts(results, group_order, distinct, iql) {
     //for(var i = 0; i < group_keys.length; i++) {
     //  chart(groups[group_keys[i]], attrNameToDisplay(group_by) + ": " + group_keys[i], counted_attribute);
     //}
-    if (group_order.length==1) {
-      var title = "Counts of observations per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + cond_str + " grouped by <i>" + escapeHtml(attrNameToDisplay(group_by)) + "</i> " + date_str;
-      
-      if(distinct === true) {
-        title = "Counts of distinct <i>" + escapeHtml(attrNameToDisplay(distinct_attribute)) + "s</i> per <i>" + escapeHtml(attrNameToDisplay(counted_attribute))
-              + "</i> grouped by <i>" + escapeHtml(attrNameToDisplay(group_by)) + "</i> " + date_str;
-      }
-    }
-    else if (group_order.length==0) {
-      if(distinct === true) {
-        var title = "Counts of <i>" + escapeHtml(attrNameToDisplay(distinct_attribute)) + "</i> per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + date_str;
-      }
-      else {
-        var title = "Counts of observations per <i>" + escapeHtml(attrNameToDisplay(counted_attribute)) + "</i> " + cond_str + " " + date_str;
-      }
-    }
+
 
     
 
-    renderHBarStacked(groups, title, counted_attribute);
+    renderHBarStacked(d3.select("#chart-svg"), groups, counted_attribute);
 
   //}
   // else if(group_order.length == 0) {
@@ -198,107 +290,7 @@ function clearPreviousResults() {
 }
 
 
-/**
- * renderResults
- *  - results - result set
- *  - query_id - query ID
- *
- * Renders the results
- */
-function renderResults(results, query_id) {
-  //$("body").css("cursor", "default");
 
-  /** clear previously rendered stuff **/
-  //clearPreviousResults();
-
-  $('#results').css('display','block');
-  $('#results_msg').css('display','block');
-  //$('#results_msg_top').css('display','block');
-  //$('#query_msg').css('display','none');
-
-  //$("#runbutton").html("Run new query");
-  //$('#runbutton').removeAttr("disabled");
-
-  if(results['state'] != 'completed' && results['state'] != 'done') {
-    $('#results_msg').empty().append('<span class="txt-warn">Your query is not completed yet. Please come back later!</span>');
-    $('#results_msg').append('<br><br><span>This is your query ID: ' + encodeURIComponent(query_id) + '</span>');
-    return;
-  }
-
-  var rawResultsDiv = document.getElementById('raw_results');
-  var result = results['result'];
-  $('#raw_results').append('<a href="' + api_base + '/result?download=y&id=' + encodeURIComponent(results['id']) + '">Download raw results</a>');
-  var iql = results['iql'];
-  $('#raw_query').append(JSON.stringify(iql));
-
-  console.log('iql', JSON.stringify(iql));
-
-  $('#raw_query_section').css('display','block');
-
-  results = result['results'];
-
-  var iql_ = JSON.parse(JSON.stringify(iql));
-
-  if(!('query' in iql)) {
-    return; //abort. something's more than fishy
-  }
-
-  var timestamps = extractTimestamps(iql);
-
-  for(var i = 0; i < timestamps.length; i++) {
-    if(i == 0)
-     $('#raw_query').append('<br><br>----<br>Timestamps in this query:<br>');
-    else
-     $('#raw_query').append('<br>');
-    $('#raw_query').append(timestamps[i]);
-  }
-
-
-  var query = iql['query'];
-  var querytext = toEnglish(JSON.parse(JSON.stringify(iql)), "No english translation for your query available.");
-
-  /** If possible try to extract form params back from the iql query **/
-  try {
-    var params = extractQuery(iql);
-
-    fillForms(params);
-    $('#qui').css('display','block');
-  }
-  catch(err) {}
-
-  if('count' in query) {
-      console.log('regular count');
-      renderCounts(results, query['count'][0], false, iql_);
-  }
-  else if('count-distinct' in query) {
-      console.log('distinct count');
-      console.log('qq', JSON.stringify(query['count-distinct']));
-      console.log('[0]', query['count-distinct'][0]);
-      renderCounts(results, query['count-distinct'][0], true, iql_);
-  }
-
-  else if(results.length > 0) {
-    table(results);
-  }
-
-  $('#results_msg_top').empty().append('<span class="txt-info"><a href=#results>Your results are visible below.</a></span> ');
-  $('#results_msg_top').append('<br><br><span class="txt-small">Query ID: <a href="./qui.html?' + encodeURIComponent(query_id) + '">' + encodeURIComponent(query_id) + '</a></span>');
-
-  try {
-    console.log('iql', JSON.stringify(iql));
-    $('#results_msg').append('<br><br><span class="txt-small">' + querytext + '</span><br>');
-  }
-  catch(err) { }
-
-  if(results.length >= 4096) {
-    $('#results_msg').append('<br><span class="txt-warn">You are viewing an incomplete result set because too many results were available!<span> ');
-    $('#results_msg').append('<span class="txt-warn">Aggregations done by the UI will be incomplete!</span> ');
-  }
-
-  $("#results")[0].scrollIntoView();
-
-  //$('#runbutton').prop('value', 'Run new query');
-}
 
 
 
@@ -361,20 +353,7 @@ function fillForms(params) {
 }
 
 
-/**
- * showError
- * 
- * AJAX callback. Called on error
- */
-function showError(xhr, status) {
-  console.log('estatus',xhr.status);
-  if(xhr.status == 404) {
-    $('#results_msg').empty().append('<span class="txt-warn">The supplied result id could not be found in our database. Most likely the results expired and are no longer available. Please run a new query.</span>');
-  }
-  else {
-    $('#results_msg').empty().append('<span class="txt-err">Downloading results from server failed! Please try later again. If you keep seeing this message please contact us.</span>');
-  }
-}
+
 
 /**
  * renderTable
@@ -646,13 +625,12 @@ function table(data) {
 /**
  * renderHBarStacked
  *  - groups - groups (data)
- *  - title - title of the graph
  *  - counted_attribute - the attribute that was counted
  *
  * render a stacked hbar chart
  */
-function renderHBarStacked(groups, title, counted_attribute) {
-  console.log('renderHBarStacked', groups, title, counted_attribute);
+function renderHBarStacked(svg, groups, counted_attribute) {
+  console.log('renderHBarStacked', groups, counted_attribute);
 
   var group_keys = Object.keys(groups);
 
@@ -708,7 +686,7 @@ function renderHBarStacked(groups, title, counted_attribute) {
       yMax = d3.max(yz, function(y) { return d3.max(y); }),
       y1Max = d3.max(y01z, function(y) { return d3.max(y, function(d) { return d[1]; }); });
   
-  var svg = d3.select("#chart-svg").attr("width", m*(m<=4?240:100)).attr("height", 300),
+  svg.attr("width", m*(m<=4?240:100)).attr("height", 300),
       margin = {top: ((m<=4?n:n/2)*20)+40, right: 10, bottom: 20, left: 10},
       width = +svg.attr("width") - margin.left - margin.right,
       height = +svg.attr("height") - margin.top - margin.bottom,
@@ -778,7 +756,6 @@ function renderHBarStacked(groups, title, counted_attribute) {
   }
 
   // add title
-  d3.select("#title").html("<center>"+title+"</center>");
   // svg.append("text")
   // .attr("x", (width / 2))             
   // .attr("y", 15)

@@ -1,35 +1,3 @@
-function getRecent() {
-  var request = 
-    $.ajax(
-      {'url' : api_base + '/qq/recent'})
-     .done(function (data) { renderQQ(data) })
-     .fail(showError);
-}
-
-function getNew() {
-  var request = 
-    $.ajax(
-      {'url' : api_base + '/qq/new'})
-     .done(function (data) { renderQQ(data) })
-     .fail(showError);
-}
-
-function getRunning() {
-  var request = 
-    $.ajax(
-      {'url' : api_base + '/qq/running'})
-     .done(function (data) { renderQQ(data, true) })
-     .fail(showError);
-}
-
-function getSummaryQQ() {
-  var request =
-    $.ajax(
-      {'url' : api_base + '/qq/summary'})
-     .done(function (data) { renderSummary(data); })
-     .fail(showError);
-}
-
 function toMinutes(seconds) {
   if(seconds < 90) {
     return seconds + "s";
