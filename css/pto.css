@@ -1,0 +1,16 @@
+table, th, td {
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+
+.yearCell:hover{
+    background-color: gray !important;
+}
+
+.expandedYearCell{
+    background-color: yellow !important;
+}
+
+.expandedYearCell:hover{
+    background-color: gray !important;
+}

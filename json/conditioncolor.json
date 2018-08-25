@@ -1,0 +1,11 @@
+{
+"succeeded":"green",
+"works":"green",
+"reflected":"yellow",
+"path_dependent":"yellow",
+"unstable":"yellow",
+"failed":"red",
+"broken":"red",
+"offline":"gray"
+"transient":"grey",
+}
