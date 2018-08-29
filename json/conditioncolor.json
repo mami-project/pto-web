@@ -1,11 +1,52 @@
 {
-"succeeded":"green",
-"works":"green",
-"reflected":"yellow",
-"path_dependent":"yellow",
-"unstable":"yellow",
-"failed":"red",
-"broken":"red",
-"offline":"gray"
-"transient":"grey",
+  "ecn.connectivity": {
+    "ecn.connectivity.offline": "#888888",
+    "ecn.connectivity.broken": "#CC1111",
+    "ecn.connectivity.works": "#11CC11",
+    "ecn.connectivity.transient": "#2222FF"
+  },
+  "ecn.ipmark.ce": {
+    "ecn.ipmark.ce.seen": "#11CC11",
+    "ecn.ipmark.ce.not_seen": "#CC1111"
+  },
+  "ecn.ipmark.ect0": {
+    "ecn.ipmark.ect0.seen": "#11CC11",
+    "ecn.ipmark.ect0.not_seen": "#CC1111"
+  },
+  "ecn.ipmark.ect1": {
+    "ecn.ipmark.ect1.seen": "#11CC11",
+    "ecn.ipmark.ect1.not_seen": "#CC1111"
+  },
+  "ecn.multipoint.connectivity": {
+    "ecn.multipoint.connectivity.broken": "#CC1111",
+    "ecn.multipoint.connectivity.offline": "#888888",
+    "ecn.multipoint.connectivity.path_dependent": "#886611",
+    "ecn.multipoint.connectivity.transient": "#2222FF",
+    "ecn.multipoint.connectivity.unstable": "#CCCC11",
+    "ecn.multipoint.connectivity.works": "#11CC11"
+  },
+  "ecn.multipoint.negotiation": {
+    "ecn.multipoint.negotiation.failed": "#CC1111",
+    "ecn.multipoint.negotiation.path_dependent": "#886611",
+    "ecn.multipoint.negotiation.succeeded": "#11CC11",
+    "ecn.multipoint.negotiation.unstable": "#CCCC11"
+  },
+  "ecn.negotiation": {
+    "ecn.negotiation.failed": "#CC1111",
+    "ecn.negotiation.reflected": "#CCCC11",
+    "ecn.negotiation.succeeded": "#11CC11"
+  },
+  "ecn.stable.connectivity": {
+    "ecn.stable.connectivity.broken": "#CC1111",
+    "ecn.stable.connectivity.offline": "#888888",
+    "ecn.stable.connectivity.path_dependent": "#886611",
+    "ecn.stable.connectivity.transient": "#2222FF",
+    "ecn.stable.connectivity.unstable": "#CCCC11",
+    "ecn.stable.connectivity.works": "#11CC11"
+  },
+  "ecn.stable.negotiation": {
+    "ecn.negotiation.failed": "#CC1111",
+    "ecn.negotiation.reflected": "#CCCC11",
+    "ecn.negotiation.succeeded": "#11CC11"
+  }
 }

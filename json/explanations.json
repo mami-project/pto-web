@@ -1,0 +1,11 @@
+{
+  "ecn.connectivity": "lol",
+  "ecn.ipmark.ce":"",
+  "ecn.ipmark.ect0":"",
+  "ecn.ipmark.ect1":"",
+  "ecn.multipoint.connectivity":"The same as ecn.connectivity, but with multiple vantage points.",
+  "ecn.multipoint.negotiation":"The same as ecn.necotioation, but with multiple vantage points.",
+  "ecn.negotiation":"",
+  "ecn.stable.connectivity":"",
+  "ecn.stable.negotiation":""
+}

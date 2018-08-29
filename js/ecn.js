@@ -1,24 +1,44 @@
-const ecnQueryUrl = "http://localhost/query/28fb885b7822b4bfab82ed87f238e3cdb5c5cc7af793068a03268ae093c3b25f/result";
-// const ecnQueryUrl = "https://v3.pto.mami-project.eu/query/28fb885b7822b4bfab82ed87f238e3cdb5c5cc7af793068a03268ae093c3b25f/result";
+//const ecnQueryUrl = "http://localhost/query/28fb885b7822b4bfab82ed87f238e3cdb5c5cc7af793068a03268ae093c3b25f/result";
+const ecnQueryUrl = "https://v3.pto.mami-project.eu/query/28fb885b7822b4bfab82ed87f238e3cdb5c5cc7af793068a03268ae093c3b25f/result";
 
 let aspects = [];
 let conditions = [];
 let timelines = [];
 let groups;
+let colors;
+let explanations;
 
 function initEcn(){
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", ecnQueryUrl, true);
-    xhr.onload = function () {
-        const result = JSON.parse(xhr.responseText);
-        groups = result.groups;
-        initData();
-        drawCharts();
-    };
-    xhr.onerror = function () {
-        alert("There was an error getting the data!");
-    };
-    xhr.send();
+    fetch("json/explanations.json")
+        .then(response => response.json())
+        .then(function (data){
+            explanations = data;
+            console.log(explanations);
+        })
+        .catch(function (e) {
+            alert(e);
+        });
+
+    fetch("json/conditioncolor.json")
+        .then(response => response.json())
+        .then(function (data) {
+            colors = data;
+            console.log(colors);
+        })
+        .catch(function (e) {
+            alert(e);
+        });
+
+    fetch(ecnQueryUrl)
+        .then(response => response.json())
+        .then(function (data) {
+            groups = data.groups;
+            initData();
+            drawCharts();
+        })
+        .catch(function (e) {
+            alert(e);
+        });
 }
 
 function initData(){
@@ -33,7 +53,6 @@ function initData(){
 function initAspects(){
     for(let group of groups){
         let aspect = getAspectFromGroup(group);
-
         if(aspects.indexOf(aspect) === -1){
             aspects.push(aspect);
         }
@@ -68,9 +87,14 @@ function initTimelines(){
             timelines[aspect].push(date);
         }
     }
+
+    for(let aspect of aspects){
+        timelines[aspect].sort();
+    }
 }
 
 function drawCharts(){
+
     for(let aspect of aspects){
         createContainer(aspect);
         drawChart(aspect);
@@ -78,25 +102,19 @@ function drawCharts(){
 }
 
 function createContainer(aspect){
-    const statisticsDiv = document.querySelector('#statisticsDiv');
+    const template = document.getElementsByTagName('template')[0];
+    const chartDiv = template.content.cloneNode(true);
+    let h2 = chartDiv.children[0].children[0];
+    let p = chartDiv.children[0].children[1];
+    let div1 = chartDiv.children[0].children[2];
+    let div2 = chartDiv.children[0].children[3];
 
-    const chartDiv = document.createElement('div');
-    chartDiv.classList.add('w3-row-padding');
-    chartDiv.classList.add('w3-container');
+    h2.innerText = aspect;
+    p.innerText = explanations[aspect];
+    div1.id = 'data' + aspects.indexOf(aspect);
+    div2.id = 'volume' + aspects.indexOf(aspect);
 
-    const title = document.createElement('h2');
-    title.innerText = aspect;
-    chartDiv.appendChild(title);
-
-    const dataChart = document.createElement('div');
-    dataChart.id = 'data' + aspects.indexOf(aspect);
-    chartDiv.appendChild(dataChart);
-
-    const volumeChart = document.createElement('div');
-    volumeChart.id = 'volume' + aspects.indexOf(aspect);
-    chartDiv.appendChild(volumeChart);
-
-    statisticsDiv.appendChild(chartDiv);
+    document.body.insertBefore(chartDiv, template);
 }
 
 function drawChart(aspect){
@@ -112,12 +130,15 @@ function drawDataChart(aspect){
     c3.generate({
         bindto: '#data' + aspects.indexOf(aspect),
         padding: {
-            left: 100
+            left: 100,
+            bottom: 0
         },
         data: {
             columns: getMeasurements(aspect),
             type: 'bar',
-            groups:[conditions[aspect]]
+            colors: colors[aspect],
+            groups: [conditions[aspect]],
+            onclick: dataBarClicked
         },
         axis: {
             x: {
@@ -130,9 +151,58 @@ function drawDataChart(aspect){
                 tick: {
                     format: d3.format('.2%')
                 }
+            }
+        },
+        grid: {
+            x: {
+                show: false
             },
-            y2: {
-                show: false,
+            y: {
+                show: true
+            }
+        },
+        bar: {
+            width: {
+                ratio: 0.8
+            }
+        },
+        legend: {
+            position: 'inset'
+        },
+        tooltip: {
+            format: {
+                value: function(value, radio, id, index) {return d3.format('.2%')(value) + ' (' + Math.round(value * getVolumes(aspect)[index + 1]) + ')'},
+                name: function (name) {return name.substring(name.lastIndexOf('.') + 1, name.length)}
+            }
+        }
+    });
+}
+
+function drawVolumeChart(aspect){
+    c3.generate({
+        bindto: '#volume' + aspects.indexOf(aspect),
+        padding: {
+            left: 100,
+            top: 0
+        },
+        size: {
+            height: 150
+        },
+        data: {
+            columns: [getVolumes(aspect)],
+            type: 'bar',
+            colors: {
+                Volume: '#111111'
+            }
+        },
+        axis: {
+            x: {
+                type: 'category',
+                tick: {
+                    format: function(index) {return timelines[aspect][index]},
+                }
+            },
+            y: {
                 tick: {
                     format: d3.format(',')
                 }
@@ -153,53 +223,19 @@ function drawDataChart(aspect){
         },
         legend: {
             position: 'inset'
-        },
-        tooltip: {
-            format: {
-                value: function(value, radio, id, index) {return d3.format('.2%')(value) + ' (' + Math.round(value * getVolumes(aspect)[index + 1]) + ')'}
-            }
-        }
-    });
-}
-
-function drawVolumeChart(aspect){
-    c3.generate({
-        bindto: '#volume' + aspects.indexOf(aspect),
-        padding: {
-            left: 100
-        },
-        size: {
-            height: 150
-        },
-        data: {
-            columns: [getVolumes(aspect)],
-            type: 'bar'
-        },
-        axis: {
-            x: {
-                type: 'category',
-                tick: {
-                    format: function(index) {return timelines[aspect][index]},
-                }
-            }
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        bar: {
-            width: {
-                ratio: 0.8
-            }
-        },
-        legend: {
-            position: 'inset'
         }
     })
+}
+
+function dataBarClicked(d) {
+    let aspect = d.name.substring(0, d.name.lastIndexOf('.'));
+    let date = timelines[aspect][d.x];
+    let count = Math.round(d.value * getVolume(aspect, date));
+    if (count > 10000) {
+        alert('too many targets to display all');
+    } else {
+        alert('ok, I will do it');
+    }
 }
 
 function getVolume(aspect, date){
@@ -235,7 +271,7 @@ function getAspectFromGroup(group){
 }
 
 function getConditionFromGroup(group){
-    return group[0].substring(group[0].lastIndexOf('.') + 1, group[0].length);
+    return group[0];//.substring(group[0].lastIndexOf('.') + 1, group[0].length);
 }
 
 function getDateFromGroup(group){

@@ -9,9 +9,9 @@
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
         <link href="c3/c3.css" rel="stylesheet">
-        <script src="js/ecn.js"></script>
         <script src="https://d3js.org/d3.v5.js"></script>
         <script src="c3/c3.js"></script>
+        <script src="js/ecn.js"></script>
     </head>
 
     <body onload="initEcn()">
@@ -35,7 +35,14 @@
             </div>
         </header>
 
-        <div id="statisticsDiv" class="w3-row-padding w3-container"></div>
+        <template id="template">
+            <div class="w3-container w3-row-padding">
+                <h2></h2>
+                <p></p>
+                <div></div>
+                <div></div>
+            </div>
+        </template>
 
         <!-- Footer -->
         <footer class="w3-container w3-theme-dark w3-padding-16">
