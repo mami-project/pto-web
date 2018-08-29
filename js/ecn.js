@@ -1,144 +1,74 @@
-//const ecnQueryUrl = "http://localhost/query/28fb885b7822b4bfab82ed87f238e3cdb5c5cc7af793068a03268ae093c3b25f/result";
-const ecnQueryUrl = "https://v3.pto.mami-project.eu/query/28fb885b7822b4bfab82ed87f238e3cdb5c5cc7af793068a03268ae093c3b25f/result";
+let ecnData;
 
-let aspects = [];
-let conditions = [];
-let timelines = [];
-let groups;
-let colors;
-let explanations;
+function initEcn () {
+    let ecnConfig;
 
-function initEcn(){
-    fetch("json/explanations.json")
-        .then(response => response.json())
-        .then(function (data){
-            explanations = data;
-            console.log(explanations);
-        })
-        .catch(function (e) {
-            alert(e);
-        });
-
-    fetch("json/conditioncolor.json")
+    fetch("json/ecncharts.json")
         .then(response => response.json())
         .then(function (data) {
-            colors = data;
-            console.log(colors);
+            // console.log(data);
+            ecnConfig = data;
+            return fetch(ecnConfig['query']);
         })
-        .catch(function (e) {
-            alert(e);
-        });
-
-    fetch(ecnQueryUrl)
         .then(response => response.json())
         .then(function (data) {
-            groups = data.groups;
-            initData();
-            drawCharts();
+            // console.log(data);
+            ecnData = data.groups;
+            drawCharts(ecnConfig);
         })
         .catch(function (e) {
             alert(e);
         });
 }
 
-function initData(){
-    initAspects();
-    console.log(aspects);
-    initConditions();
-    console.log(conditions);
-    initTimelines();
-    console.log(timelines);
-}
-
-function initAspects(){
-    for(let group of groups){
-        let aspect = getAspectFromGroup(group);
-        if(aspects.indexOf(aspect) === -1){
-            aspects.push(aspect);
-        }
+function drawCharts (ecnConfig) {
+    for (let chartConfig of ecnConfig['charts']) {
+        drawChart(chartConfig);
     }
 }
 
-function initConditions(){
-    for(let group of groups){
-        let aspect = getAspectFromGroup(group);
-        let condition = getConditionFromGroup(group);
-
-        if(!conditions.hasOwnProperty(aspect)){
-            conditions[aspect] = [];
-        }
-
-        if(conditions[aspect].indexOf(condition) === -1){
-            conditions[aspect].push(condition);
-        }
-    }
+function drawChart (chartConfig) {
+    createContainer(chartConfig);
+    drawSharesChart(chartConfig);
+    drawVolumeChart(chartConfig);
 }
 
-function initTimelines(){
-    for(let group of groups){
-        let aspect = getAspectFromGroup(group);
-        let date = getDateFromGroup(group);
-
-        if(!timelines.hasOwnProperty(aspect)){
-            timelines[aspect] = [];
-        }
-
-        if(timelines[aspect].indexOf(date) === -1){
-            timelines[aspect].push(date);
-        }
-    }
-
-    for(let aspect of aspects){
-        timelines[aspect].sort();
-    }
-}
-
-function drawCharts(){
-
-    for(let aspect of aspects){
-        createContainer(aspect);
-        drawChart(aspect);
-    }
-}
-
-function createContainer(aspect){
+function createContainer (chartConfig) {
     const template = document.getElementsByTagName('template')[0];
     const chartDiv = template.content.cloneNode(true);
+
     let h2 = chartDiv.children[0].children[0];
     let p = chartDiv.children[0].children[1];
     let div1 = chartDiv.children[0].children[2];
     let div2 = chartDiv.children[0].children[3];
 
+    let aspect = chartConfig['aspect'];
+
     h2.innerText = aspect;
-    p.innerText = explanations[aspect];
-    div1.id = 'data' + aspects.indexOf(aspect);
-    div2.id = 'volume' + aspects.indexOf(aspect);
+    p.innerText = chartConfig.description;
+    div1.id = getSharesDivId(aspect);
+    div2.id = getVolumeDivId(aspect);
 
     document.body.insertBefore(chartDiv, template);
 }
 
-function drawChart(aspect){
-    try {
-        drawDataChart(aspect);
-        drawVolumeChart(aspect);
-    } catch (e) {
-        console.log(e);
-    }
-}
+function drawSharesChart (chartConfig) {
+    let conditions = chartConfig['conditions'];
 
-function drawDataChart(aspect){
     c3.generate({
-        bindto: '#data' + aspects.indexOf(aspect),
+        bindto: '#' + getSharesDivId(chartConfig['aspect']),
         padding: {
             left: 100,
             bottom: 0
         },
         data: {
-            columns: getMeasurements(aspect),
+            x: 'x',
+            columns: getShares(conditions),
             type: 'bar',
-            colors: colors[aspect],
-            groups: [conditions[aspect]],
-            onclick: dataBarClicked
+            colors: chartConfig['colors'],
+            groups: [conditions],
+            onclick: dataBarClicked,
+            order: null
         },
         axis: {
             x: {
@@ -155,12 +85,13 @@ function drawDataChart(aspect){
         },
         grid: {
             x: {
-                show: false
+                lines: getLines(conditions)
             },
             y: {
                 show: true
             }
         },
+        regions: getRegions(conditions),
         bar: {
             width: {
                 ratio: 0.8
@@ -171,16 +102,18 @@ function drawDataChart(aspect){
         },
         tooltip: {
             format: {
-                value: function(value, radio, id, index) {return d3.format('.2%')(value) + ' (' + Math.round(value * getVolumes(aspect)[index + 1]) + ')'},
-                name: function (name) {return name.substring(name.lastIndexOf('.') + 1, name.length)}
+                name: function (name) {return name.substring(name.lastIndexOf('.') + 1, name.length)},
+                value: function(value, radio, id, index) {return d3.format('.2%')(value) + ' (' + Math.round(value * getVolume(conditions, getTimeline(conditions)[index])) + ')'}
             }
         }
     });
 }
 
-function drawVolumeChart(aspect){
+function drawVolumeChart (chartConfig) {
+    let conditions = chartConfig['conditions'];
+
     c3.generate({
-        bindto: '#volume' + aspects.indexOf(aspect),
+        bindto: '#' + getVolumeDivId(chartConfig['aspect']),
         padding: {
             left: 100,
             top: 0
@@ -189,7 +122,8 @@ function drawVolumeChart(aspect){
             height: 150
         },
         data: {
-            columns: [getVolumes(aspect)],
+            x: 'x',
+            columns: getVolumes(conditions),
             type: 'bar',
             colors: {
                 Volume: '#111111'
@@ -197,10 +131,7 @@ function drawVolumeChart(aspect){
         },
         axis: {
             x: {
-                type: 'category',
-                tick: {
-                    format: function(index) {return timelines[aspect][index]},
-                }
+                type: 'category'
             },
             y: {
                 tick: {
@@ -210,12 +141,13 @@ function drawVolumeChart(aspect){
         },
         grid: {
             x: {
-                show: true
+                lines: getLines(conditions)
             },
             y: {
                 show: true
             }
         },
+        regions: getRegions(conditions),
         bar: {
             width: {
                 ratio: 0.8
@@ -227,76 +159,116 @@ function drawVolumeChart(aspect){
     })
 }
 
-function dataBarClicked(d) {
-    let aspect = d.name.substring(0, d.name.lastIndexOf('.'));
-    let date = timelines[aspect][d.x];
-    let count = Math.round(d.value * getVolume(aspect, date));
-    if (count > 10000) {
-        alert('too many targets to display all');
-    } else {
-        alert('ok, I will do it');
-    }
+function dataBarClicked () {
+    alert('Here they are!');
 }
 
-function getVolume(aspect, date){
-    let result = 0;
-    for(let group of groups){
-        let aspect2 = getAspectFromGroup(group);
-        let date2 = getDateFromGroup(group);
-        let count = getCountFromGroup(group);
-
-        if(aspect === aspect2 && date === date2){
-            result += count;
+function getShares (conditions) {
+    let timeline = getTimeline(conditions);
+    let result = [['x'].concat(timeline)];
+    for (let condition of conditions) {
+        result.push([condition]);
+        for (let date of timeline) {
+            result[result.length - 1].push(getCount(condition, date) / getVolume(conditions, date));
         }
     }
+    console.log(result);
     return result;
 }
 
-function getCount(aspect, condition, date){
-    for(let group of groups){
-        let aspect2 = getAspectFromGroup(group);
-        let condition2 = getConditionFromGroup(group);
-        let date2 = getDateFromGroup(group);
-        let count = getCountFromGroup(group);
-
-        if(aspect === aspect2 && condition === condition2 && date === date2){
-            return count;
+function getCount (condition, date) {
+    for (let group of ecnData) {
+        if (condition === getConditionFromGroup(group) && date === getDateFromGroup(group)) {
+            return getCountFromGroup(group);
         }
     }
     return 0;
 }
 
-function getAspectFromGroup(group){
-    return group[0].substring(0, group[0].lastIndexOf('.'));
-}
-
-function getConditionFromGroup(group){
-    return group[0];//.substring(group[0].lastIndexOf('.') + 1, group[0].length);
-}
-
-function getDateFromGroup(group){
-    return group[1].substring(0, 10);
-}
-
-function getCountFromGroup(group){
-    return group[2];
-}
-
-function getVolumes(aspect){
-    let result = ['Volume'];
-    for(let date of timelines[aspect]){
-       result.push(getVolume(aspect, date));
+function getVolumes (conditions) {
+    let timeline = getTimeline(conditions);
+    let result = [['x'].concat(timeline), ['Volume']];
+    for (let date of timeline) {
+        result[1].push(getVolume(conditions, date));
     }
     return result;
 }
 
-function getMeasurements(aspect){
-    let result = [];
-    for(let condition of conditions[aspect]){
-        result.push([condition]);
-        for(let date of timelines[aspect]){
-            result[result.length - 1].push(getCount(aspect, condition, date) / getVolume(aspect, date));
+function getVolume (conditions, date) {
+    let result = 0;
+    for (let group of ecnData) {
+        if (conditions.indexOf(getConditionFromGroup(group)) !== -1 && date === getDateFromGroup(group)) {
+            result += getCountFromGroup(group);
         }
     }
     return result;
+}
+
+function getLines (conditions) {
+    let timeline = getTimeline(conditions);
+    let lines = [];
+    for (let i = 0; i < timeline.length - 1; i++) {
+        if (timeline[i].substring(0, 4) !== timeline[i + 1].substring(0, 4)) {
+            lines.push({value: i + 0.5, text: timeline[i].substring(0, 4)});
+        }
+    }
+    lines.push({value: timeline.length - 0.52, text: timeline[timeline.length - 1].substring(0, 4)});
+    return lines;
+}
+
+function getRegions (conditions) {
+    let timeline = getTimeline(conditions);
+    let regions = [{axis: 'x'}];
+    for (let i = 0; i < timeline.length - 1; i++) {
+        if (timeline[i].substring(0, 4) !== timeline[i + 1].substring(0, 4)) {
+            if(!regions[regions.length - 1].hasOwnProperty('end')) {
+                regions[regions.length - 1]['end'] = i + 0.5;
+            } else {
+                regions.push({axis: 'x', start: i + 0.5});
+            }
+        }
+    }
+    return regions;
+}
+
+function getTimeline (conditions) {
+    let timeline = [];
+    for (let group of ecnData) {
+        if (conditions.indexOf(getConditionFromGroup(group)) !== -1) {
+            let date = getDateFromGroup(group);
+            if (timeline.indexOf(date) === -1) {
+                timeline.push(getDateFromGroup(group));
+            }
+        }
+    }
+    timeline.sort();
+    return timeline;
+}
+
+function getConditionFromGroup (group) {
+    return group[0];
+}
+
+function getDateFromGroup (group) {
+    return group[1].substring(0, 10);
+}
+
+function getCountFromGroup (group) {
+    return group[2];
+}
+
+function getSharesDivId (aspect) {
+    let id = 'shares';
+    for (let part of aspect.split('.')) {
+        id = id + '_' + part;
+    }
+    return id;
+}
+
+function getVolumeDivId (aspect) {
+    let id = 'volume';
+    for (let part of aspect.split('.')) {
+        id = id + '_' + part;
+    }
+    return id;
 }
