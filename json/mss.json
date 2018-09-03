@@ -1,8 +1,10 @@
 {
   "query": "https://v3.pto.mami-project.eu/query/1abd22a9bfe6eb8135f199df3e7b56766eb077c240e2ab0d2223f59e08a87cc6/result",
+  "title": "MSS",
+  "description": "MSS Description",
   "charts": [
     {
-      "aspect": "ecn.connectivity",
+      "title": "ecn.connectivity",
       "description": "",
       "conditions": [
         "ecn.connectivity.works",
@@ -24,7 +26,7 @@
       }
     },
     {
-      "aspect": "ecn.multipoint.connectivity",
+      "title": "ecn.multipoint.connectivity",
       "description": "",
       "conditions": [
         "ecn.multipoint.connectivity.works",
@@ -52,7 +54,7 @@
       }
     },
     {
-      "aspect": "ecn.negotiation",
+      "title": "ecn.negotiation",
       "description": "",
       "conditions": [
         "ecn.negotiation.succeeded",
@@ -71,7 +73,7 @@
       }
     },
     {
-      "aspect": "ecn.multipoint.negotiation",
+      "title": "ecn.multipoint.negotiation",
       "description": "",
       "conditions": [
         "ecn.multipoint.negotiation.succeeded",
@@ -96,7 +98,7 @@
       }
     },
     {
-      "aspect": "ecn.ipmark.ce",
+      "title": "ecn.ipmark.ce",
       "description": "",
       "conditions": [
         "ecn.ipmark.ce.seen",
@@ -112,7 +114,7 @@
       }
     },
     {
-      "aspect": "ecn.ipmark.ect0",
+      "title": "ecn.ipmark.ect0",
       "description": "",
       "conditions": [
         "ecn.ipmark.ect0.seen",
@@ -128,7 +130,7 @@
       }
     },
     {
-      "aspect": "ecn.ipmark.ect1",
+      "title": "ecn.ipmark.ect1",
       "description": "",
       "conditions": [
         "ecn.ipmark.ect1.seen",

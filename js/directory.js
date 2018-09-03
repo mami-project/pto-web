@@ -11,29 +11,34 @@ let expandedYears = new Set();
 let featureSubPages;
 
 function initTable(){
-    fetch(directoryQueryUrl)
+    fetch("json/features.json")
+        .then(response => response.json())
+        .then(function (data) {
+            featureSubPages = Object.getOwnPropertyNames(data);
+            return fetch(directoryQueryUrl);
+        })
         .then(response => response.json())
         .then(function (data) {
             groups = data.groups;
             initData();
             drawMatrix();
         })
-        .catch( function () {
+        .catch(function (e) {
             alert("There was an error getting the data!");
+            console.log(e);
         });
 }
 
-function initData(){
+function initData () {
     initFeatures();
     initYears();
-    initFeatureSubPages();
 }
 
-function initFeatures(){
+function initFeatures () {
     features = new Set(groups.map(x => x[featureIndex]));
 }
 
-function initYears(){
+function initYears () {
     years = new Set();
     const yearsWithData = new Set(groups.map(x => Number(x[timeIndex].substr(0,4))));
     for(let year = Math.min(...yearsWithData); year <= Math.max(...yearsWithData); year++){
@@ -41,38 +46,7 @@ function initYears(){
     }
 }
 
-function initFeatureSubPages() {
-    featureSubPages = new Set();
-    for(let feature of features){
-        const xhr = new XMLHttpRequest();
-        xhr.open("HEAD", feature + ".html", true);
-        xhr.onreadystatechange = function(){
-            if(xhr.readyState === 4 && xhr.status === 200) {
-                featureSubPages.add(feature);
-                document.getElementById(feature).innerHTML = "<a href='" + feature + ".html'>" + feature + "</a>"
-            }
-        };
-        xhr.send();
-    }
-}
-
-function initFeatureSubPages2() {
-    featureSubPages = new Set();
-    for(let feature of features){
-        fetch(feature + ".html")
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function () {
-                featureSubPages.add(feature);
-                document.getElementById(feature).innerHTML = "<a href='" + feature + ".html'>" + feature + "</a>"
-            })
-            .catch(function () {
-            });
-    }
-}
-
-function drawMatrix() {
+function drawMatrix () {
     let table = document.querySelector("#directoryTable");
     table.innerHTML = "<col width='150'><tr><th>Feature \\ Year</th></tr>";
     drawTimeRow(table);
@@ -81,13 +55,13 @@ function drawMatrix() {
     }
 }
 
-function drawTimeRow(table){
+function drawTimeRow (table){
     for(let year of years){
         drawYearCell(table, year);
         document.getElementById(year).addEventListener("click", function(){
             toggleYearExpansion(year);
         });
-        if(expandedYears.has(year)){
+        if (expandedYears.has(year)) {
             for(let month of months) {
                 drawMonthCell(table, month);
             }
@@ -123,8 +97,8 @@ function drawFeatureRow(table, feature){
 }
 
 function drawFeatureCell(row, feature){
-    if(featureSubPages.has(feature)) {
-        row.insertCell(0).outerHTML = "<th id='" + feature + "'><a href='" + feature + ".html'>" + feature + "</a></th>";
+    if(featureSubPages.indexOf(feature) !== -1) {
+        row.insertCell(0).outerHTML = "<th id='" + feature + "'><a href='feature.html?feature=" + feature + "'>" + feature + "</a></th>";
     } else {
         row.insertCell(0).outerHTML = "<th id='" + feature + "'>" + feature + "</th>";
     }

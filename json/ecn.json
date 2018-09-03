@@ -1,0 +1,149 @@
+{
+  "query": "https://v3.pto.mami-project.eu/query/1abd22a9bfe6eb8135f199df3e7b56766eb077c240e2ab0d2223f59e08a87cc6/result",
+  "title": "Expicit Congestion Notification",
+  "description": "ECN Description",
+  "charts": [
+    {
+      "title": "ecn.connectivity",
+      "description": "",
+      "conditions": [
+        "ecn.connectivity.works",
+        "ecn.connectivity.broken",
+        "ecn.connectivity.transient",
+        "ecn.connectivity.offline"
+      ],
+      "colors": {
+        "ecn.connectivity.works": "#11CC11",
+        "ecn.connectivity.broken": "#CC1111",
+        "ecn.connectivity.transient": "#2222FF",
+        "ecn.connectivity.offline": "#888888"
+      },
+      "descriptions": {
+        "ecn.connectivity.works": "",
+        "ecn.connectivity.broken": "",
+        "ecn.connectivity.transient": "",
+        "ecn.connectivity.offline": ""
+      }
+    },
+    {
+      "title": "ecn.multipoint.connectivity",
+      "description": "",
+      "conditions": [
+        "ecn.multipoint.connectivity.works",
+        "ecn.multipoint.connectivity.broken",
+        "ecn.multipoint.connectivity.transient",
+        "ecn.multipoint.connectivity.path_dependent",
+        "ecn.multipoint.connectivity.unstable",
+        "ecn.multipoint.connectivity.offline"
+      ],
+      "colors": {
+        "ecn.multipoint.connectivity.works": "#11CC11",
+        "ecn.multipoint.connectivity.broken": "#CC1111",
+        "ecn.multipoint.connectivity.transient": "#2222FF",
+        "ecn.multipoint.connectivity.path_dependent": "#886611",
+        "ecn.multipoint.connectivity.unstable": "#CCCC11",
+        "ecn.multipoint.connectivity.offline": "#888888"
+      },
+      "descriptions": {
+        "ecn.multipoint.connectivity.works": "",
+        "ecn.multipoint.connectivity.broken": "",
+        "ecn.multipoint.connectivity.transient": "",
+        "ecn.multipoint.connectivity.path_dependent": "",
+        "ecn.multipoint.connectivity.unstable": "",
+        "ecn.multipoint.connectivity.offline": ""
+      }
+    },
+    {
+      "title": "ecn.negotiation",
+      "description": "",
+      "conditions": [
+        "ecn.negotiation.succeeded",
+        "ecn.negotiation.failed",
+        "ecn.negotiation.reflected"
+      ],
+      "colors": {
+        "ecn.negotiation.succeeded": "#11CC11",
+        "ecn.negotiation.failed": "#CC1111",
+        "ecn.negotiation.reflected": "#2222FF"
+      },
+      "descriptions": {
+        "ecn.negotiation.succeeded": "",
+        "ecn.negotiation.failed": "",
+        "ecn.negotiation.reflected": ""
+      }
+    },
+    {
+      "title": "ecn.multipoint.negotiation",
+      "description": "",
+      "conditions": [
+        "ecn.multipoint.negotiation.succeeded",
+        "ecn.multipoint.negotiation.failed",
+        "ecn.multipoint.negotiation.reflected",
+        "ecn.multipoint.negotiation.path_dependent",
+        "ecn.multipoint.negotiation.unstable"
+      ],
+      "colors": {
+        "ecn.multipoint.negotiation.succeeded": "#11CC11",
+        "ecn.multipoint.negotiation.failed": "#CC1111",
+        "ecn.multipoint.negotiation.reflected": "#2222FF",
+        "ecn.multipoint.negotiation.path_dependent": "#886611",
+        "ecn.multipoint.negotiation.unstable": "#CCCC11"
+      },
+      "descriptions": {
+        "ecn.multipoint.negotiation.succeeded": "",
+        "ecn.multipoint.negotiation.failed": "",
+        "ecn.multipoint.negotiation.reflected": "",
+        "ecn.multipoint.negotiation.path_dependent": "",
+        "ecn.multipoint.negotiation.unstable": ""
+      }
+    },
+    {
+      "title": "ecn.ipmark.ce",
+      "description": "",
+      "conditions": [
+        "ecn.ipmark.ce.seen",
+        "ecn.ipmark.ce.not_seen"
+      ],
+      "colors": {
+        "ecn.ipmark.ce.seen": "#11CC11",
+        "ecn.ipmark.ce.not_seen": "#CC1111"
+      },
+      "descriptions": {
+        "ecn.ipmark.ce.seen": "",
+        "ecn.ipmark.ce.not_seen": ""
+      }
+    },
+    {
+      "title": "ecn.ipmark.ect0",
+      "description": "",
+      "conditions": [
+        "ecn.ipmark.ect0.seen",
+        "ecn.ipmark.ect0.not_seen"
+      ],
+      "colors": {
+        "ecn.ipmark.ect0.seen": "#11CC11",
+        "ecn.ipmark.ect0.not_seen": "#CC1111"
+      },
+      "descriptions": {
+        "ecn.ipmark.ect0.seen": "",
+        "ecn.ipmark.ect0.not_seen": ""
+      }
+    },
+    {
+      "title": "ecn.ipmark.ect1",
+      "description": "",
+      "conditions": [
+        "ecn.ipmark.ect1.seen",
+        "ecn.ipmark.ect1.not_seen"
+      ],
+      "colors": {
+        "ecn.ipmark.ect1.seen": "#11CC11",
+        "ecn.ipmark.ect1.not_seen": "#CC1111"
+      },
+      "descriptions": {
+        "ecn.ipmark.ect1.seen": "",
+        "ecn.ipmark.ect1.not_seen": ""
+      }
+    }
+  ]
+}

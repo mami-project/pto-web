@@ -1,24 +1,38 @@
-let ecnData;
+let pageData;
 
-function initEcn () {
-    let ecnConfig;
+function initFeature () {
+    let feature = new URLSearchParams(window.location.search).get('feature');
+    let config;
 
-    fetch("json/ecncharts.json")
+    fetch("json/" + feature + ".json")
         .then(response => response.json())
         .then(function (data) {
-            // console.log(data);
-            ecnConfig = data;
-            return fetch(ecnConfig['query']);
+            config = data;
+            drawHeader(config);
+            return fetch(config['query']);
         })
         .then(response => response.json())
         .then(function (data) {
-            // console.log(data);
-            ecnData = data.groups;
-            drawCharts(ecnConfig);
+            pageData = data.groups;
+            drawCharts(config);
         })
         .catch(function (e) {
             alert(e);
         });
+}
+
+function drawHeader (config) {
+    const header = document.querySelector('header');
+
+    const h1 = document.createElement('h1');
+    h1.classList.add('w3-xxxlarge');
+    h1.innerText = config['title'];
+
+    const h4 = document.createElement('h4');
+    h4.innerText = config['description'];
+
+    header.appendChild(h1);
+    header.appendChild(h4);
 }
 
 function drawCharts (ecnConfig) {
@@ -42,12 +56,10 @@ function createContainer (chartConfig) {
     let div1 = chartDiv.children[0].children[2];
     let div2 = chartDiv.children[0].children[3];
 
-    let aspect = chartConfig['aspect'];
-
-    h2.innerText = aspect;
-    p.innerText = chartConfig.description;
-    div1.id = getSharesDivId(aspect);
-    div2.id = getVolumeDivId(aspect);
+    h2.innerText = chartConfig['title'];
+    p.innerText = chartConfig['description'];
+    div1.id = getSharesDivId(chartConfig);
+    div2.id = getVolumeDivId(chartConfig);
 
     document.body.insertBefore(chartDiv, template);
 }
@@ -56,7 +68,7 @@ function drawSharesChart (chartConfig) {
     let conditions = chartConfig['conditions'];
 
     c3.generate({
-        bindto: '#' + getSharesDivId(chartConfig['aspect']),
+        bindto: '#' + getSharesDivId(chartConfig),
         padding: {
             left: 100,
             bottom: 0
@@ -67,15 +79,12 @@ function drawSharesChart (chartConfig) {
             type: 'bar',
             colors: chartConfig['colors'],
             groups: [conditions],
-            onclick: dataBarClicked,
+            onclick: showTargetList(conditions),
             order: null
         },
         axis: {
             x: {
                 type: 'category',
-                tick: {
-                    format: function() {return ''}
-                }
             },
             y: {
                 tick: {
@@ -113,7 +122,7 @@ function drawVolumeChart (chartConfig) {
     let conditions = chartConfig['conditions'];
 
     c3.generate({
-        bindto: '#' + getVolumeDivId(chartConfig['aspect']),
+        bindto: '#' + getVolumeDivId(chartConfig),
         padding: {
             left: 100,
             top: 0
@@ -125,9 +134,9 @@ function drawVolumeChart (chartConfig) {
             x: 'x',
             columns: getVolumes(conditions),
             type: 'bar',
-            colors: {
-                Volume: '#111111'
-            }
+            groups: [conditions],
+            colors: getVolumeColors(conditions),
+            order: null
         },
         axis: {
             x: {
@@ -159,10 +168,6 @@ function drawVolumeChart (chartConfig) {
     })
 }
 
-function dataBarClicked () {
-    alert('Here they are!');
-}
-
 function getShares (conditions) {
     let timeline = getTimeline(conditions);
     let result = [['x'].concat(timeline)];
@@ -172,12 +177,11 @@ function getShares (conditions) {
             result[result.length - 1].push(getCount(condition, date) / getVolume(conditions, date));
         }
     }
-    console.log(result);
     return result;
 }
 
 function getCount (condition, date) {
-    for (let group of ecnData) {
+    for (let group of pageData) {
         if (condition === getConditionFromGroup(group) && date === getDateFromGroup(group)) {
             return getCountFromGroup(group);
         }
@@ -187,16 +191,19 @@ function getCount (condition, date) {
 
 function getVolumes (conditions) {
     let timeline = getTimeline(conditions);
-    let result = [['x'].concat(timeline), ['Volume']];
-    for (let date of timeline) {
-        result[1].push(getVolume(conditions, date));
+    let result = [['x'].concat(timeline)];
+    for (let condition of conditions) {
+        result.push([condition]);
+        for (let date of timeline) {
+            result[result.length - 1].push(getCount(condition, date));
+        }
     }
     return result;
 }
 
 function getVolume (conditions, date) {
     let result = 0;
-    for (let group of ecnData) {
+    for (let group of pageData) {
         if (conditions.indexOf(getConditionFromGroup(group)) !== -1 && date === getDateFromGroup(group)) {
             result += getCountFromGroup(group);
         }
@@ -233,7 +240,7 @@ function getRegions (conditions) {
 
 function getTimeline (conditions) {
     let timeline = [];
-    for (let group of ecnData) {
+    for (let group of pageData) {
         if (conditions.indexOf(getConditionFromGroup(group)) !== -1) {
             let date = getDateFromGroup(group);
             if (timeline.indexOf(date) === -1) {
@@ -243,6 +250,23 @@ function getTimeline (conditions) {
     }
     timeline.sort();
     return timeline;
+}
+
+function getSharesDivId (chartConfig) {
+    return 'shares_' + chartConfig['title'].replace(/\./g, '_');
+}
+
+function getVolumeDivId (chartConfig) {
+    return 'volume_' + chartConfig['title'].replace(/\./g, '_');
+}
+
+function getVolumeColors(conditions) {
+    let result = [];
+    for (let condition of conditions) {
+        let darkness = 128 / conditions.length * (conditions.indexOf(condition) + 1);
+        result[condition] = d3.rgb(darkness, darkness, darkness);
+    }
+    return result;
 }
 
 function getConditionFromGroup (group) {
@@ -257,18 +281,62 @@ function getCountFromGroup (group) {
     return group[2];
 }
 
-function getSharesDivId (aspect) {
-    let id = 'shares';
-    for (let part of aspect.split('.')) {
-        id = id + '_' + part;
+function showTargetList (conditions) {
+    return function (d) {
+        let apikey = localStorage.getItem("API Key");
+        if(apikey === null){
+            alert("Enter an API Key!");
+            return;
+        }
+
+        let startDateString = getTimeline(conditions)[d.index];
+        let startDate = new Date(startDateString);
+        let endDate = new Date(startDate.getTime() + (7 * 24 * 60 * 60 * 1000 - 1));
+        let condition = d.name;
+
+        let url = 'https://v3.pto.mami-project.eu/query/submit?';
+        for (let group of pageData) {
+            if (getDateFromGroup(group) === startDateString) {
+                if(getConditionFromGroup(group) === condition) {
+                    url = url + 'time_start=' + encodeURIComponent(startDate.toISOString());
+                    url = url + '&time_end=' + encodeURIComponent(endDate.toISOString());
+                    url = url + '&condition=' + condition;
+                    console.log(url);
+                }
+            }
+        }
+
+        let options = {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'authorization': 'APIKEY ' + localStorage.getItem(apikey)
+            }
+        };
+
+        fetch(url, options)
+            .then(response => response.json())
+            .then(function (data) {
+                console.log(data);
+                if (data['__state'] === 'complete') {
+                    return fetch(data['__result']);
+                } else if (data['__state'] === 'pending') {
+                    alert ('The query for this drill down is still pending. Please come back later.');
+                } else {
+                    alert ('The query failed. Please call Brian Trammell.');
+                }
+            })
+            .then(response => response.json())
+            .then(function (data) {
+                showTargets(data);
+            })
+            .catch(function (e) {
+                alert(e);
+            });
     }
-    return id;
 }
 
-function getVolumeDivId (aspect) {
-    let id = 'volume';
-    for (let part of aspect.split('.')) {
-        id = id + '_' + part;
-    }
-    return id;
+function showTargets(data) {
+    console.log(data);
 }
