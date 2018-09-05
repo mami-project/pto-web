@@ -324,18 +324,13 @@ function showTargetList (conditions) {
         fetch(url, options)
             .then(response => response.json())
             .then(function (data) {
-                console.log("done");
                 if (data['__state'] === 'complete') {
-                    return fetch(data['__result']);
+                    showTargets(data['__result'], 0);
                 } else if (data['__state'] === 'pending') {
                     alert ('The query for this drill down is still pending. Please come back later.');
                 } else {
                     alert ('The query failed. Please call Brian Trammell.');
                 }
-            })
-            .then(response => response.json())
-            .then(function (data) {
-                showTargets(data);
             })
             .catch(function (e) {
                 alert(e);
@@ -343,6 +338,65 @@ function showTargetList (conditions) {
     }
 }
 
-function showTargets(data) {
-    console.log(data);
+function showTargets (resultBaseUrl, page) {
+    fetch(resultBaseUrl + '?page=' + page)
+        .then(response => response.json())
+        .then(function (data) {
+            document.getElementById('targetList').style.display = 'block';
+            configureObsNav(resultBaseUrl, page, data);
+            fillTargetList(resultBaseUrl, page, data);
+        });
+}
+
+function configureObsNav(resultBaseUrl, page, data) {
+    const obsNav = document.getElementById('obsNav');
+
+    obsNav.replaceChild(obsNav.children[0].cloneNode(true), obsNav.children[0]);
+    obsNav.children[0].addEventListener('click', function () {
+        showTargets(resultBaseUrl, 0);
+    });
+
+    obsNav.replaceChild(obsNav.children[1].cloneNode(true), obsNav.children[1]);
+    if (page > 0) {
+        obsNav.children[1].disabled = false;
+        obsNav.children[1].addEventListener('click', function () {
+            showTargets(resultBaseUrl, page - 1);
+        });
+    } else {
+        obsNav.children[1].disabled = true;
+    }
+
+    obsNav.children[2].innerHTML = 'Page ' + (page + 1);
+
+    obsNav.replaceChild(obsNav.children[3].cloneNode(true), obsNav.children[3]);
+    if (page < Math.floor(data['total_count'] / 1000)) {
+        obsNav.children[3].disabled = false;
+        obsNav.children[3].addEventListener('click', function () {
+            showTargets(resultBaseUrl, page + 1);
+        });
+    } else {
+        obsNav.children[3].disabled = true;
+    }
+
+    obsNav.replaceChild(obsNav.children[4].cloneNode(true), obsNav.children[4]);
+    obsNav.children[4].addEventListener('click', function () {
+        showTargets(resultBaseUrl, Math.floor(data['total_count'] / 1000));
+    });
+}
+
+function fillTargetList (resultbaseUrl, page, data) {
+    const tableBody = document.getElementById('obsTable').querySelector('tbody');
+    tableBody.innerHTML = '';
+    for (let obs of data['obs']) {
+        const row = tableBody.insertRow(-1);
+        row.insertCell(-1).innerText = data['obs'].indexOf(obs) + 1 + (page) * 1000;
+        for (let ob of obs) {
+            const cell = row.insertCell(-1);
+            cell.innerText = ob;
+        }
+    }
+}
+
+function closeTargetList () {
+    document.getElementById('targetList').style.display = 'none';
 }
