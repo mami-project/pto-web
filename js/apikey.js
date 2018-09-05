@@ -1,14 +1,18 @@
-const apikey = "API Key";
-
 function initApiKey () {
-    document.getElementById("API Key").value = localStorage.getItem(apikey)
+    fetch("json/features.json")
+        .then(response => response.json())
+        .then(function (data) {
+            addFeaturesToNavbar(data);
+        });
+
+    document.getElementById("API Key").value = localStorage.getItem("API Key")
 }
 
 function setApiKey() {
-    let key = document.getElementById(apikey).value;
+    let key = document.getElementById("API Key").value;
     if (key === ""){
-        localStorage.removeItem(apikey);
+        localStorage.removeItem("API Key");
     } else {
-        localStorage.setItem(apikey, key);
+        localStorage.setItem("API Key", key);
     }
 }

@@ -1,6 +1,6 @@
 {
   "query": "https://v3.pto.mami-project.eu/query/1abd22a9bfe6eb8135f199df3e7b56766eb077c240e2ab0d2223f59e08a87cc6/result",
-  "title": "Expicit Congestion Notification",
+  "title": "Explicit Congestion Notification",
   "description": "ECN Description",
   "charts": [
     {

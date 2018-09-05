@@ -4,6 +4,12 @@ function initFeature () {
     let feature = new URLSearchParams(window.location.search).get('feature');
     let config;
 
+    fetch("json/features.json")
+        .then(response => response.json())
+        .then(function (data) {
+            addFeaturesToNavbar(data);
+        });
+
     fetch("json/" + feature + ".json")
         .then(response => response.json())
         .then(function (data) {
@@ -311,14 +317,14 @@ function showTargetList (conditions) {
             mode: 'cors',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'authorization': 'APIKEY ' + localStorage.getItem(apikey)
+                'Authorization': 'APIKEY ' + apikey
             }
         };
 
         fetch(url, options)
             .then(response => response.json())
             .then(function (data) {
-                console.log(data);
+                console.log("done");
                 if (data['__state'] === 'complete') {
                     return fetch(data['__result']);
                 } else if (data['__state'] === 'pending') {

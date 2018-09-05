@@ -4,5 +4,11 @@
   },
   "mss": {
     "linktitle": "MSS"
+  },
+  "tfo": {
+    "linktitle": "TFO"
+  },
+  "mptcp": {
+    "linktitle": "MPTCP"
   }
 }
