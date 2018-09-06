@@ -44,34 +44,31 @@
                 <div class="modal-header">
                     <span class="close" onclick="closeTargetList();">&times;</span>
                     <h2>Observations</h2>
-                </div>
-                <div class="modal-body">
-                    <div id="obsNav" style="text-align: center">
+                    <div id="obsNav">
                         <button>First</button>
                         <button>Previous</button>
                         <b>Page</b>
                         <button>Next</button>
                         <button>Last</button>
                     </div>
-                    <table id="obsTable">
-                        <thead>
-                            <tr>
-                                <th>Row</th>
-                                <th>Obs-Set ID</th>
-                                <th>Time Start</th>
-                                <th>Time End</th>
-                                <th>Path</th>
-                                <th>Condition</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                        </tbody>
-                    </table>
                 </div>
-                <div class="modal-footer">
-                    <h3>Modal Footer</h3>
+                <div class="modal-body">
+                    <div id="obsTableDiv">
+                        <table id="obsTable">
+                            <thead>
+                                <tr>
+                                    <th>Row</th>
+                                    <th>Obs-Set ID</th>
+                                    <!--<th>Time Start</th>
+                                    <th>Time End</th>-->
+                                    <th>Path</th>
+                                    <th>Condition</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -43,7 +43,7 @@ function drawHeader (config) {
 
 function drawCharts (ecnConfig) {
     for (let chartConfig of ecnConfig['charts']) {
-        drawChart(chartConfig);
+        setTimeout(function () {drawChart(chartConfig)}, 100 * ecnConfig['charts'].indexOf(chartConfig));
     }
 }
 
@@ -342,21 +342,21 @@ function showTargets (resultBaseUrl, page) {
     fetch(resultBaseUrl + '?page=' + page)
         .then(response => response.json())
         .then(function (data) {
-            document.getElementById('targetList').style.display = 'block';
+            document.getElementById('targetList').style.display = 'unset';
             configureObsNav(resultBaseUrl, page, data);
             fillTargetList(resultBaseUrl, page, data);
         });
 }
 
 function configureObsNav(resultBaseUrl, page, data) {
-    const obsNav = document.getElementById('obsNav');
+    let obsNav = document.getElementById('obsNav');
+    obsNav.parentElement.replaceChild(obsNav.cloneNode(true), obsNav);
+    obsNav = document.getElementById('obsNav');
 
-    obsNav.replaceChild(obsNav.children[0].cloneNode(true), obsNav.children[0]);
     obsNav.children[0].addEventListener('click', function () {
         showTargets(resultBaseUrl, 0);
     });
 
-    obsNav.replaceChild(obsNav.children[1].cloneNode(true), obsNav.children[1]);
     if (page > 0) {
         obsNav.children[1].disabled = false;
         obsNav.children[1].addEventListener('click', function () {
@@ -368,7 +368,6 @@ function configureObsNav(resultBaseUrl, page, data) {
 
     obsNav.children[2].innerHTML = 'Page ' + (page + 1);
 
-    obsNav.replaceChild(obsNav.children[3].cloneNode(true), obsNav.children[3]);
     if (page < Math.floor(data['total_count'] / 1000)) {
         obsNav.children[3].disabled = false;
         obsNav.children[3].addEventListener('click', function () {
@@ -378,23 +377,25 @@ function configureObsNav(resultBaseUrl, page, data) {
         obsNav.children[3].disabled = true;
     }
 
-    obsNav.replaceChild(obsNav.children[4].cloneNode(true), obsNav.children[4]);
     obsNav.children[4].addEventListener('click', function () {
         showTargets(resultBaseUrl, Math.floor(data['total_count'] / 1000));
     });
 }
 
 function fillTargetList (resultbaseUrl, page, data) {
-    const tableBody = document.getElementById('obsTable').querySelector('tbody');
+    const tableBody =  document.getElementById('obsTable').querySelector('tbody');
     tableBody.innerHTML = '';
+
     for (let obs of data['obs']) {
         const row = tableBody.insertRow(-1);
         row.insertCell(-1).innerText = data['obs'].indexOf(obs) + 1 + (page) * 1000;
-        for (let ob of obs) {
-            const cell = row.insertCell(-1);
-            cell.innerText = ob;
-        }
+        row.insertCell(-1).innerText = obs[0];
+        row.insertCell(-1).innerText = obs[3];
+        row.insertCell(-1).innerText = obs[4];
+        row.insertCell(-1).innerText = obs[5];
     }
+
+    document.querySelector('#obsTable').parentElement.scrollTop = 0;
 }
 
 function closeTargetList () {
