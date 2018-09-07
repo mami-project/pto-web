@@ -1,25 +1,74 @@
-// const directoryQueryUrl = "http://localhost/query/7f25ad270320fd3068633cf9bac45d3b3065c72e92df5ed9795c2b3f1778a3d7/result";
-const directoryQueryUrl = "https://v3.pto.mami-project.eu/query/7f25ad270320fd3068633cf9bac45d3b3065c72e92df5ed9795c2b3f1778a3d7/result";
-
 const months = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function initTable () {
-    let configuredFeatures;
-    fetch("json/features.json")
+    fetch("json/config.json")
         .then(response => response.json())
         .then(function (data) {
-            configuredFeatures = Object.getOwnPropertyNames(data);
-            addFeaturesToNavbar(data);
-            return fetch(directoryQueryUrl);
-        })
-        .then(response => response.json())
-        .then(function (data) {
-            drawYearsMatrix(data['groups'], configuredFeatures);
+            drawMatrix(data['directoryQuery'], Object.getOwnPropertyNames(data['pages']));
         })
         .catch(function (e) {
             alert("There was an error getting the data!");
             console.log(e);
         });
+}
+
+function drawMatrix (directoryQuery, configuredFeatures) {
+    fetch(directoryQuery)
+        .then(response => response.json())
+        .then(data => drawMatrix2(data['groups'], configuredFeatures));
+}
+
+function drawMatrix2 (groups, configuredFeatures) {
+    const table = document.getElementById('directoryTable');
+    const thead = table.getElementsByTagName('thead')[0];
+    const tbody = table.getElementsByTagName('tbody')[0];
+
+    let features = getFeaturesWithData(groups);
+    const row = thead.insertRow(-1);
+    row.insertCell(-1).outerHTML = '<th>Month \\ Feature</th>';
+    for (let feature of features) {
+        if (isSubpageAvailable(configuredFeatures, feature)) {
+            row.insertCell(-1).outerHTML = "<th style='width: 8em;'><a href='chartpage.html?page=" + feature + "'>" + feature + "</a></th>";
+        } else {
+            row.insertCell(-1).outerHTML = "<th style='width: 8em;'>" + feature + "</th>";
+        }
+    }
+
+    let months = getMonthsWithData(groups);
+    for (let month of months) {
+        const row = tbody.insertRow(-1);
+        row.insertCell(-1).outerHTML = '<th>' + month + '</th>';
+        for (let feature of features) {
+            const cell = row.insertCell(-1);
+            if (isMonthDataAvailabl2(groups, feature, month)) {
+                drawTick(cell);
+            } else {
+                drawCross(cell);
+            }
+        }
+    }
+}
+
+function getMonthsWithData (groups) {
+    let result = [];
+    for (let group of groups) {
+        let month = getMonthFromGroup(group);
+        if (result.indexOf(month) === -1) {
+            result.push(month);
+        }
+    }
+    result.sort();
+    result.reverse();
+    return result;
+}
+
+function isMonthDataAvailabl2 (groups, feature, month) {
+    for (let group of groups) {
+        if (getFeatureFromGroup(group) === feature && getMonthFromGroup(group) === month) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function drawYearsMatrix (groups, configuredFeatures) {
@@ -133,8 +182,7 @@ function drawMonthDataCell (row, groups, feature, year, month) {
 }
 
 function isMonthDataAvailable (groups, feature, year, month) {
-    let monthIndex = months.indexOf(month);
-    monthIndex++;
+    let monthIndex = months.indexOf(month) + 1;
     if (monthIndex > 9) {
         monthIndex = year + '-' + monthIndex;
     } else {

@@ -11,18 +11,11 @@
         <link rel="stylesheet" href="c3/c3.css">
         <script src="https://d3js.org/d3.v5.js"></script>
         <script src="c3/c3.js"></script>
-        <script src="js/apikey.js"></script>
         <script src="js/app.js"></script>
+        <script src="js/apikey.js"></script>
     </head>
 
-    <body onload="initApiKey();">
-        <!-- Navbar -->
-        <div id="navbar" class="w3-top w3-bar w3-black w3-card-2 w3-left-align w3-large">
-            <a href="index.html" class="w3-bar-item w3-button w3-padding-large w3-white">Home</a>
-            <a href="apikey.html" class="w3-bar-item w3-button w3-padding-large w3-hover-white">API Key</a>
-            <a href="https://mami-project.eu" class="w3-bar-item w3-button w3-hide-small w3-padding-small w3-white w3-hover-white w3-display-right" target="_blank"><img style="height: 2.7rem" src="img/logo.png" alt="Go to MAMI project"/></a>
-        </div>
-
+    <body onload="initPage(); initApiKey();">
         <!-- Header -->
         <header class="w3-center w3-container w3-theme w3-padding">
             <h4>PTO 3</h4>
@@ -35,18 +28,5 @@
             <input id="API Key" title="API Key" type="text" name="API Key" size="64">
             <input type="submit" value="Set" onclick="setApiKey()">
         </div>
-
-        <!-- Footer -->
-        <footer class="w3-container w3-theme-dark w3-padding-16">
-            <p>The PTO is developed and maintained by the H2020 ICT <a href="https://mami-project.eu" target="_blank">MAMI project.</a></p>
-            <p class="w3-text-grey w3-tiny">This project has received funding from the European Union's Horizon 2020 research and innovation programme under grant
-                agreement No 688421, and was supported by the Swiss State Secretariat for Education, Research and
-                Innovation (SERI) under contract number 15.0268. The opinions expressed and
-                arguments employed reflect only the authors' views. The European Commission is
-                not responsible for any use that may be made of that information. Further, the
-                opinions expressed and arguments employed herein do not necessarily reflect
-                the official views of the Swiss Government.
-                <img src="img/eu_flag_small.jpg" style="width: 2rem"></p>
-        </footer>
     </body>
 </html>

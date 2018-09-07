@@ -10,18 +10,11 @@
         <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="css/pto.css">
-        <script src="js/directory.js"></script>
         <script src="js/app.js"></script>
+        <script src="js/directory.js"></script>
     </head>
 
-    <body  onload="initTable();">
-        <!-- Navbar -->
-        <div id="navbar" class="w3-top w3-bar w3-black w3-card-2 w3-left-align w3-large">
-            <a href="index.html" class="w3-bar-item w3-button w3-padding-large w3-white">Home</a>
-            <a href="apikey.html" class="w3-bar-item w3-button w3-padding-large w3-hover-white">API Key</a>
-            <a href="https://mami-project.eu" class="w3-bar-item w3-button w3-hide-small w3-padding-small w3-white w3-hover-white w3-display-right" target="_blank"><img style="height: 2.7rem" src="img/logo.png" alt="Go to MAMI project"/></a>
-        </div>
-
+    <body onload="initPage(); initTable();">
         <!-- Header -->
         <div class="w3-center w3-container w3-theme w3-padding">
             <h4>PTO 3</h4>
@@ -50,25 +43,11 @@
             <div class="w3-content">
                 <h1>Available Measurements in the PTO</h1>
                 <h5 class="w3-padding-24 w3-justify">Following table indicates which measurements from which time periods are currently available in the PTO.</h5>
-                <table id="directoryTable" style="width: 100%">
-                    <tr>
-                        <th>Feature \ Year</th>
-                    </tr>
+                <table id="directoryTable">
+                    <thead></thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
-
-        <!-- Footer -->
-        <footer class="w3-container w3-theme-dark w3-padding-16">
-            <p>The PTO is developed and maintained by the H2020 ICT <a href="https://mami-project.eu" target="_blank">MAMI project.</a></p>
-            <p class="w3-text-grey w3-tiny">This project has received funding from the European Union's Horizon 2020 research and innovation programme under grant
-                agreement No 688421, and was supported by the Swiss State Secretariat for Education, Research and
-                Innovation (SERI) under contract number 15.0268. The opinions expressed and
-                arguments employed reflect only the authors' views. The European Commission is
-                not responsible for any use that may be made of that information. Further, the
-                opinions expressed and arguments employed herein do not necessarily reflect
-                the official views of the Swiss Government.
-                <img src="img/eu_flag_small.jpg" style="width: 2rem"></p>
-        </footer>
     </body>
 </html>

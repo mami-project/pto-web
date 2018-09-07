@@ -8,10 +8,37 @@ th, td {
     white-space: nowrap;
 }
 
-.yearCell:hover{
+.yearCell:hover {
     background-color: gray !important;
 }
 
+.charts-div>div:nth-child(2n) {
+    background-color: #ddd;
+}
+
+#obsTable {
+    font-size: 12px;
+}
+
+#obsTable>thead {
+    background-color: #888;
+}
+
+#obsTable>tbody>tr:nth-child(2n) {
+    background-color: #ddd;
+}
+
+#obsTable>tbody>tr:nth-child(2n + 1) {
+    background-color: #ccc;
+}
+
+.chart-div {
+    padding: 1em;
+}
+
+svg {
+    background-color: white;
+}
 
 .modal {
     display: none;

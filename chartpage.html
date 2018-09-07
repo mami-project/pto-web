@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PTO 3</title>
+        <meta charset="UTF-8">
+        <meta name="description" content="Path Transparency Observatory">
+        <meta name="keywords" content="Internet Path, Internet Observatory, Path Transparency, ECN, TFO">
+        <meta name="author" content="Rolf Scheuner">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+        <link rel="stylesheet" href="c3/c3.css">
+        <link rel="stylesheet" href="css/pto.css">
+        <script src="https://d3js.org/d3.v5.js"></script>
+        <script src="c3/c3.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/charts.js"></script>
+        <script src="js/targets.js"></script>
+    </head>
+
+    <body onload="initPage(); initChartPage();">
+        <!-- Header -->
+        <header class="w3-center w3-container w3-center w3-theme w3-padding">
+            <h4>PTO 3</h4>
+        </header>
+
+        <!-- Charts section -->
+        <div id="chartsDiv" class="charts-div"></div>
+
+        <div id="targetList" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close" onclick="closeTargetList();">&times;</span>
+                    <h2>Observations</h2>
+                    <div id="obsNav">
+                        <button><<</button>
+                        <button><</button>
+                        <b>Page</b>
+                        <button>></button>
+                        <button>>></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div id="obsTableDiv">
+                        <table id="obsTable" class="obs-table">
+                            <thead>
+                                <tr>
+                                    <th>Row</th>
+                                    <th>Obs-Set ID</th>
+                                    <th>Time Start</th>
+                                    <!--<th>Time End</th>-->
+                                    <th>Path</th>
+                                    <!--<th>Condition</th>-->
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

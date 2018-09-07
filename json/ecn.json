@@ -1,9 +1,10 @@
 {
   "query": "https://v3.pto.mami-project.eu/query/1abd22a9bfe6eb8135f199df3e7b56766eb077c240e2ab0d2223f59e08a87cc6/result",
   "title": "Explicit Congestion Notification",
-  "description": "ECN Description",
+  "description": "Explicit Congestion Notification (ECN) is an extension to the Internet Protocol and to the Transmission Control Protocol. ECN allows end-to-end notification of network congestion without dropping packets. It is an optional feature that may be used between two ECN-enabled endpoints when the underlying network infrastructure also supports it.",
   "charts": [
     {
+      "query": "https://v3.pto.mami-project.eu/query/f356b1c9a74eaddf2cbb1863e5a3ec06117d90dcb18cc1709d599243006649fe/result",
       "title": "ecn.connectivity",
       "description": "",
       "conditions": [
@@ -26,6 +27,7 @@
       }
     },
     {
+      "query": "https://v3.pto.mami-project.eu/query/2a5046c88cfb066945d21bb38a2bae791c8b588f739e4a1a769122991f164909/result",
       "title": "ecn.multipoint.connectivity",
       "description": "",
       "conditions": [
@@ -54,6 +56,7 @@
       }
     },
     {
+      "query": "https://v3.pto.mami-project.eu/query/e4554d0e637e676275f0d3fcdfb0d5c10a1153abfa41cc3cb1a72d4fcbe00dc1/result",
       "title": "ecn.negotiation",
       "description": "",
       "conditions": [
@@ -73,6 +76,7 @@
       }
     },
     {
+      "query": "https://v3.pto.mami-project.eu/query/629bfd41b9e632ed4466808244f111b215ba09a870eb3d0b9b5bfa1ff38e769c/result",
       "title": "ecn.multipoint.negotiation",
       "description": "",
       "conditions": [
@@ -98,6 +102,7 @@
       }
     },
     {
+      "query": "https://v3.pto.mami-project.eu/query/66bc45ebcf971a88fab3d96d676dbcaf28b4cf2060f12d23615eb536960ae3b4/result",
       "title": "ecn.ipmark.ce",
       "description": "",
       "conditions": [
@@ -114,6 +119,7 @@
       }
     },
     {
+      "query": "https://v3.pto.mami-project.eu/query/a215aa47ebd531f3389bc0621e620e97c56cf61bb5f4976723688d56881ef601/result",
       "title": "ecn.ipmark.ect0",
       "description": "",
       "conditions": [
@@ -130,6 +136,7 @@
       }
     },
     {
+      "query": "https://v3.pto.mami-project.eu/query/1dcc080230d7b7aedb034352a4f8494929cc97f74ee910d3f62d277e468e33c2/result",
       "title": "ecn.ipmark.ect1",
       "description": "",
       "conditions": [

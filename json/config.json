@@ -1,0 +1,21 @@
+{
+  "directoryQuery": "https://v3.pto.mami-project.eu/query/7f25ad270320fd3068633cf9bac45d3b3065c72e92df5ed9795c2b3f1778a3d7/result",
+  "pages": {
+    "ecn": {
+      "linktitle": "ECN",
+      "pageConfig": "ecn.json"
+    },
+    "mss": {
+      "linktitle": "MSS",
+      "pageConfig": "mss.json"
+    },
+    "tfo": {
+      "linktitle": "TFO",
+      "pageConfig": "tfo.json"
+    },
+    "mptcp": {
+      "linktitle": "MPTCP",
+      "pageConfig": "mptcp.json"
+    }
+  }
+}
