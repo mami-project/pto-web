@@ -25,7 +25,7 @@ function showNavbar() {
             const navbar = document.body.firstChild;
             for (let page of Object.getOwnPropertyNames(data['pages'])) {
                 let link = document.createElement('a');
-                link.href = 'chartpage.html?page=' + page;
+                link.href = 'charts.html?page=' + page;
                 link.classList.add('w3-bar-item', 'w3-button', 'w3-padding-large', 'w3-hover-white');
                 link.innerText = data['pages'][page]['linktitle'];
                 navbar.appendChild(link);

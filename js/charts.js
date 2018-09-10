@@ -101,10 +101,18 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
         axis: {
             x: {
                 type: 'category',
+                tick: {
+                    format: function () {return ''}
+                },
+                height: 15
             },
             y: {
                 tick: {
                     format: d3.format('.2%')
+                },
+                padding: {
+                    top: 0,
+                    bottom: 0
                 }
             }
         },
@@ -119,7 +127,7 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
         regions: getRegions(timeline),
         bar: {
             width: {
-                ratio: 0.8
+                ratio: 0.7
             }
         },
         legend: {
@@ -127,8 +135,9 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
         },
         tooltip: {
             format: {
+                title: function (x) {return timeline[x]},
                 name: function (name) {return name.substring(name.lastIndexOf('.') + 1, name.length)},
-                value: function(value, radio, id, index) {return d3.format('.2%')(value) + ' (' + getCount(groups, id, timeline[index]) + ')'}
+                value: function(value, ratio, id, index) {return d3.format('.2%')(value) + ' (' + getCount(groups, id, timeline[index]) + ')'}
             }
         }
     });
@@ -157,6 +166,10 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
             y: {
                 tick: {
                     format: d3.format(',')
+                },
+                padding: {
+                    top: 0,
+                    bottom: 0
                 }
             }
         },
@@ -171,7 +184,7 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
         regions: getRegions(timeline),
         bar: {
             width: {
-                ratio: 0.8
+                ratio: 0.7
             }
         },
         legend: {
@@ -246,13 +259,13 @@ function getLines (timeline) {
 }
 
 function getRegions (timeline) {
-    let regions = [{axis: 'x'}];
+    let regions = [{axis: 'x', opacity: 0.3}];
     for (let i = 0; i < timeline.length - 1; i++) {
         if (timeline[i].substring(0, 4) !== timeline[i + 1].substring(0, 4)) {
             if(!regions[regions.length - 1].hasOwnProperty('end')) {
                 regions[regions.length - 1]['end'] = i + 0.5;
             } else {
-                regions.push({axis: 'x', start: i + 0.5});
+                regions.push({axis: 'x', start: i + 0.5, opacity: 0.3});
             }
         }
     }

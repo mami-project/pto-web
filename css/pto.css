@@ -1,35 +1,31 @@
-table, th, td {
-    border: 0.15em solid black;
+.pto-table {
     text-align: center;
-    border-collapse: collapse;
-}
-
-th, td {
     white-space: nowrap;
 }
 
-.yearCell:hover {
-    background-color: gray !important;
+.pto-table>th, .pto-table>td {
+    border: 0.15em solid white;
+    border-collapse: collapse;
+}
+
+.pto-table>thead {
+    background-color: #888;
+}
+
+.pto-table>tbody>tr:nth-child(2n) {
+    background-color: #ddd;
+}
+
+.pto-table>tbody>tr:nth-child(2n + 1) {
+    background-color: #ccc;
+}
+
+#cachedQueryList {
+    font-size: 12px;
 }
 
 .charts-div>div:nth-child(2n) {
     background-color: #ddd;
-}
-
-#obsTable {
-    font-size: 12px;
-}
-
-#obsTable>thead {
-    background-color: #888;
-}
-
-#obsTable>tbody>tr:nth-child(2n) {
-    background-color: #ddd;
-}
-
-#obsTable>tbody>tr:nth-child(2n + 1) {
-    background-color: #ccc;
 }
 
 .chart-div {
@@ -103,4 +99,8 @@ svg {
     overflow: auto;
     height: inherit;
     max-height: fit-content;
+}
+
+#obsTable {
+    font-size: 12px;
 }

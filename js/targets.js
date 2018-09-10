@@ -1,4 +1,7 @@
 function showTargetList (startDateString, condition) {
+    const title = document.getElementById('targetListTitle');
+    title.innerText = title.innerText + "'" + condition + "'";
+
     let startDate = new Date(startDateString);
     let endDate = new Date(startDate.getTime() + (7 * 24 * 60 * 60 * 1000 - 1));
 
@@ -104,7 +107,12 @@ function fillTargetList (resultbaseUrl, page, data) {
         row.insertCell(-1).innerText = data['obs'].indexOf(obs) + 1 + (page) * 1000;
         row.insertCell(-1).innerText = obs[0];
         row.insertCell(-1).innerText = obs[1];
-        row.insertCell(-1).innerText = obs[3];
+
+        let path = obs[3].substring(0, obs[3].lastIndexOf(' '));
+        row.insertCell(-1).innerHTML = path;
+        let target = obs[3].substring(obs[3].lastIndexOf(' '));
+        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + target + "'>" + target + "</a>";
+
         row.insertCell(-1).innerText = obs[5];
     }
 

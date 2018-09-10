@@ -7,7 +7,7 @@ function initQueryList () {
 }
 
 function fillQueryList (queryLinks) {
-    const table = document.getElementById('queryList').getElementsByTagName('tbody')[0];
+    const table = document.getElementById('cachedQueryList').getElementsByTagName('tbody')[0];
 
     for (let queryLink of queryLinks) {
         fetch(queryLink)
@@ -33,7 +33,11 @@ function insertRow (table, data) {
 
     row.insertCell(-1).innerText = data['__row_count'];
 
-    row.insertCell(-1).innerText = data['__encoded'];
+    const encoded = row.insertCell(-1);
+    encoded.innerText = data['__encoded'];
+    encoded.style.textAlign = 'left';
 
-    row.insertCell(-1).innerText = data['__result'];
+    const result = row.insertCell(-1);
+    result.innerText = data['__result'];
+    result.style.textAlign = 'left';
 }

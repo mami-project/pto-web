@@ -23,14 +23,18 @@
             <h4>PTO 3</h4>
         </header>
 
+        <!-- Charts explanation -->
+        <div id="chartsExplanation"></div>
+
         <!-- Charts section -->
         <div id="chartsDiv" class="charts-div"></div>
 
+        <!-- Target list to be shown on drilldown -->
         <div id="targetList" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="close" onclick="closeTargetList();">&times;</span>
-                    <h2>Observations</h2>
+                    <h3 id="targetListTitle">Observations of </h3>
                     <div id="obsNav">
                         <button><<</button>
                         <button><</button>
@@ -41,15 +45,14 @@
                 </div>
                 <div class="modal-body">
                     <div id="obsTableDiv">
-                        <table id="obsTable" class="obs-table">
+                        <table id="obsTable" class="pto-table">
                             <thead>
                                 <tr>
                                     <th>Row</th>
                                     <th>Obs-Set ID</th>
                                     <th>Time Start</th>
-                                    <!--<th>Time End</th>-->
                                     <th>Path</th>
-                                    <!--<th>Condition</th>-->
+                                    <th>Target</th>
                                     <th>Value</th>
                                 </tr>
                             </thead>
