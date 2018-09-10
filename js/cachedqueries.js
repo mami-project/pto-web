@@ -14,7 +14,7 @@ function fillQueryList (queryLinks) {
             .then(response => response.json())
             .then(function (data) {
                 insertRow(table, data);
-            })
+            });
     }
 }
 
