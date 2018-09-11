@@ -30,6 +30,13 @@ function showNavbar() {
                 link.innerText = data['pages'][page]['linktitle'];
                 navbar.appendChild(link);
             }
+            if (getApiKey()) {
+                for (let link of navbar.getElementsByTagName('a')) {
+                    if (link.style.display === 'none') {
+                        link.style.display = 'block';
+                    }
+                }
+            }
         });
 }
 
@@ -41,5 +48,4 @@ function showFooter() {
             document.body.appendChild(footer);
             footer.outerHTML = data;
         });
-
 }

@@ -104,12 +104,19 @@ function fillTargetList (resultbaseUrl, page, data) {
 
     for (let obs of data['obs']) {
         const row = tableBody.insertRow(-1);
+
         row.insertCell(-1).innerText = data['obs'].indexOf(obs) + 1 + (page) * 1000;
+
         row.insertCell(-1).innerText = obs[0];
+
         row.insertCell(-1).innerText = obs[1];
 
+        let source = obs[3].substring(obs[3].lastIndexOf(' '));
+        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + source + "'>" + source + "</a>";
+
         let path = obs[3].substring(0, obs[3].lastIndexOf(' '));
-        row.insertCell(-1).innerHTML = path;
+        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + path + "'>" + path + "</a>";
+
         let target = obs[3].substring(obs[3].lastIndexOf(' '));
         row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + target + "'>" + target + "</a>";
 
@@ -121,4 +128,12 @@ function fillTargetList (resultbaseUrl, page, data) {
 
 function closeTargetList () {
     document.getElementById('targetList').style.display = 'none';
+}
+
+function saveAsFile(content, fileName, contentType) {
+    let a = document.createElement("a");
+    let file = new Blob([content], {type: contentType});
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
 }

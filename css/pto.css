@@ -20,10 +20,6 @@
     background-color: #ccc;
 }
 
-#cachedQueryList {
-    font-size: 12px;
-}
-
 .charts-div>div:nth-child(2n) {
     background-color: #ddd;
 }

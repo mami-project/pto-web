@@ -18,15 +18,20 @@
     <body onload="initPage(); initApiKey();">
         <!-- Header -->
         <header class="w3-center w3-container w3-theme w3-padding">
-            <h4>PTO 3</h4>
             <h1 class="w3-xxxlarge">API Key</h1>
         </header>
 
         <!-- API Key -->
         <div class="w3-center w3-container w3-theme w3-padding">
             <h4>Enter your API Key: </h4>
-            <input id="API Key" title="API Key" type="text" name="API Key" size="64">
+            <input id="apikeyInput" title="API Key" name="API Key" size="64">
             <input type="submit" value="Set" onclick="setApiKey()">
+        </div>
+
+        <div class="w3-center w3-container w3-theme w3-padding">
+            <h4>Current API Key: </h4>
+            <input id="apikeyOutput" title="API Key" name="API Key" size="64" disabled>
+            <input type="submit" value="Clear" onclick="clearApiKey()">
         </div>
     </body>
 </html>

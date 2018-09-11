@@ -31,6 +31,7 @@ function fillQueryList (campaigns) {
                 }
             })
             .then(function (data) {
+                console.log(data);
                 insertRow(table, data, campaign);
             });
     }
