@@ -1,4 +1,4 @@
-function showTargetList (startDateString, condition) {
+function showObsList (startDateString, condition) {
     const title = document.getElementById('targetListTitle');
     title.innerText = title.innerText + "'" + condition + "'";
 
@@ -15,7 +15,7 @@ function showTargetList (startDateString, condition) {
             if(data == null) {
                 submitDrillDownQuery(query);
             } else if (data['__state'] === 'complete') {
-                showTargets(data['__result'], 0);
+                showObs(data['__result'], 0);
             } else if (data['__state'] === 'pending') {
                 alert('The data you asked for is getting prepared currently. Please come back later.');
             } else {
@@ -35,16 +35,7 @@ function submitDrillDownQuery (query) {
         return;
     }
 
-    let options = {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'APIKEY ' + getApiKey()
-        }
-    };
-
-    fetch(submitBaseUrl + '?' + query, options)
+    fetch(submitBaseUrl + '?' + query, getQuerySubmitOptions())
         .then(function (response) {
            if (response.status !== 200) {
                alert('There was a problem submitting the query. Please check your Browser console and contact us.');
@@ -53,13 +44,13 @@ function submitDrillDownQuery (query) {
         });
 }
 
-function showTargets (resultBaseUrl, page) {
+function showObs (resultBaseUrl, page) {
     fetch(resultBaseUrl + '?page=' + page)
         .then(response => response.json())
         .then(function (data) {
-            document.getElementById('targetList').style.display = 'unset';
+            document.getElementById('obsListModal').style.display = 'unset';
             configureObsNav(resultBaseUrl, page, data);
-            fillTargetList(resultBaseUrl, page, data);
+            fillObsList(resultBaseUrl, page, data);
         });
 }
 
@@ -69,13 +60,13 @@ function configureObsNav(resultBaseUrl, page, data) {
     obsNav = document.getElementById('obsNav');
 
     obsNav.children[0].addEventListener('click', function () {
-        showTargets(resultBaseUrl, 0);
+        showObs(resultBaseUrl, 0);
     });
 
     if (page > 0) {
         obsNav.children[1].disabled = false;
         obsNav.children[1].addEventListener('click', function () {
-            showTargets(resultBaseUrl, page - 1);
+            showObs(resultBaseUrl, page - 1);
         });
     } else {
         obsNav.children[1].disabled = true;
@@ -86,18 +77,18 @@ function configureObsNav(resultBaseUrl, page, data) {
     if (page < Math.floor(data['total_count'] / 1000)) {
         obsNav.children[3].disabled = false;
         obsNav.children[3].addEventListener('click', function () {
-            showTargets(resultBaseUrl, page + 1);
+            showObs(resultBaseUrl, page + 1);
         });
     } else {
         obsNav.children[3].disabled = true;
     }
 
     obsNav.children[4].addEventListener('click', function () {
-        showTargets(resultBaseUrl, Math.floor(data['total_count'] / 1000));
+        showObs(resultBaseUrl, Math.floor(data['total_count'] / 1000));
     });
 }
 
-function fillTargetList (resultbaseUrl, page, data) {
+function fillObsList (resultbaseUrl, page, data) {
     const tableBody =  document.getElementById('obsTable').querySelector('tbody');
     tableBody.innerHTML = '';
 
@@ -131,11 +122,11 @@ function fillTargetList (resultbaseUrl, page, data) {
         row.insertCell(-1).innerText = obs[5];
     }
 
-    document.querySelector('#obsTable').parentElement.scrollTop = 0;
+    document.getElementById('obsTable').parentElement.scrollTop = 0;
 }
 
 function closeTargetList () {
-    document.getElementById('targetList').style.display = 'none';
+    document.getElementById('obsListModal').style.display = 'none';
 }
 
 function showMetadata(obsSetId) {
@@ -163,12 +154,4 @@ function doShowMetadata(obsSetId, data) {
 
 function closeMetadata() {
     document.getElementById('obsMetadataModal').style.display = 'none';
-}
-
-function saveAsFile(content, fileName, contentType) {
-    let a = document.createElement("a");
-    let file = new Blob([content], {type: contentType});
-    a.href = URL.createObjectURL(file);
-    a.download = fileName;
-    a.click();
 }

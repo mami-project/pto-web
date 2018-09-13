@@ -30,21 +30,29 @@ function drawHeader (pageConfig) {
 
 function drawContainers (pageConfig) {
     const chartsDiv = document.getElementById('chartsDiv');
+
     for (let chartConfig of pageConfig['charts']) {
         const chartDiv = document.createElement('div');
         chartDiv.classList.add('chart-div');
 
         const title = document.createElement('h2');
-        const description = document.createElement('p');
-        const sharesDiv = document.createElement('div');
-        const volumeDiv = document.createElement('div');
-
         title.innerText = chartConfig['title'];
-        description.innerText = chartConfig['description'];
-
         chartDiv.appendChild(title);
+
+        const description = document.createElement('p');
+        description.innerText = chartConfig['description'];
         chartDiv.appendChild(description);
+
+        const conditionDescriptions = document.createElement('p');
+        for (let condition of chartConfig['conditions']) {
+            conditionDescriptions.innerHTML = conditionDescriptions.innerHTML + condition + ": " + chartConfig['descriptions'][condition] + "<br>";
+        }
+        chartDiv.appendChild(conditionDescriptions);
+
+        const sharesDiv = document.createElement('div');
         chartDiv.appendChild(sharesDiv);
+
+        const volumeDiv = document.createElement('div');
         chartDiv.appendChild(volumeDiv);
 
         chartsDiv.appendChild(chartDiv);
@@ -63,8 +71,8 @@ function drawChart (chartConfigs, index) {
     }
 
     const chartsDiv = document.getElementById('chartsDiv');
-    const sharesDiv = chartsDiv.children[index].children[2];
-    const volumeDiv = chartsDiv.children[index].children[3];
+    const sharesDiv = chartsDiv.children[index].children[3];
+    const volumeDiv = chartsDiv.children[index].children[4];
 
     fetch(chartConfigs[index]['query'])
         .then(response => response.json())
@@ -95,7 +103,7 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
             type: 'bar',
             colors: chartConfig['colors'],
             groups: [conditions],
-            onclick: function (d) {showTargetList(timeline[d.index], d.name)},
+            onclick: function (d) {showObsList(timeline[d.index], d.name)},
             order: null
         },
         axis: {

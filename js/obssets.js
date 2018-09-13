@@ -1,13 +1,7 @@
 const compareProperty = '__created';
 
 function initTable () {
-    let options = {
-        headers: {
-            'Authorization': 'APIKEY ' + getApiKey()
-        }
-    };
-
-    fetch(baseUrl + '/obs', options)
+    fetch(baseUrl + '/obs', getReadOptions())
         .then(response => response.json())
         .then(function (data) {
             getMetadata(0, data['sets'], []);
@@ -22,13 +16,7 @@ function getMetadata (index, links, metadata) {
 
     document.getElementById('tableDiv').innerText = 'Loading data ' + Math.round(index * 100 / links.length) + '%';
 
-    let options = {
-        headers: {
-            'Authorization': 'APIKEY ' + getApiKey()
-        }
-    };
-
-    fetch(links[index], options)
+    fetch(links[index], getReadOptions())
         .then(function (response) {
             if (response.status === 200) {
                 return response.json();
@@ -39,7 +27,8 @@ function getMetadata (index, links, metadata) {
                 metadata.push(data);
                 getMetadata(index + 1, links, metadata);
             }
-        });
+        })
+        .catch();
 }
 
 function processMetadata(metadata) {

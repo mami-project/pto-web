@@ -61,3 +61,22 @@ function compareByProperty (property) {
         return 0;
     }
 }
+
+function getQuerySubmitOptions() {
+    return {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'APIKEY ' + getApiKey()
+        }
+    };
+}
+
+function getReadOptions() {
+    return {
+        headers: {
+            'Authorization': 'APIKEY ' + getApiKey()
+        }
+    };
+}

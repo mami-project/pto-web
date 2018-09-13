@@ -18,17 +18,17 @@
     </head>
 
     <body onload="initPage(); initChartPage();">
-        <!-- Header -->
-        <header class="w3-center w3-container w3-center w3-theme w3-padding"></header>
 
-        <!-- Charts explanation -->
-        <div id="chartsExplanation"></div>
+        <header class="w3-container w3-center w3-theme w3-padding"></header>
 
-        <!-- Charts section -->
+        <div id="chartsExplanation" class="w3-container w3-center w3-padding">
+            <p>The charts you see on this page show how many targets in the measurement series have been observed with a certain condition. </p>
+            <p>By clicking on a bar you will see all measurements which let to that result.</p>
+        </div>
+
         <div id="chartsDiv" class="charts-div"></div>
 
-        <!-- Target list to be shown on drilldown -->
-        <div id="targetList" class="modal">
+        <div id="obsListModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="close" onclick="closeTargetList();">&times;</span>
@@ -62,7 +62,6 @@
             </div>
         </div>
 
-        <!-- Div for Obs Metadata -->
         <div id="obsMetadataModal" class="modal" style="display: none">
             <div class="modal-content">
                 <div class="modal-header">
