@@ -30,8 +30,7 @@ function submitDrillDownQuery (query) {
         return;
     }
 
-    let apikey = getApiKey();
-    if(apikey === null){
+    if(getApiKey() === null){
         alert("To submit a query you need to enter an API Key. If you dont have an API Key yet, please contact us to get one.");
         return;
     }
@@ -41,7 +40,7 @@ function submitDrillDownQuery (query) {
         mode: 'cors',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'APIKEY ' + apikey
+            'Authorization': 'APIKEY ' + getApiKey()
         }
     };
 
@@ -107,17 +106,26 @@ function fillTargetList (resultbaseUrl, page, data) {
 
         row.insertCell(-1).innerText = data['obs'].indexOf(obs) + 1 + (page) * 1000;
 
-        row.insertCell(-1).innerText = obs[0];
+        let obsSetIdCell = row.insertCell(-1);
+        obsSetIdCell.innerHTML = '<u>' + obs[0] + '</u>';
+        obsSetIdCell.addEventListener('click', function () {
+            showMetadata(obs[0]);
+        });
+
 
         row.insertCell(-1).innerText = obs[1];
 
-        let source = obs[3].substring(obs[3].lastIndexOf(' '));
-        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + source + "'>" + source + "</a>";
+        let pathElements = obs[3].split(' ');
+        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + pathElements[0] + "'>" + pathElements[0] + "</a>" + " " + pathElements[1];
 
-        let path = obs[3].substring(0, obs[3].lastIndexOf(' '));
-        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + path + "'>" + path + "</a>";
+        let path = '';
+        for (let i = 2; i < pathElements.length - 1; i++) {
+            path = path + '' + pathElements[i];
+        }
+        path.trim();
+        row.insertCell(-1).innerHTML = path;
 
-        let target = obs[3].substring(obs[3].lastIndexOf(' '));
+        let target = pathElements[pathElements.length - 1];
         row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + target + "'>" + target + "</a>";
 
         row.insertCell(-1).innerText = obs[5];
@@ -128,6 +136,33 @@ function fillTargetList (resultbaseUrl, page, data) {
 
 function closeTargetList () {
     document.getElementById('targetList').style.display = 'none';
+}
+
+function showMetadata(obsSetId) {
+    let options = {
+        headers: {
+            'Authorization': 'APIKEY ' + getApiKey()
+        }
+    };
+
+    fetch(baseUrl + '/obs/' + obsSetId, options)
+        .then(function (response) {
+            if (response.status === 200) {
+                return response.json();
+            }
+        })
+        .then(function (data) {
+            doShowMetadata(obsSetId, data);
+        });
+}
+
+function doShowMetadata(obsSetId, data) {
+    document.getElementById('obsMetadataModal').style.display = 'unset';
+    document.getElementById('obsMetadataDiv').innerHTML = JSON.stringify(data).replace(/,/g, ',<br>');
+}
+
+function closeMetadata() {
+    document.getElementById('obsMetadataModal').style.display = 'none';
 }
 
 function saveAsFile(content, fileName, contentType) {

@@ -1,43 +1,69 @@
-function initQueryList () {
+const compareProperty = '__created';
+
+function initTable () {
     fetch(baseUrl + '/query')
         .then(response => response.json())
         .then(function (data) {
-            fillQueryList(data['queries']);
+            getMetadata(0, data['queries'], []);
         });
 }
 
-function fillQueryList (queryLinks) {
-    const table = document.getElementById('cachedQueryList').getElementsByTagName('tbody')[0];
-
-    for (let queryLink of queryLinks) {
-        fetch(queryLink)
-            .then(response => response.json())
-            .then(function (data) {
-                insertRow(table, data);
-            });
+function getMetadata (index, links, metadata) {
+    if (index >= links.length) {
+        processMetadata(metadata);
+        return;
     }
+
+    document.getElementById('tableDiv').innerText = 'Loading data ' + Math.round(index * 100 / links.length) + '%';
+
+    let options = {
+        headers: {
+            'Authorization': 'APIKEY ' + getApiKey()
+        }
+    };
+
+    fetch(links[index], options)
+        .then(function (response) {
+            if (response.status === 200) {
+                return response.json();
+            }
+        })
+        .then(function (data) {
+            if (data != null) {
+                metadata.push(data);
+                getMetadata(index + 1, links, metadata);
+            }
+        });
 }
 
-function insertRow (table, data) {
-    const row = table.insertRow(-1);
+function processMetadata(metadata) {
+    let properties = [];
+    for (let queryMetadata of metadata) {
+        for (let property of Object.getOwnPropertyNames(queryMetadata)) {
+            if (properties.indexOf(property) === -1) {
+                properties.push(property);
+            }
+        }
+    }
+    metadata.sort(compareByProperty(compareProperty));
+    drawTable(metadata, properties);
+}
 
-    row.insertCell(-1).innerText = data['__state'];
+function drawTable(metadata, properties) {
+    let tableDiv = document.getElementById('tableDiv');
+    tableDiv.innerHTML = "<table class='pto-data-table'><thead></thead><tbody></tbody></table>";
 
-    row.insertCell(-1).innerText = data['__created'];
+    const thead = tableDiv.getElementsByTagName('thead')[0];
+    let row = thead.insertRow(-1);
+    for (let property of properties) {
+        row.insertCell(-1).outerHTML = "<th>" + property + "</th>";
+    }
 
-    row.insertCell(-1).innerText = data['__completed'];
-
-    row.insertCell(-1).innerText = data['__executed'];
-
-    row.insertCell(-1).innerText = data['__modified'];
-
-    row.insertCell(-1).innerText = data['__row_count'];
-
-    const encoded = row.insertCell(-1);
-    encoded.innerText = data['__encoded'];
-    encoded.style.textAlign = 'left';
-
-    const result = row.insertCell(-1);
-    result.innerText = data['__result'];
-    result.style.textAlign = 'left';
+    const tbody = tableDiv.getElementsByTagName('tbody')[0];
+    for (let queryMetadata of metadata) {
+        const row = tbody.insertRow(-1);
+        for (let property of properties) {
+            row.insertCell(-1).innerText = queryMetadata[property] == null ? '' : queryMetadata[property];
+        }
+    }
 }

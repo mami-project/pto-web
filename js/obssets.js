@@ -1,4 +1,6 @@
-function initObsSetList () {
+const compareProperty = '__created';
+
+function initTable () {
     let options = {
         headers: {
             'Authorization': 'APIKEY ' + getApiKey()
@@ -8,12 +10,17 @@ function initObsSetList () {
     fetch(baseUrl + '/obs', options)
         .then(response => response.json())
         .then(function (data) {
-            fillQueryList(data['sets']);
+            getMetadata(0, data['sets'], []);
         });
 }
 
-function fillQueryList (obsSetLinks) {
-    const table = document.getElementById('obsSetList').getElementsByTagName('tbody')[0];
+function getMetadata (index, links, metadata) {
+    if (index >= links.length) {
+        processMetadata(metadata);
+        return;
+    }
+
+    document.getElementById('tableDiv').innerText = 'Loading data ' + Math.round(index * 100 / links.length) + '%';
 
     let options = {
         headers: {
@@ -21,39 +28,48 @@ function fillQueryList (obsSetLinks) {
         }
     };
 
-    for (let obsSetLink of obsSetLinks) {
-        fetch(obsSetLink, options)
-            .then(response => response.json())
-            .then(function (data) {
-                insertRow(table, data);
-            });
-    }
+    fetch(links[index], options)
+        .then(function (response) {
+            if (response.status === 200) {
+                return response.json();
+            }
+        })
+        .then(function (data) {
+            if (data != null) {
+                metadata.push(data);
+                getMetadata(index + 1, links, metadata);
+            }
+        });
 }
 
-function insertRow (table, data) {
-    const row = table.insertRow(-1);
+function processMetadata(metadata) {
+    let properties = [];
+    for (let obsMetadata of metadata) {
+        for (let property of Object.getOwnPropertyNames(obsMetadata)) {
+            if (properties.indexOf(property) === -1) {
+                properties.push(property);
+            }
+        }
+    }
+    metadata.sort(compareByProperty(compareProperty));
+    drawTable(metadata, properties);
+}
 
-    row.insertCell(-1).innerText = data['__link'].substring(data['__link'].lastIndexOf('/') + 1);
+function drawTable(metadata, properties) {
+    let tableDiv = document.getElementById('tableDiv');
+    tableDiv.innerHTML = "<table class='pto-data-table'><thead></thead><tbody></tbody></table>";
 
-    row.insertCell(-1).innerText = data['description'];
+    const thead = tableDiv.getElementsByTagName('thead')[0];
+    let row = thead.insertRow(-1);
+    for (let property of properties) {
+        row.insertCell(-1).outerHTML = "<th>" + property + "</th>";
+    }
 
-    row.insertCell(-1).innerText = data['__created'];
-
-    row.insertCell(-1).innerText = data['__modified'];
-
-    row.insertCell(-1).innerText = data['__time_start'];
-
-    row.insertCell(-1).innerText = data['__time_end'];
-
-    row.insertCell(-1).innerText = data['__obs_count'];
-
-    row.insertCell(-1).innerText = data['vantage'];
-
-    row.insertCell(-1).innerText = data['__data'];
-
-    row.insertCell(-1).innerText = data['__conditions'];
-
-    row.insertCell(-1).innerText = data['_analyzer'];
-
-    row.insertCell(-1).innerText = data['_sources'];
+    const tbody = tableDiv.getElementsByTagName('tbody')[0];
+    for (let obsMetadata of metadata) {
+        const row = tbody.insertRow(-1);
+        for (let property of properties) {
+            row.insertCell(-1).innerText = obsMetadata[property] == null ? '' : obsMetadata[property];
+        }
+    }
 }
