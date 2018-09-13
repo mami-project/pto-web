@@ -6,7 +6,7 @@
     {
       "query": "https://v3.pto.mami-project.eu/query/f356b1c9a74eaddf2cbb1863e5a3ec06117d90dcb18cc1709d599243006649fe/result",
       "title": "ecn.connectivity",
-      "description": "",
+      "description": "Chart Description",
       "conditions": [
         "ecn.connectivity.works",
         "ecn.connectivity.broken",
@@ -20,16 +20,16 @@
         "ecn.connectivity.offline": "#888888"
       },
       "descriptions": {
-        "ecn.connectivity.works": "",
-        "ecn.connectivity.broken": "",
-        "ecn.connectivity.transient": "",
-        "ecn.connectivity.offline": ""
+        "ecn.connectivity.works": "Condition Description",
+        "ecn.connectivity.broken": "Condition Description",
+        "ecn.connectivity.transient": "Condition Description",
+        "ecn.connectivity.offline": "Condition Description"
       }
     },
     {
       "query": "https://v3.pto.mami-project.eu/query/2a5046c88cfb066945d21bb38a2bae791c8b588f739e4a1a769122991f164909/result",
       "title": "ecn.multipoint.connectivity",
-      "description": "",
+      "description": "Chart Description",
       "conditions": [
         "ecn.multipoint.connectivity.works",
         "ecn.multipoint.connectivity.broken",
@@ -47,18 +47,18 @@
         "ecn.multipoint.connectivity.offline": "#888888"
       },
       "descriptions": {
-        "ecn.multipoint.connectivity.works": "",
-        "ecn.multipoint.connectivity.broken": "",
-        "ecn.multipoint.connectivity.transient": "",
-        "ecn.multipoint.connectivity.path_dependent": "",
-        "ecn.multipoint.connectivity.unstable": "",
-        "ecn.multipoint.connectivity.offline": ""
+        "ecn.multipoint.connectivity.works": "Condition Description",
+        "ecn.multipoint.connectivity.broken": "Condition Description",
+        "ecn.multipoint.connectivity.transient": "Condition Description",
+        "ecn.multipoint.connectivity.path_dependent": "Condition Description",
+        "ecn.multipoint.connectivity.unstable": "Condition Description",
+        "ecn.multipoint.connectivity.offline": "Condition Description"
       }
     },
     {
       "query": "https://v3.pto.mami-project.eu/query/e4554d0e637e676275f0d3fcdfb0d5c10a1153abfa41cc3cb1a72d4fcbe00dc1/result",
       "title": "ecn.negotiation",
-      "description": "",
+      "description": "Chart Description",
       "conditions": [
         "ecn.negotiation.succeeded",
         "ecn.negotiation.failed",
@@ -70,15 +70,15 @@
         "ecn.negotiation.reflected": "#2222FF"
       },
       "descriptions": {
-        "ecn.negotiation.succeeded": "",
-        "ecn.negotiation.failed": "",
-        "ecn.negotiation.reflected": ""
+        "ecn.negotiation.succeeded": "Condition Description",
+        "ecn.negotiation.failed": "Condition Description",
+        "ecn.negotiation.reflected": "Condition Description"
       }
     },
     {
       "query": "https://v3.pto.mami-project.eu/query/629bfd41b9e632ed4466808244f111b215ba09a870eb3d0b9b5bfa1ff38e769c/result",
       "title": "ecn.multipoint.negotiation",
-      "description": "",
+      "description": "Chart Description",
       "conditions": [
         "ecn.multipoint.negotiation.succeeded",
         "ecn.multipoint.negotiation.failed",
@@ -94,17 +94,17 @@
         "ecn.multipoint.negotiation.unstable": "#CCCC11"
       },
       "descriptions": {
-        "ecn.multipoint.negotiation.succeeded": "",
-        "ecn.multipoint.negotiation.failed": "",
-        "ecn.multipoint.negotiation.reflected": "",
-        "ecn.multipoint.negotiation.path_dependent": "",
-        "ecn.multipoint.negotiation.unstable": ""
+        "ecn.multipoint.negotiation.succeeded": "Condition Description",
+        "ecn.multipoint.negotiation.failed": "Condition Description",
+        "ecn.multipoint.negotiation.reflected": "Condition Description",
+        "ecn.multipoint.negotiation.path_dependent": "Condition Description",
+        "ecn.multipoint.negotiation.unstable": "Condition Description"
       }
     },
     {
       "query": "https://v3.pto.mami-project.eu/query/66bc45ebcf971a88fab3d96d676dbcaf28b4cf2060f12d23615eb536960ae3b4/result",
       "title": "ecn.ipmark.ce",
-      "description": "",
+      "description": "Chart Description",
       "conditions": [
         "ecn.ipmark.ce.seen",
         "ecn.ipmark.ce.not_seen"
@@ -114,14 +114,14 @@
         "ecn.ipmark.ce.not_seen": "#CC1111"
       },
       "descriptions": {
-        "ecn.ipmark.ce.seen": "",
-        "ecn.ipmark.ce.not_seen": ""
+        "ecn.ipmark.ce.seen": "Condition Description",
+        "ecn.ipmark.ce.not_seen": "Condition Description"
       }
     },
     {
       "query": "https://v3.pto.mami-project.eu/query/a215aa47ebd531f3389bc0621e620e97c56cf61bb5f4976723688d56881ef601/result",
       "title": "ecn.ipmark.ect0",
-      "description": "",
+      "description": "Chart Description",
       "conditions": [
         "ecn.ipmark.ect0.seen",
         "ecn.ipmark.ect0.not_seen"
@@ -131,14 +131,14 @@
         "ecn.ipmark.ect0.not_seen": "#CC1111"
       },
       "descriptions": {
-        "ecn.ipmark.ect0.seen": "",
-        "ecn.ipmark.ect0.not_seen": ""
+        "ecn.ipmark.ect0.seen": "Condition Description",
+        "ecn.ipmark.ect0.not_seen": "Condition Description"
       }
     },
     {
       "query": "https://v3.pto.mami-project.eu/query/1dcc080230d7b7aedb034352a4f8494929cc97f74ee910d3f62d277e468e33c2/result",
       "title": "ecn.ipmark.ect1",
-      "description": "",
+      "description": "Chart Description",
       "conditions": [
         "ecn.ipmark.ect1.seen",
         "ecn.ipmark.ect1.not_seen"
@@ -148,8 +148,8 @@
         "ecn.ipmark.ect1.not_seen": "#CC1111"
       },
       "descriptions": {
-        "ecn.ipmark.ect1.seen": "",
-        "ecn.ipmark.ect1.not_seen": ""
+        "ecn.ipmark.ect1.seen": "Condition Description",
+        "ecn.ipmark.ect1.not_seen": "Condition Description"
       }
     }
   ]

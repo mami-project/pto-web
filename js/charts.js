@@ -39,7 +39,7 @@ function drawContainers (pageConfig) {
         title.innerText = chartConfig['title'];
         chartDiv.appendChild(title);
 
-        const description = document.createElement('p');
+        const description = document.createElement('h4');
         description.innerText = chartConfig['description'];
         chartDiv.appendChild(description);
 
