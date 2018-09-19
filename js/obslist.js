@@ -70,31 +70,25 @@ function fillObsList (resultbaseUrl, page, data) {
     for (let obs of data['obs']) {
         const row = tableBody.insertRow(-1);
 
-        row.insertCell(-1).innerText = data['obs'].indexOf(obs) + 1 + (page) * 1000;
+        row.insertCell(-1).innerHTML = data['obs'].indexOf(obs) + 1 + (page) * 1000;
 
         let obsSetIdCell = row.insertCell(-1);
         obsSetIdCell.innerHTML = '<u>' + obs[0] + '</u>';
-        obsSetIdCell.addEventListener('click', function () {
-            showMetadata(obs[0]);
-        });
+        obsSetIdCell.addEventListener('click', function () {showMetadata(obs[0]);});
 
+        row.insertCell(-1).innerHTML = obs[1];
 
-        row.insertCell(-1).innerText = obs[1];
+        let source = getSourceFromPath(obs[3]);
+        let sourceAS = getSourceASFromPath(obs[3]);
+        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + source + "' target='_blank'>" + source + "</a>" + sourceAS;
 
-        let pathElements = obs[3].split(' ');
-        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + pathElements[0] + "' target='_blank'>" + pathElements[0] + "</a>" + " " + pathElements[1];
+        row.insertCell(-1).innerHTML = getPathFromFullPath(obs[3]);
 
-        let path = '';
-        for (let i = 2; i < pathElements.length - 1; i++) {
-            path = path + '' + pathElements[i];
-        }
-        path.trim();
-        row.insertCell(-1).innerHTML = path;
+        let target = getTargetFromPath(obs[3]);
+        let targetAS = getTargetASFromPath(obs[3]);
+        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + target + "' target='_blank'>" + target + "</a>" + targetAS;
 
-        let target = pathElements[pathElements.length - 1];
-        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + target + "' target='_blank'>" + target + "</a>";
-
-        row.insertCell(-1).innerText = obs[5];
+        row.insertCell(-1).innerHTML = obs[5];
     }
 
     document.getElementById('obsTable').parentElement.scrollTop = 0;
@@ -113,10 +107,68 @@ function showMetadata(obsSetId) {
         })
         .then(function (data) {
             document.getElementById('obsMetadataModal').style.display = 'unset';
-            document.getElementById('obsMetadataDiv').innerHTML = JSON.stringify(data).replace(/,/g, ',<br>');
+            document.getElementById('obsMetadataDiv').innerHTML = getMetadataHTML(data);//JSON.stringify(data).replace(/,/g, ',<br>');
         });
+}
+
+function getMetadataHTML (metadata) {
+    let html = '';
+    for (let key of Object.getOwnPropertyNames(metadata)) {
+        html = html + '<b>' + key + ':</b> ' + metadata[key].toString() + '<br>';
+    }
+    return html;
 }
 
 function closeMetadata() {
     document.getElementById('obsMetadataModal').style.display = 'none';
+}
+
+function getSourceFromPath(path) {
+    let pathElements = getTrimmedPathElements(path);
+    if (pathElements[0] !== '*') {
+        return pathElements[0];
+    }
+    return '';
+}
+
+function getSourceASFromPath(path) {
+    let pathElements = getTrimmedPathElements(path);
+    if (pathElements[1].startsWith('AS')) {
+        return ' ' + pathElements[1];
+    }
+    return '';
+}
+
+function getPathFromFullPath(path) {
+    let source = getSourceFromPath(path);
+    let sourceAS = getSourceASFromPath(path);
+    let target = getTargetFromPath(path);
+    let targetAS = getTargetASFromPath(path);
+    return path.replace(source, '').replace(sourceAS, '').replace(target, '').replace(targetAS, '').trim();
+}
+
+function getTargetFromPath(path) {
+    let pathElements = getTrimmedPathElements(path);
+    pathElements.reverse();
+    if (!pathElements[0].startsWith('AS')) {
+        return pathElements[0];
+    }
+    return pathElements[1];
+}
+
+function getTargetASFromPath(path) {
+    let pathElements = getTrimmedPathElements(path);
+    pathElements.reverse();
+    if (pathElements[0].startsWith('AS')) {
+        return ' ' + pathElements[0];
+    }
+    return '';
+}
+
+function getTrimmedPathElements (path) {
+    let pathElements = path.split(' ');
+    for (let pathElement of pathElements) {
+        pathElement = pathElement.trim();
+    }
+    return pathElements;
 }

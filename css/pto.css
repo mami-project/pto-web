@@ -135,3 +135,8 @@
 #obsTable {
     font-size: 12px;
 }
+
+#obsMetadataDiv {
+    white-space: nowrap;
+    overflow: auto;
+}
