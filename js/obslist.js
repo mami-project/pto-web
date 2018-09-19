@@ -8,7 +8,17 @@ function showObsList (startDateString, condition) {
     query = query + '&time_end=' + encodeURIComponent(endDate.toISOString());
     query = query + '&condition=' + condition;
 
-    fetch(retrieveBaseUrl + '?' + query)
+    encodedQueryToQueryLinkOrSubmit(query,
+        function (queryLink) {showObs(queryLink, 0);},
+        function () {alert('The query for this drill down is still pending. Please come back later.');},
+        function () {alert('The query for this drill down failed. Please contact us.');},
+        function () {},
+        function () {alert('The query submission failed. Make sure you have permissions.');},
+        function () {},
+        function () {alert('You do not have an API Key registered to submit queries.');},
+        function (e) {console.log(e); alert('The data you asked for could not be fetched. Please contact us.');});
+
+    /*fetch(retrieveBaseUrl + '?' + query)
         .then(response => response.json())
         .then(function (data) {
             if(data == null) {
@@ -20,7 +30,7 @@ function showObsList (startDateString, condition) {
             } else {
                 alert('The data you asked for could not be fetched. Please contact us.');
             }
-        });
+        });*/
 }
 
 function submitDrillDownQuery (query) {

@@ -71,21 +71,46 @@ function drawChart (chartConfigs, index) {
     }
 
     const chartsDiv = document.getElementById('chartsDiv');
-    const sharesDiv = chartsDiv.children[index].children[3];
-    const volumeDiv = chartsDiv.children[index].children[4];
+    const chartDiv = chartsDiv.children[index];
+    const sharesDiv = chartDiv.children[3];
+    const volumeDiv = chartDiv.children[4];
 
-    fetch(chartConfigs[index]['query'])
-        .then(response => response.json())
-        .then(function (data) {
+    encodedQueryToQueryResultOrSubmit(
+        chartConfigs[index]['query'],
+        function (data) {
             drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, data);
-        })
-        .catch(function (e) {
-            sharesDiv.innerText = 'There was an error drawing this chart.';
+        },
+        function () {
+            sharesDiv.innerText = 'The query behind this chart is still pending.';
+            drawChart(chartConfigs, index + 1);
+        },
+        function () {
+            sharesDiv.innerText = 'The query behind this chart failed.';
+            drawChart(chartConfigs, index + 1);
+        },
+        function () {
+            sharesDiv.innerText = 'The query behind this chart was submitted but is still pending.';
+            drawChart(chartConfigs, index + 1);
+        },
+        function () {
+            sharesDiv.innerText = 'The query submission failed. Make sure you have permission.';
+            drawChart(chartConfigs, index + 1);
+        },
+        function () {
+            sharesDiv.innerText = 'The query was not submitted.';
+            drawChart(chartConfigs, index + 1);
+        },
+        function () {
+            sharesDiv.innerText = 'No API Key available to submit a query.';
+            drawChart(chartConfigs, index + 1);
+        },
+        function (e) {
             console.log(e);
+            sharesDiv.innerText = 'An error occured whil building this chart.';
             drawChart(chartConfigs, index + 1);
         });
-
 }
+
 function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
     let chartConfig = chartConfigs[index];
     let conditions = chartConfig['conditions'];
@@ -95,16 +120,19 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
     c3.generate({
         bindto: sharesDiv,
         padding: {
-            left: 100,
-            bottom: 0
+            top: 35,
+            left: 80
+        },
+        size: {
+            height: 350
         },
         data: {
             x: 'x',
             columns: getShares(timeline, groups, conditions),
             type: 'bar',
-            colors: chartConfig['colors'],
             groups: [conditions],
-            onclick: function (d) {showObsList(timeline[d.index], d.name)},
+            colors: chartConfig['colors'],
+            onclick: d => showObsList(timeline[d.index], d.name),
             order: null
         },
         axis: {
@@ -117,11 +145,79 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
             },
             y: {
                 tick: {
+                    outer: false,
                     format: d3.format('.2%')
                 },
                 padding: {
-                    top: 0,
-                    bottom: 0
+                    top: 10
+                }
+            }
+        },
+        grid: {
+            x: {
+                lines: getLines(timeline)
+            },
+            y: {
+                show: true
+            }
+        },
+        regions: getRegions(timeline),
+        bar: {
+            width: {
+                ratio: 0.7
+            }
+        },
+        legend: {
+            position: 'inset',
+            inset: {
+                anchor: 'top-left',
+                x: -80,
+                y: -35,
+                step: 1
+            }
+        },
+        tooltip: {
+            format: {
+                title: x => timeline[x],
+                name: name => name.substring(name.lastIndexOf('.') + 1, name.length),
+                value: function(value, ratio, id, index) {return d3.format('.2%')(value) + ' (' + getCount(groups, id, timeline[index]) + ')'}
+            }
+        }
+    });
+
+    c3.generate({
+        bindto: volumeDiv,
+        padding: {
+            top: 0,
+            left: 80
+        },
+        size: {
+            height: 200
+        },
+        data: {
+            x: 'x',
+            columns: getVolumes(timeline, groups, conditions),
+            type: 'bar',
+            groups: [conditions],
+            colors: getVolumeColors(conditions),
+            onclick: d => showObsList(timeline[d.index], d.name),
+            order: null
+        },
+        axis: {
+            x: {
+                type: 'category',
+                tick: {
+                    multiline: false,
+                    rotate: -60
+                }
+            },
+            y: {
+                tick: {
+                    outer: false,
+                    format: d3.format(',')
+                },
+                padding: {
+                    top: 10
                 }
             }
         },
@@ -143,61 +239,7 @@ function drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, chartData) {
             position: 'inset'
         },
         tooltip: {
-            format: {
-                title: function (x) {return timeline[x]},
-                name: function (name) {return name.substring(name.lastIndexOf('.') + 1, name.length)},
-                value: function(value, ratio, id, index) {return d3.format('.2%')(value) + ' (' + getCount(groups, id, timeline[index]) + ')'}
-            }
-        }
-    });
-
-    c3.generate({
-        bindto: volumeDiv,
-        padding: {
-            left: 100,
-            top: 0
-        },
-        size: {
-            height: 150
-        },
-        data: {
-            x: 'x',
-            columns: getVolumes(timeline, groups, conditions),
-            type: 'bar',
-            groups: [conditions],
-            colors: getVolumeColors(conditions),
-            order: null
-        },
-        axis: {
-            x: {
-                type: 'category'
-            },
-            y: {
-                tick: {
-                    format: d3.format(',')
-                },
-                padding: {
-                    top: 0,
-                    bottom: 0
-                }
-            }
-        },
-        grid: {
-            x: {
-                lines: getLines(timeline)
-            },
-            y: {
-                show: true
-            }
-        },
-        regions: getRegions(timeline),
-        bar: {
-            width: {
-                ratio: 0.7
-            }
-        },
-        legend: {
-            position: 'inset'
+            show: false
         }
     });
     drawChart(chartConfigs, index + 1);
@@ -241,10 +283,9 @@ function getLines (timeline) {
     let lines = [];
     for (let i = 0; i < timeline.length - 1; i++) {
         if (timeline[i].substring(0, 4) !== timeline[i + 1].substring(0, 4)) {
-            lines.push({value: i + 0.5, text: timeline[i].substring(0, 4)});
+            lines.push({value: i + 0.5});
         }
     }
-    lines.push({value: timeline.length - 0.52, text: timeline[timeline.length - 1].substring(0, 4)});
     return lines;
 }
 

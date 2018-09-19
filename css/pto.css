@@ -37,16 +37,34 @@
     max-height: 35em;
 }
 
+#chartsExplanation {
+    background-color: #ddd;
+    padding: 2em 1em;
+}
+
+.tick {
+    font-size: 9pt;
+}
+
 .charts-div>div:nth-child(2n) {
     background-color: #ddd;
 }
 
-.chart-div {
-    padding: 1em;
+.charts-div>div:nth-child(2n)>svg {
+    background-color: #ddd;
 }
 
-svg {
-    background-color: white;
+.charts-div>div:nth-child(2n + 1) {
+    background-color: #ccc;
+}
+
+.charts-div>div:nth-child(2n + 1)>svg {
+    background-color: #ccc;
+}
+
+.chart-div {
+    padding: 2em 1em;
+    text-align: center;
 }
 
 .modal {

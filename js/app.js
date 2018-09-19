@@ -80,3 +80,108 @@ function getReadOptions() {
         }
     };
 }
+
+function encodedQueryToQueryResultOrSubmit(query, onQueryCompleted, onQueryPending, onQueryFailed, onSubmitted, onSubmitFailed, onSubmitRejected, onNoApiKey, onError) {
+    encodedQueryToQueryLinkOrSubmit(
+        query,
+        queryLink => queryLinkToQueryResult(queryLink, onQueryCompleted, onError, onError),
+        onQueryPending,
+        onQueryFailed,
+        onSubmitted,
+        onSubmitFailed,
+        onSubmitRejected,
+        onNoApiKey,
+        onError
+    );
+}
+
+function encodedQueryToQueryLinkOrSubmit(query, onQueryCompleted, onQueryPending, onQueryFailed, onSubmitted, onSubmitFailed, onSubmitRejected, onNoApiKey, onError) {
+    encodedQueryToQueryLink(
+        query,
+        onQueryCompleted,
+        onQueryPending,
+        onQueryFailed,
+        function () {askAndSubmitQuery(query, onSubmitted, onSubmitFailed, onSubmitRejected, onNoApiKey, onError);},
+        onError
+    );
+}
+
+function encodedQueryToQueryLink(query, onQueryCompleted, onQueryPending, onQueryFailed, onQueryUnavailable, onError) {
+    fetch(retrieveBaseUrl + '?' + query)
+        .then(function (response) {
+            switch (response.status) {
+                case 200:
+                    return response.json();
+                case 400:
+                    return null;
+                default:
+                    throw new Error();
+            }
+        })
+        .then(function (metadata) {
+            if (metadata != null) {
+                switch (metadata['__state']) {
+                    case 'complete':
+                        onQueryCompleted(metadata['__result']);
+                        break;
+                    case 'pending':
+                        onQueryPending();
+                        break;
+                    case 'failed':
+                        onQueryFailed();
+                        break;
+                    default:
+                        throw new Error();
+                }
+            } else {
+                onQueryUnavailable();
+            }
+        })
+        .catch(e => onError(e));
+}
+
+function queryLinkToQueryResult (queryLink, onResultReceived, onUnavailable, onError) {
+    fetch(queryLink)
+        .then(function (response) {
+            switch (response.status) {
+                case 200:
+                    return response.json();
+                case 400:
+                    return null;
+                default:
+                    throw new Error();
+            }
+        })
+        .then(function (data) {
+            if (data != null) {
+                onResultReceived(data);
+            } else {
+                onUnavailable();
+            }
+        })
+        .catch(e => onError(e));
+}
+
+function askAndSubmitQuery(query, onSubmitted, onSubmitFailed, onSubmitRejected, onNoApiKey, onError) {
+    if (getApiKey() != null) {
+        if (confirm('The query you are looking for is not cached at the moment. Do you want to submit it now?')) {
+            submitQuery(query, onSubmitted, onSubmitFailed, onError);
+        } else {
+            onSubmitRejected();
+        }
+    } else {
+        onNoApiKey();
+    }
+}
+
+function submitQuery (query, onSubmitted, onSubmitFailed, onError){
+    fetch(submitBaseUrl + '?' + query, getQuerySubmitOptions())
+        .then(function (response) {
+            if (response.status === 200) {
+                onSubmitted();
+            } else {
+                onSubmitFailed();
+            }
+        })
+        .catch(e => onError(e));
+}

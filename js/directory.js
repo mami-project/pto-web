@@ -1,6 +1,7 @@
-const months = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+//const months = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function initTable () {
+
     fetch("json/config.json")
         .then(response => response.json())
         .then(function (data) {
@@ -13,9 +14,18 @@ function initTable () {
 }
 
 function drawMatrix (directoryQuery, configuredFeatures) {
-    fetch(directoryQuery)
-        .then(response => response.json())
-        .then(data => drawMatrix2(data['groups'], configuredFeatures));
+    const table = document.getElementById('directoryTable');
+
+    encodedQueryToQueryResultOrSubmit(
+        directoryQuery,
+        function (data) {drawMatrix2(data['groups'], configuredFeatures);},
+        function () {table.outerHTML = '<p>The directory query is still pending.</p>';},
+        function () {table.outerHTML = '<p>The directory query failed.</p>';},
+        function () {table.outerHTML = '<p>The directory query was submitted but still pending</p>';},
+        function () {table.outerHTML = '<p>The directory query submission failed.</p>';},
+        function () {table.outerHTML = '<p>The directory query was not submitted.</p>';},
+        function () {table.outerHTML = '<p>No API Key available to submit the directory query.</p>';},
+        function (e) {console.log(e); table.outerHTML = '<p>An error occured while building the directory matrix.</p>';});
 }
 
 function drawMatrix2 (groups, configuredFeatures) {
