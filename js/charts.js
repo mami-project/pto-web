@@ -79,8 +79,9 @@ function drawChart (chartConfigs, index) {
         .then(function (data) {
             drawC3Chart(sharesDiv, volumeDiv, chartConfigs, index, data);
         })
-        .catch(function () {
-            sharesDiv.innerText = 'There was an error loading data for this chart.';
+        .catch(function (e) {
+            sharesDiv.innerText = 'There was an error drawing this chart.';
+            console.log(e);
             drawChart(chartConfigs, index + 1);
         });
 
