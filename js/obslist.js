@@ -17,40 +17,6 @@ function showObsList (startDateString, condition) {
         function () {},
         function () {alert('You do not have an API Key registered to submit queries.');},
         function (e) {console.log(e); alert('The data you asked for could not be fetched. Please contact us.');});
-
-    /*fetch(retrieveBaseUrl + '?' + query)
-        .then(response => response.json())
-        .then(function (data) {
-            if(data == null) {
-                submitDrillDownQuery(query);
-            } else if (data['__state'] === 'complete') {
-                showObs(data['__result'], 0);
-            } else if (data['__state'] === 'pending') {
-                alert('The data you asked for is getting prepared currently. Please come back later.');
-            } else {
-                alert('The data you asked for could not be fetched. Please contact us.');
-            }
-        });*/
-}
-
-function submitDrillDownQuery (query) {
-    let confirmed = confirm('The data you asked for is not prepared right now. Do you want to submit a query to prepare that data now?');
-    if (!confirmed) {
-        return;
-    }
-
-    if(getApiKey() === null){
-        alert("To submit a query you need to enter an API Key. If you dont have an API Key yet, please contact us to get one.");
-        return;
-    }
-
-    fetch(submitBaseUrl + '?' + query, getQuerySubmitOptions())
-        .then(function (response) {
-           if (response.status !== 200) {
-               alert('There was a problem submitting the query. Please check your Browser console and contact us.');
-               console.log(response);
-           }
-        });
 }
 
 function showObs (resultBaseUrl, page) {
@@ -139,26 +105,16 @@ function closeTargetList () {
 }
 
 function showMetadata(obsSetId) {
-    let options = {
-        headers: {
-            'Authorization': 'APIKEY ' + getApiKey()
-        }
-    };
-
-    fetch(baseUrl + '/obs/' + obsSetId, options)
+    fetch(baseUrl + '/obs/' + obsSetId, getReadOptions())
         .then(function (response) {
             if (response.status === 200) {
                 return response.json();
             }
         })
         .then(function (data) {
-            doShowMetadata(obsSetId, data);
+            document.getElementById('obsMetadataModal').style.display = 'unset';
+            document.getElementById('obsMetadataDiv').innerHTML = JSON.stringify(data).replace(/,/g, ',<br>');
         });
-}
-
-function doShowMetadata(obsSetId, data) {
-    document.getElementById('obsMetadataModal').style.display = 'unset';
-    document.getElementById('obsMetadataDiv').innerHTML = JSON.stringify(data).replace(/,/g, ',<br>');
 }
 
 function closeMetadata() {
