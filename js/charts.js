@@ -236,25 +236,6 @@ function getVolumes (timeline, groups, conditions) {
     return result;
 }
 
-function getCount (groups, condition, date) {
-    for (let group of groups) {
-        if (condition === getConditionFromGroup(group) && date === getDateFromGroup(group)) {
-            return getCountFromGroup(group);
-        }
-    }
-    return 0;
-}
-
-function getVolume (groups, conditions, date) {
-    let result = 0;
-    for (let group of groups) {
-        if (conditions.indexOf(getConditionFromGroup(group)) !== -1 && date === getDateFromGroup(group)) {
-            result += getCountFromGroup(group);
-        }
-    }
-    return result;
-}
-
 function getLines (timeline) {
     let lines = [];
     for (let i = 0; i < timeline.length - 1; i++) {
@@ -280,11 +261,21 @@ function getRegions (timeline) {
     return regions;
 }
 
-function getVolumeColors(conditions) {
-    let result = [];
-    for (let condition of conditions) {
-        let darkness = 64 + 64 / conditions.length * (conditions.indexOf(condition) + 1);
-        result[condition] = d3.rgb(darkness, darkness, darkness);
+function getCount (groups, condition, date) {
+    for (let group of groups) {
+        if (condition === getConditionFromGroup(group) && date === getDateFromGroup(group)) {
+            return getCountFromGroup(group);
+        }
+    }
+    return 0;
+}
+
+function getVolume (groups, conditions, date) {
+    let result = 0;
+    for (let group of groups) {
+        if (conditions.indexOf(getConditionFromGroup(group)) !== -1 && date === getDateFromGroup(group)) {
+            result += getCountFromGroup(group);
+        }
     }
     return result;
 }
@@ -299,4 +290,13 @@ function getDateFromGroup (group) {
 
 function getCountFromGroup (group) {
     return group[2];
+}
+
+function getVolumeColors(conditions) {
+    let result = [];
+    for (let condition of conditions) {
+        let darkness = 64 + 64 / conditions.length * (conditions.indexOf(condition) + 1);
+        result[condition] = d3.rgb(darkness, darkness, darkness);
+    }
+    return result;
 }

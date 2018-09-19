@@ -8,13 +8,13 @@
         <meta name="author" content="Rolf Scheuner">
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
-        <link rel="stylesheet" href="c3/c3.css">
+        <link rel="stylesheet" href="https://github.com/c3js/c3/blob/v0.6.7/c3.css">
         <link rel="stylesheet" href="css/pto.css">
         <script src="https://d3js.org/d3.v5.js"></script>
-        <script src="c3/c3.js"></script>
+        <script src="https://github.com/c3js/c3/blob/v0.6.7/c3.js"></script>
         <script src="js/app.js"></script>
         <script src="js/charts.js"></script>
-        <script src="js/targets.js"></script>
+        <script src="js/obslist.js"></script>
     </head>
 
     <body onload="initPage(); initChartPage();">
@@ -32,7 +32,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <span class="close" onclick="closeTargetList();">&times;</span>
-                    <h3 id="targetListTitle">Observations of </h3>
+                    <h3 id="targetListTitle"></h3>
                     <div id="obsNav">
                         <button><<</button>
                         <button><</button>

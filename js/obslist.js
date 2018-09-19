@@ -1,6 +1,5 @@
 function showObsList (startDateString, condition) {
-    const title = document.getElementById('targetListTitle');
-    title.innerText = title.innerText + "'" + condition + "'";
+    document.getElementById('targetListTitle').innerText =  "Observations of '" + condition + "'";
 
     let startDate = new Date(startDateString);
     let endDate = new Date(startDate.getTime() + (7 * 24 * 60 * 60 * 1000 - 1));
@@ -107,7 +106,7 @@ function fillObsList (resultbaseUrl, page, data) {
         row.insertCell(-1).innerText = obs[1];
 
         let pathElements = obs[3].split(' ');
-        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + pathElements[0] + "'>" + pathElements[0] + "</a>" + " " + pathElements[1];
+        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + pathElements[0] + "' target='_blank'>" + pathElements[0] + "</a>" + " " + pathElements[1];
 
         let path = '';
         for (let i = 2; i < pathElements.length - 1; i++) {
@@ -117,7 +116,7 @@ function fillObsList (resultbaseUrl, page, data) {
         row.insertCell(-1).innerHTML = path;
 
         let target = pathElements[pathElements.length - 1];
-        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + target + "'>" + target + "</a>";
+        row.insertCell(-1).innerHTML = "<a href='https://stat.ripe.net/" + target + "' target='_blank'>" + target + "</a>";
 
         row.insertCell(-1).innerText = obs[5];
     }
