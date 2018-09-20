@@ -37,6 +37,9 @@ The color for each condition. The key must match a name of a condition.
 ### descriptions
 The descriptions for each condition. The key must match a name of a condition.
 
+## Query rerun, cache invalidating
+All queries can be found in the configuration. If data behind these queries changes, they must be cleared from the PTO cache. When someone with an API Key loads a page with an uncached query, he is asked if he wants to rerun it.
+
 ## Dependencies
 + [C3js](https://github.com/c3js/c3) v0.6.7
 + [D3](https://github.com/d3/d3) v5.x
