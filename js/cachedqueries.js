@@ -2,9 +2,26 @@ const compareProperty = '__created';
 
 function initTable () {
     fetch(baseUrl + '/query')
-        .then(response => response.json())
+        .then(function (response) {
+            switch (response.status) {
+                case 200:
+                    return response.json();
+                case 403:
+                    return null;
+                default:
+                    throw new Error();
+            }
+        })
         .then(function (data) {
-            getMetadata(0, data['queries'], []);
+            if (data != null) {
+                getMetadata(0, data['queries'], []);
+            } else {
+                document.getElementById('tableDiv').innerText = 'You have no permission to read that data.';
+            }
+        })
+        .catch(function (e) {
+            console.log(e);
+            document.getElementById('tableDiv').innerText = 'There was an error loading the data.';
         });
 }
 

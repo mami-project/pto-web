@@ -1,6 +1,6 @@
 function initApiKey () {
     document.getElementById('apikeyInput').value = '';
-    document.getElementById('apikeyOutput').value = getApiKey();
+    document.getElementById('apikeyOutput').innerText = getApiKey();
 }
 
 function setApiKey () {
@@ -10,7 +10,7 @@ function setApiKey () {
     } else {
         localStorage.setItem('API Key', apikey);
     }
-    document.getElementById('apikeyOutput').value = getApiKey();
+    document.getElementById('apikeyOutput').innerText = getApiKey();
 
     document.body.removeChild(document.body.firstChild);
     document.body.removeChild(document.body.lastChild);
@@ -19,7 +19,7 @@ function setApiKey () {
 
 function clearApiKey() {
     localStorage.removeItem('API Key');
-    document.getElementById('apikeyOutput').value = '';
+    document.getElementById('apikeyOutput').innerText = '';
 
     document.body.removeChild(document.body.firstChild);
     document.body.removeChild(document.body.lastChild);
