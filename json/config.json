@@ -12,10 +12,6 @@
     "tfo": {
       "linktitle": "TFO",
       "pageConfig": "tfo.json"
-    },
-    "mptcp": {
-      "linktitle": "MPTCP",
-      "pageConfig": "mptcp.json"
     }
   }
 }

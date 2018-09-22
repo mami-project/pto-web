@@ -44,8 +44,9 @@ function drawContainers (pageConfig) {
         chartDiv.appendChild(description);
 
         const conditionDescriptions = document.createElement('p');
+        conditionDescriptions.style.fontSize = '10pt';
         for (let condition of chartConfig['conditions']) {
-            conditionDescriptions.innerHTML = conditionDescriptions.innerHTML + condition + ": " + chartConfig['descriptions'][condition] + "<br>";
+            conditionDescriptions.innerHTML = conditionDescriptions.innerHTML + "<b>" + condition + "</b>: " + chartConfig['descriptions'][condition] + "<br>";
         }
         chartDiv.appendChild(conditionDescriptions);
 

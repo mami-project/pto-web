@@ -6,7 +6,7 @@
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.connectivity&group=condition&group=week&option=count_targets",
       "title": "ecn.connectivity",
-      "description": "Chart Description",
+      "description": "In this test the influence of attempting to negotiate ECN on connectivity was measured.",
       "conditions": [
         "ecn.connectivity.works",
         "ecn.connectivity.broken",
@@ -20,21 +20,20 @@
         "ecn.connectivity.offline": "#888888"
       },
       "descriptions": {
-        "ecn.connectivity.works": "Condition Description",
-        "ecn.connectivity.broken": "Condition Description",
-        "ecn.connectivity.transient": "Condition Description",
-        "ecn.connectivity.offline": "Condition Description"
+        "ecn.connectivity.works": "Connectivity not dependent on attempt to negotiate ECN",
+        "ecn.connectivity.broken": "Attempt to negotiate ECN leads to connectivity failure",
+        "ecn.connectivity.transient": "Connectivity only with ECN negotiation; probable transient",
+        "ecn.connectivity.offline": "Target offline regardless of ECN connectivity"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.stable.connectivity&group=condition&group=week&option=count_targets",
       "title": "ecn.stable.connectivity",
-      "description": "Chart Description",
+      "description": "Stabilized ECN connectivity tests. Multiple measurements from the same vantage point are performed to each target.",
       "conditions": [
         "ecn.stable.connectivity.works",
         "ecn.stable.connectivity.broken",
         "ecn.stable.connectivity.transient",
-        "ecn.stable.connectivity.path_dependent",
         "ecn.stable.connectivity.unstable",
         "ecn.stable.connectivity.offline"
       ],
@@ -42,23 +41,21 @@
         "ecn.stable.connectivity.works": "#11CC11",
         "ecn.stable.connectivity.broken": "#CC1111",
         "ecn.stable.connectivity.transient": "#2222FF",
-        "ecn.stable.connectivity.path_dependent": "#886611",
         "ecn.stable.connectivity.unstable": "#CCCC11",
         "ecn.stable.connectivity.offline": "#888888"
       },
       "descriptions": {
-        "ecn.stable.connectivity.works": "Condition Description",
-        "ecn.stable.connectivity.broken": "Condition Description",
-        "ecn.stable.connectivity.transient": "Condition Description",
-        "ecn.stable.connectivity.path_dependent": "Condition Description",
-        "ecn.stable.connectivity.unstable": "Condition Description",
-        "ecn.stable.connectivity.offline": "Condition Description"
+        "ecn.stable.connectivity.works": "Works on all attemps",
+        "ecn.stable.connectivity.broken": "Broken on all attemps",
+        "ecn.stable.connectivity.transient": "Transient on all attemps",
+        "ecn.stable.connectivity.unstable": "No consensus about connectivity across multiple observations",
+        "ecn.stable.connectivity.offline": "Offline on all attemps"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.connectivity&group=condition&group=week&option=count_targets",
       "title": "ecn.multipoint.connectivity",
-      "description": "Chart Description",
+      "description": "Multiple vantage point ECN connectivity dependency tests.",
       "conditions": [
         "ecn.multipoint.connectivity.works",
         "ecn.multipoint.connectivity.broken",
@@ -76,18 +73,18 @@
         "ecn.multipoint.connectivity.offline": "#888888"
       },
       "descriptions": {
-        "ecn.multipoint.connectivity.works": "Condition Description",
-        "ecn.multipoint.connectivity.broken": "Condition Description",
-        "ecn.multipoint.connectivity.transient": "Condition Description",
-        "ecn.multipoint.connectivity.path_dependent": "Condition Description",
-        "ecn.multipoint.connectivity.unstable": "Condition Description",
-        "ecn.multipoint.connectivity.offline": "Condition Description"
+        "ecn.multipoint.connectivity.works": "Works from all vantage points",
+        "ecn.multipoint.connectivity.broken": "Broken from all vantage points",
+        "ecn.multipoint.connectivity.transient": "Transient from all vantage points",
+        "ecn.multipoint.connectivity.path_dependent": "Evidence that connectivity dependency is path dependent",
+        "ecn.multipoint.connectivity.unstable": "Ask Brian Trammell",
+        "ecn.multipoint.connectivity.offline": "Offline from all vantage points"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.negotiation&group=condition&group=week&option=count_targets",
       "title": "ecn.negotiation",
-      "description": "Chart Description",
+      "description": "In this tests we tried to negotiate ECN with the target.",
       "conditions": [
         "ecn.negotiation.succeeded",
         "ecn.negotiation.failed",
@@ -99,41 +96,35 @@
         "ecn.negotiation.reflected": "#2222FF"
       },
       "descriptions": {
-        "ecn.negotiation.succeeded": "Condition Description",
-        "ecn.negotiation.failed": "Condition Description",
-        "ecn.negotiation.reflected": "Condition Description"
+        "ecn.negotiation.succeeded": "ECN negotiated successfully",
+        "ecn.negotiation.failed": "ECN not negotiated",
+        "ecn.negotiation.reflected": "ECN negotiation reflects ECE CWR flags on SYN ACK"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.stable.negotiation&group=condition&group=week&option=count_targets",
       "title": "ecn.stable.negotiation",
-      "description": "Chart Description",
+      "description": "Stabilized ECN negotiation tests. Multiple measurements from the same vantage point are performed to each target.",
       "conditions": [
         "ecn.stable.negotiation.succeeded",
         "ecn.stable.negotiation.failed",
-        "ecn.stable.negotiation.reflected",
-        "ecn.stable.negotiation.path_dependent",
         "ecn.stable.negotiation.unstable"
       ],
       "colors": {
         "ecn.stable.negotiation.succeeded": "#11CC11",
         "ecn.stable.negotiation.failed": "#CC1111",
-        "ecn.stable.negotiation.reflected": "#2222FF",
-        "ecn.stable.negotiation.path_dependent": "#886611",
         "ecn.stable.negotiation.unstable": "#CCCC11"
       },
       "descriptions": {
-        "ecn.stable.negotiation.succeeded": "Condition Description",
-        "ecn.stable.negotiation.failed": "Condition Description",
-        "ecn.stable.negotiation.reflected": "Condition Description",
-        "ecn.stable.negotiation.path_dependent": "Condition Description",
-        "ecn.stable.negotiation.unstable": "Condition Description"
+        "ecn.stable.negotiation.succeeded": "Succeeded on all attemps",
+        "ecn.stable.negotiation.failed": "Failed on all attemps",
+        "ecn.stable.negotiation.unstable": "No consensus about negotiation across multiple observations"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.negotiation&group=condition&group=week&option=count_targets",
       "title": "ecn.multipoint.negotiation",
-      "description": "Chart Description",
+      "description": "Multiple vantage point ECN negotiation tests.",
       "conditions": [
         "ecn.multipoint.negotiation.succeeded",
         "ecn.multipoint.negotiation.failed",
@@ -149,11 +140,11 @@
         "ecn.multipoint.negotiation.unstable": "#CCCC11"
       },
       "descriptions": {
-        "ecn.multipoint.negotiation.succeeded": "Condition Description",
-        "ecn.multipoint.negotiation.failed": "Condition Description",
-        "ecn.multipoint.negotiation.reflected": "Condition Description",
-        "ecn.multipoint.negotiation.path_dependent": "Condition Description",
-        "ecn.multipoint.negotiation.unstable": "Condition Description"
+        "ecn.multipoint.negotiation.succeeded": "Succeeded from all vantage points",
+        "ecn.multipoint.negotiation.failed": "Failed from all vantage points",
+        "ecn.multipoint.negotiation.reflected": "Reflected from all vantage points",
+        "ecn.multipoint.negotiation.path_dependent": "Evidence that connectivity dependency is path dependent",
+        "ecn.multipoint.negotiation.unstable": "Ask Brian Trammell"
       }
     },
     {
