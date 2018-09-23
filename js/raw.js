@@ -1,6 +1,9 @@
 const compareProperty = '_owner';
 
 function initTable () {
+    const tableDiv = document.getElementById('tableDiv');
+    tableDiv.innerText = 'Loading data...';
+
     fetch(baseUrl + '/raw', getReadOptions())
         .then(function (response) {
             switch (response.status) {
@@ -14,54 +17,39 @@ function initTable () {
         })
         .then(function (data) {
             if (data != null) {
-                getMetadata(0, data['campaigns'], []);
+                drawMetadataTable(data['campaigns']);
             } else {
-                document.getElementById('tableDiv').innerText = 'You have no permission to read that data.';
+                tableDiv.innerText = 'You have no permission to read that data.';
             }
         })
         .catch(function (e) {
             console.log(e);
-            document.getElementById('tableDiv').innerText = 'There was an error loading the data.';
+            tableDiv.innerText = 'There was an error loading the data.';
         });
 }
 
-function getMetadata (index, links, metadata) {
-    if (index >= links.length) {
-        processMetadata(metadata);
-        return;
+function drawMetadataTable(links) {
+    let metadataList = [];
+    let promises = [];
+
+    for (let link of links) {
+        promises.push(fetch(link, getReadOptions()).then(response => response.json()).then(metadataObject => metadataList.push(metadataObject['metadata'])).catch());
     }
 
-    document.getElementById('tableDiv').innerText = 'Loading data ' + Math.round(index * 100 / links.length) + '%';
-
-    fetch(links[index], getReadOptions())
-        .then(function (response) {
-            if (response.status === 200) {
-                return response.json();
-            }
-        })
-        .then(function (data) {
-            if (data != null) {
-                metadata.push(data['metadata']);
-                getMetadata(index + 1, links, metadata);
-            }
-        })
-        .catch();
+    Promise.all(promises).then(function () {drawTable(metadataList)});
 }
 
-function processMetadata(metadata) {
+function drawTable(metadataList) {
     let properties = [];
-    for (let campaignMetadata of metadata) {
-        for (let property of Object.getOwnPropertyNames(campaignMetadata)) {
+    for (let metadataObject of metadataList) {
+        for (let property of Object.getOwnPropertyNames(metadataObject)) {
             if (properties.indexOf(property) === -1) {
                 properties.push(property);
             }
         }
     }
-    metadata.sort(compareByProperty(compareProperty));
-    drawTable(metadata, properties);
-}
+    metadataList.sort(compareByProperty(compareProperty));
 
-function drawTable(metadata, properties) {
     let tableDiv = document.getElementById('tableDiv');
     tableDiv.innerHTML = "<table class='pto-data-table'><thead></thead><tbody></tbody></table>";
 
@@ -72,10 +60,10 @@ function drawTable(metadata, properties) {
     }
 
     const tbody = tableDiv.getElementsByTagName('tbody')[0];
-    for (let campaignMetadata of metadata) {
+    for (let metadataObject of metadataList) {
         const row = tbody.insertRow(-1);
         for (let property of properties) {
-            row.insertCell(-1).innerText = campaignMetadata[property] == null ? '' : campaignMetadata[property];
+            row.insertCell(-1).innerText = metadataObject[property] == null ? '' : metadataObject[property];
         }
     }
 }
