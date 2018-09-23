@@ -21,7 +21,7 @@ function drawMatrix (directoryQuery, configuredFeatures) {
         function (data) {drawMatrix2(data['groups'], configuredFeatures);},
         function () {table.outerHTML = '<p>The directory query is still pending.</p>';},
         function () {table.outerHTML = '<p>The directory query failed.</p>';},
-        function () {table.outerHTML = '<p>The directory query was submitted but still pending</p>';},
+        function () {table.outerHTML = '<p>The directory query was submitted but is still pending.</p>';},
         function () {table.outerHTML = '<p>The directory query submission failed.</p>';},
         function () {table.outerHTML = '<p>The directory query was not submitted.</p>';},
         function () {table.outerHTML = '<p>No API Key available to submit the directory query.</p>';},

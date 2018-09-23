@@ -28,10 +28,12 @@
             <input type="submit" value="Set" onclick="setApiKey()">
         </div>
 
-        <div class="w3-center w3-container w3-theme w3-padding">
+        <div id="currentApikeyDiv" class="w3-center w3-container w3-theme w3-padding" style="display: none">
             <h4>Current API Key: </h4>
             <p id="apikeyOutput"></p>
             <input type="submit" value="Clear" onclick="clearApiKey()">
+            <h4>UI Queries: </h4>
+            <p id="uiQueries"></p>
         </div>
     </body>
 </html>

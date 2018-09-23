@@ -12,6 +12,11 @@ function initPage() {
 }
 
 function showNavbar() {
+    const navbar = document.getElementById('navbar');
+    if (navbar != null) {
+        navbar.parentNode.removeChild(navbar);
+    }
+
     fetch('navbar.html')
         .then(response => response.text())
         .then(function (data) {
@@ -41,6 +46,11 @@ function showNavbar() {
 }
 
 function showFooter() {
+    const footer = document.getElementById('footer');
+    if (footer != null) {
+        footer.parentNode.removeChild(footer);
+    }
+
     fetch('footer.html')
         .then(response => response.text())
         .then(function (data) {
@@ -184,4 +194,28 @@ function submitQuery (query, onSubmitted, onSubmitFailed, onError){
             }
         })
         .catch(e => onError(e));
+}
+
+async function getUiQueries() {
+    let queries = [];
+    let promises = [];
+
+    let config = await (await fetch('json/config.json')).json();
+
+    queries.push(config['directoryQuery']);
+
+    for (let pageKey of Object.getOwnPropertyNames(config['pages'])) {
+        let promise = fetch('json/' + config['pages'][pageKey]['pageConfig'])
+            .then(response => response.json())
+            .then(function (pageConfig) {
+                for (let chartConfig of pageConfig['charts']) {
+                    queries.push(chartConfig['query']);
+                }
+            });
+        promises.push(promise);
+    }
+
+    await Promise.all(promises);
+
+    return queries;
 }

@@ -1,5 +1,4 @@
 {
-  "query": "https://v3.pto.mami-project.eu/query/1abd22a9bfe6eb8135f199df3e7b56766eb077c240e2ab0d2223f59e08a87cc6/result",
   "title": "Explicit Congestion Notification",
   "description": "Explicit Congestion Notification (ECN) is an extension to the Internet Protocol and to the Transmission Control Protocol. ECN allows end-to-end notification of network congestion without dropping packets. It is an optional feature that may be used between two ECN-enabled endpoints when the underlying network infrastructure also supports it.",
   "charts": [
