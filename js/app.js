@@ -17,20 +17,20 @@ function showNavbar() {
         navbar.parentNode.removeChild(navbar);
     }
 
-    fetch('navbar.html')
+    fetch('/static/navbar.html')
         .then(response => response.text())
         .then(function (data) {
             let navbar = document.createElement('div');
             document.body.insertBefore(navbar, document.body.firstChild);
             navbar.outerHTML = data;
-            return fetch('json/config.json');
+            return fetch('/static/json/config.json');
         })
         .then(response => response.json())
         .then(function (data) {
             const navbar = document.body.firstChild;
             for (let page of Object.getOwnPropertyNames(data['pages'])) {
                 let link = document.createElement('a');
-                link.href = 'charts.html?page=' + page;
+                link.href = '/static/charts.html?page=' + page;
                 link.classList.add('w3-bar-item', 'w3-button', 'w3-padding-large', 'w3-hover-white');
                 link.innerText = data['pages'][page]['linktitle'];
                 navbar.appendChild(link);
@@ -51,7 +51,7 @@ function showFooter() {
         footer.parentNode.removeChild(footer);
     }
 
-    fetch('footer.html')
+    fetch('/static/footer.html')
         .then(response => response.text())
         .then(function (data) {
             let footer = document.createElement('footer');
@@ -200,12 +200,12 @@ async function getUiQueries() {
     let queries = [];
     let promises = [];
 
-    let config = await (await fetch('json/config.json')).json();
+    let config = await (await fetch('/static/json/config.json')).json();
 
     queries.push(config['directoryQuery']);
 
     for (let pageKey of Object.getOwnPropertyNames(config['pages'])) {
-        let promise = fetch('json/' + config['pages'][pageKey]['pageConfig'])
+        let promise = fetch('/static/json/' + config['pages'][pageKey]['pageConfig'])
             .then(response => response.json())
             .then(function (pageConfig) {
                 for (let chartConfig of pageConfig['charts']) {

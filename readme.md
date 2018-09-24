@@ -2,7 +2,7 @@
 This project implements a web front end for visualizing data of the [PTO 3](https://github.com/mami-project/pto3-go).
 
 ## Configuration
-The file [config.json](json/config.json) is the main configuration file for the pto3-web.
+The file [config.json](/static/json/config.json) is the main configuration file for the pto3-web.
 ### directoryQuery
 The URL of the query to be used for the directory matrix.
 ### pages
@@ -15,7 +15,7 @@ The text of the link to be displayed in the navigation bar.
 The file name of the page configuration file
 
 ## Page Configuration
-Each page defined in [config.json](json/config.json) is configured in a separate JSON file.
+Each page defined in [config.json](/static/json/config.json) is configured in a separate JSON file.
 ### title
 The title to be shown in the header of the feature page.
 ### description

@@ -1,9 +1,9 @@
 function initChartPage () {
     let page = new URLSearchParams(window.location.search).get('page');
 
-    fetch('json/config.json')
+    fetch('/static/json/config.json')
         .then(response => response.json())
-        .then(data => fetch('json/' + data['pages'][page]['pageConfig']))
+        .then(data => fetch('/static/json/' + data['pages'][page]['pageConfig']))
         .then(response => response.json())
         .then(data => drawPage(data))
         .catch(e => console.log(e));
