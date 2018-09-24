@@ -2,7 +2,7 @@
 
 function initTable () {
 
-    fetch("json/config.json")
+    fetch("/static/json/config.json")
         .then(response => response.json())
         .then(function (data) {
             drawMatrix(data['directoryQuery'], Object.getOwnPropertyNames(data['pages']));
