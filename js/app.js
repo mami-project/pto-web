@@ -195,27 +195,3 @@ function submitQuery (query, onSubmitted, onSubmitFailed, onError){
         })
         .catch(e => onError(e));
 }
-
-async function getUiQueries() {
-    let queries = [];
-    let promises = [];
-
-    let config = await (await fetch('/static/json/config.json')).json();
-
-    queries.push(config['directoryQuery']);
-
-    for (let pageKey of Object.getOwnPropertyNames(config['pages'])) {
-        let promise = fetch('/static/json/' + config['pages'][pageKey]['pageConfig'])
-            .then(response => response.json())
-            .then(function (pageConfig) {
-                for (let chartConfig of pageConfig['charts']) {
-                    queries.push(chartConfig['query']);
-                }
-            });
-        promises.push(promise);
-    }
-
-    await Promise.all(promises);
-
-    return queries;
-}
