@@ -38,7 +38,7 @@ function drawMatrix2 (groups, configuredFeatures) {
     row.insertCell(-1).outerHTML = '<th>Month \\ Feature</th>';
     for (let feature of features) {
         if (isSubpageAvailable(configuredFeatures, feature)) {
-            row.insertCell(-1).outerHTML = "<th style='width: 8em;'><a href='charts.html?page=" + feature + "'>" + feature + "</a></th>";
+            row.insertCell(-1).outerHTML = "<th style='width: 8em;'><a href='/static/charts.html?page=" + feature + "'>" + feature + "</a></th>";
         } else {
             row.insertCell(-1).outerHTML = "<th style='width: 8em;'>" + feature + "</th>";
         }

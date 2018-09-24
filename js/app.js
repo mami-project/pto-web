@@ -17,7 +17,7 @@ function showNavbar() {
         navbar.parentNode.removeChild(navbar);
     }
 
-    fetch('navbar.html')
+    fetch('/static/navbar.html')
         .then(response => response.text())
         .then(function (data) {
             let navbar = document.createElement('div');
@@ -30,7 +30,7 @@ function showNavbar() {
             const navbar = document.body.firstChild;
             for (let page of Object.getOwnPropertyNames(data['pages'])) {
                 let link = document.createElement('a');
-                link.href = 'charts.html?page=' + page;
+                link.href = '/static/charts.html?page=' + page;
                 link.classList.add('w3-bar-item', 'w3-button', 'w3-padding-large', 'w3-hover-white');
                 link.innerText = data['pages'][page]['linktitle'];
                 navbar.appendChild(link);
@@ -51,7 +51,7 @@ function showFooter() {
         footer.parentNode.removeChild(footer);
     }
 
-    fetch('footer.html')
+    fetch('/static/footer.html')
         .then(response => response.text())
         .then(function (data) {
             let footer = document.createElement('footer');
