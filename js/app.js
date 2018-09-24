@@ -23,7 +23,7 @@ function showNavbar() {
             let navbar = document.createElement('div');
             document.body.insertBefore(navbar, document.body.firstChild);
             navbar.outerHTML = data;
-            return fetch('json/config.json');
+            return fetch('/static/json/config.json');
         })
         .then(response => response.json())
         .then(function (data) {
@@ -200,12 +200,12 @@ async function getUiQueries() {
     let queries = [];
     let promises = [];
 
-    let config = await (await fetch('json/config.json')).json();
+    let config = await (await fetch('/static/json/config.json')).json();
 
     queries.push(config['directoryQuery']);
 
     for (let pageKey of Object.getOwnPropertyNames(config['pages'])) {
-        let promise = fetch('json/' + config['pages'][pageKey]['pageConfig'])
+        let promise = fetch('/static/json/' + config['pages'][pageKey]['pageConfig'])
             .then(response => response.json())
             .then(function (pageConfig) {
                 for (let chartConfig of pageConfig['charts']) {
