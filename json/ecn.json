@@ -1,0 +1,201 @@
+{
+  "title": "Explicit Congestion Notification",
+  "description": "Explicit Congestion Notification (ECN) is an extension to the Internet Protocol and to the Transmission Control Protocol. ECN allows end-to-end notification of network congestion without dropping packets. It is an optional feature that may be used between two ECN-enabled endpoints when the underlying network infrastructure also supports it.",
+  "charts": [
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.connectivity&group=condition&group=week&option=count_targets",
+      "title": "ecn.connectivity",
+      "description": "In this test the influence of attempting to negotiate ECN on connectivity was measured.",
+      "conditions": [
+        "ecn.connectivity.works",
+        "ecn.connectivity.broken",
+        "ecn.connectivity.transient",
+        "ecn.connectivity.offline"
+      ],
+      "colors": {
+        "ecn.connectivity.works": "#11CC11",
+        "ecn.connectivity.broken": "#CC1111",
+        "ecn.connectivity.transient": "#2222FF",
+        "ecn.connectivity.offline": "#888888"
+      },
+      "descriptions": {
+        "ecn.connectivity.works": "Connectivity not dependent on attempt to negotiate ECN",
+        "ecn.connectivity.broken": "Attempt to negotiate ECN leads to connectivity failure",
+        "ecn.connectivity.transient": "Connectivity only with ECN negotiation; probable transient",
+        "ecn.connectivity.offline": "Target offline regardless of ECN connectivity"
+      }
+    },
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.stable.connectivity&group=condition&group=week&option=count_targets",
+      "title": "ecn.stable.connectivity",
+      "description": "Stabilized ECN connectivity tests. Multiple measurements from the same vantage point are performed to each target.",
+      "conditions": [
+        "ecn.stable.connectivity.works",
+        "ecn.stable.connectivity.broken",
+        "ecn.stable.connectivity.transient",
+        "ecn.stable.connectivity.unstable",
+        "ecn.stable.connectivity.offline"
+      ],
+      "colors": {
+        "ecn.stable.connectivity.works": "#11CC11",
+        "ecn.stable.connectivity.broken": "#CC1111",
+        "ecn.stable.connectivity.transient": "#2222FF",
+        "ecn.stable.connectivity.unstable": "#CCCC11",
+        "ecn.stable.connectivity.offline": "#888888"
+      },
+      "descriptions": {
+        "ecn.stable.connectivity.works": "Works on all attemps",
+        "ecn.stable.connectivity.broken": "Broken on all attemps",
+        "ecn.stable.connectivity.transient": "Transient on all attemps",
+        "ecn.stable.connectivity.unstable": "No consensus about connectivity across multiple observations",
+        "ecn.stable.connectivity.offline": "Offline on all attemps"
+      }
+    },
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.connectivity&group=condition&group=week&option=count_targets",
+      "title": "ecn.multipoint.connectivity",
+      "description": "Multiple vantage point ECN connectivity dependency tests.",
+      "conditions": [
+        "ecn.multipoint.connectivity.works",
+        "ecn.multipoint.connectivity.broken",
+        "ecn.multipoint.connectivity.transient",
+        "ecn.multipoint.connectivity.path_dependent",
+        "ecn.multipoint.connectivity.unstable",
+        "ecn.multipoint.connectivity.offline"
+      ],
+      "colors": {
+        "ecn.multipoint.connectivity.works": "#11CC11",
+        "ecn.multipoint.connectivity.broken": "#CC1111",
+        "ecn.multipoint.connectivity.transient": "#2222FF",
+        "ecn.multipoint.connectivity.path_dependent": "#886611",
+        "ecn.multipoint.connectivity.unstable": "#CCCC11",
+        "ecn.multipoint.connectivity.offline": "#888888"
+      },
+      "descriptions": {
+        "ecn.multipoint.connectivity.works": "Works from all vantage points",
+        "ecn.multipoint.connectivity.broken": "Broken from all vantage points",
+        "ecn.multipoint.connectivity.transient": "Transient from all vantage points",
+        "ecn.multipoint.connectivity.path_dependent": "Evidence that connectivity dependency is path dependent",
+        "ecn.multipoint.connectivity.unstable": "Ask Brian Trammell",
+        "ecn.multipoint.connectivity.offline": "Offline from all vantage points"
+      }
+    },
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.negotiation&group=condition&group=week&option=count_targets",
+      "title": "ecn.negotiation",
+      "description": "In this tests we tried to negotiate ECN with the target.",
+      "conditions": [
+        "ecn.negotiation.succeeded",
+        "ecn.negotiation.failed",
+        "ecn.negotiation.reflected"
+      ],
+      "colors": {
+        "ecn.negotiation.succeeded": "#11CC11",
+        "ecn.negotiation.failed": "#CC1111",
+        "ecn.negotiation.reflected": "#2222FF"
+      },
+      "descriptions": {
+        "ecn.negotiation.succeeded": "ECN negotiated successfully",
+        "ecn.negotiation.failed": "ECN not negotiated",
+        "ecn.negotiation.reflected": "ECN negotiation reflects ECE CWR flags on SYN ACK"
+      }
+    },
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.stable.negotiation&group=condition&group=week&option=count_targets",
+      "title": "ecn.stable.negotiation",
+      "description": "Stabilized ECN negotiation tests. Multiple measurements from the same vantage point are performed to each target.",
+      "conditions": [
+        "ecn.stable.negotiation.succeeded",
+        "ecn.stable.negotiation.failed",
+        "ecn.stable.negotiation.unstable"
+      ],
+      "colors": {
+        "ecn.stable.negotiation.succeeded": "#11CC11",
+        "ecn.stable.negotiation.failed": "#CC1111",
+        "ecn.stable.negotiation.unstable": "#CCCC11"
+      },
+      "descriptions": {
+        "ecn.stable.negotiation.succeeded": "Succeeded on all attemps",
+        "ecn.stable.negotiation.failed": "Failed on all attemps",
+        "ecn.stable.negotiation.unstable": "No consensus about negotiation across multiple observations"
+      }
+    },
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.negotiation&group=condition&group=week&option=count_targets",
+      "title": "ecn.multipoint.negotiation",
+      "description": "Multiple vantage point ECN negotiation tests.",
+      "conditions": [
+        "ecn.multipoint.negotiation.succeeded",
+        "ecn.multipoint.negotiation.failed",
+        "ecn.multipoint.negotiation.reflected",
+        "ecn.multipoint.negotiation.path_dependent",
+        "ecn.multipoint.negotiation.unstable"
+      ],
+      "colors": {
+        "ecn.multipoint.negotiation.succeeded": "#11CC11",
+        "ecn.multipoint.negotiation.failed": "#CC1111",
+        "ecn.multipoint.negotiation.reflected": "#2222FF",
+        "ecn.multipoint.negotiation.path_dependent": "#886611",
+        "ecn.multipoint.negotiation.unstable": "#CCCC11"
+      },
+      "descriptions": {
+        "ecn.multipoint.negotiation.succeeded": "Succeeded from all vantage points",
+        "ecn.multipoint.negotiation.failed": "Failed from all vantage points",
+        "ecn.multipoint.negotiation.reflected": "Reflected from all vantage points",
+        "ecn.multipoint.negotiation.path_dependent": "Evidence that connectivity dependency is path dependent",
+        "ecn.multipoint.negotiation.unstable": "Ask Brian Trammell"
+      }
+    },
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ce&group=condition&group=week&option=count_targets",
+      "title": "ecn.ipmark.ce",
+      "description": "Chart Description",
+      "conditions": [
+        "ecn.ipmark.ce.seen",
+        "ecn.ipmark.ce.not_seen"
+      ],
+      "colors": {
+        "ecn.ipmark.ce.seen": "#11CC11",
+        "ecn.ipmark.ce.not_seen": "#CC1111"
+      },
+      "descriptions": {
+        "ecn.ipmark.ce.seen": "Condition Description",
+        "ecn.ipmark.ce.not_seen": "Condition Description"
+      }
+    },
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ect0&group=condition&group=week&option=count_targets",
+      "title": "ecn.ipmark.ect0",
+      "description": "Chart Description",
+      "conditions": [
+        "ecn.ipmark.ect0.seen",
+        "ecn.ipmark.ect0.not_seen"
+      ],
+      "colors": {
+        "ecn.ipmark.ect0.seen": "#11CC11",
+        "ecn.ipmark.ect0.not_seen": "#CC1111"
+      },
+      "descriptions": {
+        "ecn.ipmark.ect0.seen": "Condition Description",
+        "ecn.ipmark.ect0.not_seen": "Condition Description"
+      }
+    },
+    {
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ect1&group=condition&group=week&option=count_targets",
+      "title": "ecn.ipmark.ect1",
+      "description": "Chart Description",
+      "conditions": [
+        "ecn.ipmark.ect1.seen",
+        "ecn.ipmark.ect1.not_seen"
+      ],
+      "colors": {
+        "ecn.ipmark.ect1.seen": "#11CC11",
+        "ecn.ipmark.ect1.not_seen": "#CC1111"
+      },
+      "descriptions": {
+        "ecn.ipmark.ect1.seen": "Condition Description",
+        "ecn.ipmark.ect1.not_seen": "Condition Description"
+      }
+    }
+  ]
+}

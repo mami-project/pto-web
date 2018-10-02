@@ -1,0 +1,142 @@
+.pto-table, .pto-data-table {
+    white-space: nowrap;
+}
+
+.pto-table {
+    text-align: center;
+}
+
+.pto-data-table {
+    font-size: 12px;
+}
+
+.pto-data-table>th {
+    text-align: center;
+}
+
+.pto-table>th, .pto-table>td, .pto-data-table>th, .pto-data-table>td {
+    border: 0.15em solid white;
+    border-collapse: collapse;
+}
+
+.pto-table>thead, .pto-data-table>thead {
+    background-color: #888;
+}
+
+.pto-table>tbody>tr:nth-child(2n), .pto-data-table>tbody>tr:nth-child(2n) {
+    background-color: #ddd;
+}
+
+.pto-table>tbody>tr:nth-child(2n + 1), .pto-data-table>tbody>tr:nth-child(2n + 1) {
+    background-color: #ccc;
+}
+
+.pto-data-table-container {
+    margin: 1em 4em;
+    overflow: auto;
+    max-height: 35em;
+}
+
+#chartsExplanation {
+    background-color: #ddd;
+    padding: 2em 1em;
+}
+
+.tick {
+    font-size: 9pt;
+}
+
+.charts-div>div:nth-child(2n) {
+    background-color: #ddd;
+}
+
+.charts-div>div:nth-child(2n)>svg {
+    background-color: #ddd;
+}
+
+.charts-div>div:nth-child(2n + 1) {
+    background-color: #ccc;
+}
+
+.charts-div>div:nth-child(2n + 1)>svg {
+    background-color: #ccc;
+}
+
+.chart-div {
+    padding: 2em 1em;
+    text-align: center;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 3em auto;
+    border: 0.1em solid #888;
+    width: 100%;
+    max-width: fit-content;
+    height: 92%;
+    max-height: fit-content;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.close {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover, .close:focus {
+    color: red;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-header {
+    padding: 0.1em 1em;
+    background-color: black;
+    color: white;
+}
+
+.modal-body {
+    margin: 0.5em;
+    height: inherit;
+    max-height: fit-content;
+}
+
+#obsNav {
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+
+#obsTableDiv {
+    overflow: auto;
+    height: inherit;
+    max-height: fit-content;
+}
+
+#obsTable {
+    font-size: 12px;
+}
+
+#obsMetadataDiv {
+    white-space: nowrap;
+    overflow: auto;
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PTO 3</title>
+        <meta charset="UTF-8">
+        <meta name="description" content="Path Transparency Observatory">
+        <meta name="keywords" content="Internet Path, Internet Observatory, Path Transparency, ECN, TFO">
+        <meta name="author" content="Rolf Scheuner">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+        <link rel="stylesheet" href="/static/css/c3.css">
+        <link rel="stylesheet" href="/static/css/pto.css">
+        <script src="https://d3js.org/d3.v5.js"></script>
+        <script src="/static/js/c3.js"></script>
+        <script src="/static/js/app.js"></script>
+        <script src="/static/js/charts.js"></script>
+        <script src="/static/js/obslist.js"></script>
+    </head>
+
+    <body onload="initPage(); initChartPage();">
+
+        <header class="w3-container w3-center w3-theme w3-padding"></header>
+
+        <div id="chartsExplanation" class="w3-container w3-center">
+            <p>
+                The charts you see on this page show how many targets in the measurement series have been observed with a certain condition.<br>
+                By clicking on a bar you will see all measurements which let to that result.
+            </p>
+        </div>
+
+        <div id="chartsDiv" class="charts-div"></div>
+
+        <div id="obsListModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close" onclick="closeTargetList();">&times;</span>
+                    <h3 id="targetListTitle"></h3>
+                    <div id="obsNav">
+                        <button><<</button>
+                        <button><</button>
+                        <b>Page</b>
+                        <button>></button>
+                        <button>>></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div id="obsTableDiv">
+                        <table id="obsTable" class="pto-table">
+                            <thead>
+                                <tr>
+                                    <th>Row</th>
+                                    <th>Obs-Set ID</th>
+                                    <th>Time Start</th>
+                                    <th>Source</th>
+                                    <th>Path</th>
+                                    <th>Target</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="obsMetadataModal" class="modal" style="display: none">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close" onclick="closeMetadata();">&times;</span>
+                    <h3 id="obsMetadataTitle">Observation Set Metadata</h3>
+                </div>
+                <div class="modal-body">
+                    <div id="obsMetadataDiv"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

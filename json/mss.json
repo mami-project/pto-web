@@ -1,0 +1,52 @@
+{
+  "title": "Maximum Size Segment",
+  "description": "MSS Description",
+  "charts": [
+    {
+      "query": "time_start=2018-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=mss.option.received&group=condition&group=week&option=count_targets",
+      "title": "mss.option.received",
+      "description": "In this test MSS was measured. Counted targets.",
+      "conditions": [
+        "mss.option.received.unchanged",
+        "mss.option.received.deflated",
+        "mss.option.received.absent",
+        "mss.option.received.inflated"
+      ],
+      "colors": {
+        "mss.option.received.unchanged": "#11CC11",
+        "mss.option.received.deflated": "#CC1111",
+        "mss.option.received.absent": "#2222FF",
+        "mss.option.received.inflated": "#888888"
+      },
+      "descriptions": {
+        "mss.option.received.unchanged": "tbd",
+        "mss.option.received.deflated": "tbd",
+        "mss.option.received.absent": "tbd",
+        "mss.option.received.inflated": "tbd"
+      }
+    },
+    {
+      "query": "time_start=2018-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=mss.option.received&group=condition&group=week",
+      "title": "mss.option.received",
+      "description": "In this test MSS was measured. Counted obs.",
+      "conditions": [
+        "mss.option.received.unchanged",
+        "mss.option.received.deflated",
+        "mss.option.received.absent",
+        "mss.option.received.inflated"
+      ],
+      "colors": {
+        "mss.option.received.unchanged": "#11CC11",
+        "mss.option.received.deflated": "#CC1111",
+        "mss.option.received.absent": "#2222FF",
+        "mss.option.received.inflated": "#888888"
+      },
+      "descriptions": {
+        "mss.option.received.unchanged": "tbd",
+        "mss.option.received.deflated": "tbd",
+        "mss.option.received.absent": "tbd",
+        "mss.option.received.inflated": "tbd"
+      }
+    }
+  ]
+}

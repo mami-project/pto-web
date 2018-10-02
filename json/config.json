@@ -1,0 +1,17 @@
+{
+  "directoryQuery": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2021-12-31T00%3A00%3A00Z&group=feature&group=month",
+  "pages": {
+    "ecn": {
+      "linktitle": "ECN",
+      "pageConfig": "ecn.json"
+    },
+    "mss": {
+      "linktitle": "MSS",
+      "pageConfig": "mss.json"
+    },
+    "tfo": {
+      "linktitle": "TFO",
+      "pageConfig": "tfo.json"
+    }
+  }
+}
