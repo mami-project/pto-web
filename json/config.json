@@ -12,6 +12,10 @@
     "tfo": {
       "linktitle": "TFO",
       "pageConfig": "tfo.json"
+    },
+    "dscp": {
+      "linktitle": "DSCP",
+      "pageConfig": "dscp.json"
     }
   }
 }
