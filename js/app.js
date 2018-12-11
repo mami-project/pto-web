@@ -1,4 +1,4 @@
-const baseUrl = "https://v3.pto.mami-project.eu";
+const baseUrl = "https://mami.cloudlab.zhaw.ch";
 const retrieveBaseUrl = baseUrl + "/query/retrieve";
 const submitBaseUrl = baseUrl + "/query/submit";
 
