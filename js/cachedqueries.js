@@ -2,7 +2,7 @@ const compareProperty = '__created';
 
 function initTable () {
     const tableDiv = document.getElementById('tableDiv');
-    tableDiv.innerText = 'Loading data...';
+    tableDiv.innerText = 'Loading data from ' + baseUrl + '...';
 
     fetch(baseUrl + '/query')
         .then(function (response) {

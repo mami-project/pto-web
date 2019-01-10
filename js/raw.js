@@ -33,6 +33,7 @@ function drawMetadataTable(links) {
     let promises = [];
 
     for (let link of links) {
+        tableDiv.innerText = 'Loading ' + link;
         promises.push(fetch(link, getReadOptions()).then(response => response.json()).then(metadataObject => metadataList.push(metadataObject['metadata'])).catch());
     }
 

@@ -1,4 +1,4 @@
-const baseUrl = "https://mami.cloudlab.zhaw.ch";
+const baseUrl = "https://mami.cloudlab.zhaw.ch/pto";
 const retrieveBaseUrl = baseUrl + "/query/retrieve";
 const submitBaseUrl = baseUrl + "/query/submit";
 
@@ -17,20 +17,20 @@ function showNavbar() {
         navbar.parentNode.removeChild(navbar);
     }
 
-    fetch('/static/navbar.html')
+    fetch(baseUrl + '/static/navbar.html')
         .then(response => response.text())
         .then(function (data) {
             let navbar = document.createElement('div');
             document.body.insertBefore(navbar, document.body.firstChild);
             navbar.outerHTML = data;
-            return fetch('/static/json/config.json');
+            return fetch(baseUrl + '/static/json/config.json');
         })
         .then(response => response.json())
         .then(function (data) {
             const navbar = document.body.firstChild;
             for (let page of Object.getOwnPropertyNames(data['pages'])) {
                 let link = document.createElement('a');
-                link.href = '/static/charts.html?page=' + page;
+                link.href = baseUrl + '/static/charts.html?page=' + page;
                 link.classList.add('w3-bar-item', 'w3-button', 'w3-padding-large', 'w3-hover-white');
                 link.innerText = data['pages'][page]['linktitle'];
                 navbar.appendChild(link);
@@ -51,7 +51,7 @@ function showFooter() {
         footer.parentNode.removeChild(footer);
     }
 
-    fetch('/static/footer.html')
+    fetch(baseUrl + '/static/footer.html')
         .then(response => response.text())
         .then(function (data) {
             let footer = document.createElement('footer');
