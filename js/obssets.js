@@ -33,7 +33,16 @@ function drawMetadataTable(links) {
     let promises = [];
 
     for (let link of links) {
-        promises.push(fetch(link, getReadOptions()).then(response => response.json()).then(metadataObject => metadataList.push(metadataObject)).catch());
+	promises.push(fetch(link, getReadOptions())
+		    .then(response => response.json(),
+		          error => console.log(error))
+		    .then(metadataObject => { 
+			    //console.log(metadataObject); 
+			    metadataList.push(metadataObject); 
+			    //console.log(metadataList.length); 
+		    }, 
+			  error => console.log(error)));
+        //promises.push(fetch(link, getReadOptions()).then(response => response.json()).then(metadataObject => metadataList.push(metadataObject)).catch());
     }
 
     Promise.all(promises).then(function () {drawTable(metadataList)});
