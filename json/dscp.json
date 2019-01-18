@@ -1,11 +1,11 @@
 {
   "title": "DSCP",
-  "description": "DSCP is a Differentiated Services Code Point, a way to classify traffic according to its loss/latency properties in order to provide Quality-of-Service. DSCO is realised using the DS header in the IPv4 and IPv6 headers, according to RFC 2474.",
+  "description": "The Differentiated Services Code Point classifes traffic to provide QoS within a network. It is widely manipulated in the Internet",
   "charts": [
     {
-      "query": "time_start=2016-03-01T00%3A00%3A00Z&time_end=2016-05-31T23%3A59%3A59Z&feature=dscp&group=condition&group=week&option=count_targets",
+      "query": "time_start=2016-03-01T00%3A00%3A00Z&time_end=2016-05-31T23%3A59%3A59Z&feature=dscp&group=condition&group=week",
       "title": "dscp",
-      "description": "In this test, DSCP was measured. Counted targets.",
+      "description": "This test measures DSCP mainpulation, grouped by observation (hop), by original DSCP value.",
       "conditions": [
         "dscp.0.changed",
  	"dscp.1.changed",
