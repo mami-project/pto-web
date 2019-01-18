@@ -1,11 +1,11 @@
 {
   "title": "Maximum Size Segment",
-  "description": "MSS Description",
+  "description": "The TCP MSS option alows endpoints to communicate their MSS; it is also manipulated along the path as a way for intermediate systems to signal MSS related to MTU.",
   "charts": [
     {
       "query": "time_start=2018-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=mss.option.received&group=condition&group=week&option=count_targets",
       "title": "mss.option.received",
-      "description": "In this test MSS was measured. Counted targets.",
+      "description": "Measured the received MSS option relative to the sent MSS, grouped by target",
       "conditions": [
         "mss.option.received.unchanged",
         "mss.option.received.deflated",
@@ -19,16 +19,16 @@
         "mss.option.received.inflated": "#888888"
       },
       "descriptions": {
-        "mss.option.received.unchanged": "tbd",
-        "mss.option.received.deflated": "tbd",
-        "mss.option.received.absent": "tbd",
-        "mss.option.received.inflated": "tbd"
+        "mss.option.received.unchanged": "MSS option received unchanged",
+        "mss.option.received.deflated": "MSS option received smaller than sent option",
+        "mss.option.received.absent": "MSS option not recieved, stripped on path",
+        "mss.option.received.inflated": "MSS option received larger than sent option"
       }
     },
     {
       "query": "time_start=2018-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=mss.option.received&group=condition&group=week",
       "title": "mss.option.received",
-      "description": "In this test MSS was measured. Counted obs.",
+      "description": "Measured the received MSS option relative to the sent MSS, counting raw observations",
       "conditions": [
         "mss.option.received.unchanged",
         "mss.option.received.deflated",
@@ -42,10 +42,10 @@
         "mss.option.received.inflated": "#888888"
       },
       "descriptions": {
-        "mss.option.received.unchanged": "tbd",
-        "mss.option.received.deflated": "tbd",
-        "mss.option.received.absent": "tbd",
-        "mss.option.received.inflated": "tbd"
+        "mss.option.received.unchanged": "MSS option received unchanged",
+        "mss.option.received.deflated": "MSS option received smaller than sent option",
+        "mss.option.received.absent": "MSS option not recieved, stripped on path",
+        "mss.option.received.inflated": "MSS option received larger than sent option"
       }
     }
   ]

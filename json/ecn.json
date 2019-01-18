@@ -1,11 +1,11 @@
 {
   "title": "Explicit Congestion Notification",
-  "description": "Explicit Congestion Notification (ECN) is an extension to the Internet Protocol and to the Transmission Control Protocol. ECN allows end-to-end notification of network congestion without dropping packets. It is an optional feature that may be used between two ECN-enabled endpoints when the underlying network infrastructure also supports it.",
+  "description": "Explicit Congestion Notification (ECN) allows end-to-end notification of network congestion, avoiding packet drops. These observations test successful negotiation of ECN, as well as ECN-dependent connectivity and ECN IP signaling.",
   "charts": [
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.connectivity&group=condition&group=week&option=count_targets",
       "title": "ecn.connectivity",
-      "description": "In this test the influence of attempting to negotiate ECN on connectivity was measured.",
+      "description": "Effect of attempts to negotiate ECN on end-to-end connectivity",
       "conditions": [
         "ecn.connectivity.works",
         "ecn.connectivity.broken",
@@ -44,17 +44,17 @@
         "ecn.stable.connectivity.offline": "#888888"
       },
       "descriptions": {
-        "ecn.stable.connectivity.works": "Works on all attemps",
-        "ecn.stable.connectivity.broken": "Broken on all attemps",
-        "ecn.stable.connectivity.transient": "Transient on all attemps",
-        "ecn.stable.connectivity.unstable": "No consensus about connectivity across multiple observations",
-        "ecn.stable.connectivity.offline": "Offline on all attemps"
+        "ecn.stable.connectivity.works": "ECN works on all attempts",
+        "ecn.stable.connectivity.broken": "ECN leads to connectivity failure on all attempts",
+        "ecn.stable.connectivity.transient": "Transient on all attempts",
+        "ecn.stable.connectivity.unstable": "No consensus about ECN-dependent connectivity",
+        "ecn.stable.connectivity.offline": "Offline on all attempts"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.connectivity&group=condition&group=week&option=count_targets",
       "title": "ecn.multipoint.connectivity",
-      "description": "Multiple vantage point ECN connectivity dependency tests.",
+      "description": "Path dependency tests for ECN connectivity. Multiple measuremends from different vantage points to localize ",
       "conditions": [
         "ecn.multipoint.connectivity.works",
         "ecn.multipoint.connectivity.broken",
@@ -72,12 +72,12 @@
         "ecn.multipoint.connectivity.offline": "#888888"
       },
       "descriptions": {
-        "ecn.multipoint.connectivity.works": "Works from all vantage points",
-        "ecn.multipoint.connectivity.broken": "Broken from all vantage points",
-        "ecn.multipoint.connectivity.transient": "Transient from all vantage points",
-        "ecn.multipoint.connectivity.path_dependent": "Evidence that connectivity dependency is path dependent",
-        "ecn.multipoint.connectivity.unstable": "Ask Brian Trammell",
-        "ecn.multipoint.connectivity.offline": "Offline from all vantage points"
+        "ecn.multipoint.connectivity.works": "No path dependency, works from all vantage points",
+        "ecn.multipoint.connectivity.broken": "No path dependency, ECN leads to connectivity failure from all vantage points",
+        "ecn.multipoint.connectivity.transient": "No path dependency, transient from all vantage points",
+        "ecn.multipoint.connectivity.path_dependent": "Clear evidence that ECN connectivity dependency is path-dependent",
+        "ecn.multipoint.connectivity.unstable": "No consensus on ECN-dependent connectivity from any vantage point",
+        "ecn.multipoint.connectivity.offline": "No path dependency, offline from all vantage points"
       }
     },
     {
@@ -115,8 +115,8 @@
         "ecn.stable.negotiation.unstable": "#CCCC11"
       },
       "descriptions": {
-        "ecn.stable.negotiation.succeeded": "Succeeded on all attemps",
-        "ecn.stable.negotiation.failed": "Failed on all attemps",
+        "ecn.stable.negotiation.succeeded": "ECN negotiation succeeded on all attempts",
+        "ecn.stable.negotiation.failed": "ECN negotiation failed on all attempts",
         "ecn.stable.negotiation.unstable": "No consensus about negotiation across multiple observations"
       }
     },
@@ -139,17 +139,17 @@
         "ecn.multipoint.negotiation.unstable": "#CCCC11"
       },
       "descriptions": {
-        "ecn.multipoint.negotiation.succeeded": "Succeeded from all vantage points",
-        "ecn.multipoint.negotiation.failed": "Failed from all vantage points",
-        "ecn.multipoint.negotiation.reflected": "Reflected from all vantage points",
-        "ecn.multipoint.negotiation.path_dependent": "Evidence that connectivity dependency is path dependent",
-        "ecn.multipoint.negotiation.unstable": "Ask Brian Trammell"
+        "ecn.multipoint.negotiation.succeeded": "ECN negotiation succeeded from all vantage points",
+        "ecn.multipoint.negotiation.failed": "ECN negotiation failed from all vantage points",
+        "ecn.multipoint.negotiation.reflected": "ECN negotiation reflected from all vantage points",
+        "ecn.multipoint.negotiation.path_dependent": "Negotiation is path dependent",
+        "ecn.multipoint.negotiation.unstable": "No consensus about ECN negotiation from any vantage point"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ce&group=condition&group=week&option=count_targets",
       "title": "ecn.ipmark.ce",
-      "description": "Chart Description",
+      "description": "Observations of the IP ECN CE codepoint",
       "conditions": [
         "ecn.ipmark.ce.seen",
         "ecn.ipmark.ce.not_seen"
@@ -159,14 +159,14 @@
         "ecn.ipmark.ce.not_seen": "#CC1111"
       },
       "descriptions": {
-        "ecn.ipmark.ce.seen": "Condition Description",
-        "ecn.ipmark.ce.not_seen": "Condition Description"
+        "ecn.ipmark.ce.seen": "At least one CE mark observed",
+        "ecn.ipmark.ce.not_seen": "No CE marks observed; note, not tested on some earlier measurements"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ect0&group=condition&group=week&option=count_targets",
       "title": "ecn.ipmark.ect0",
-      "description": "Chart Description",
+      "description": "Observations of the IP ECN ECT0 codepoint",
       "conditions": [
         "ecn.ipmark.ect0.seen",
         "ecn.ipmark.ect0.not_seen"
@@ -176,14 +176,14 @@
         "ecn.ipmark.ect0.not_seen": "#CC1111"
       },
       "descriptions": {
-        "ecn.ipmark.ect0.seen": "Condition Description",
-        "ecn.ipmark.ect0.not_seen": "Condition Description"
+        "ecn.ipmark.ect0.seen": "At least one ECT0 mark observed",
+        "ecn.ipmark.ect0.not_seen": "No ECT0 marks observed. NOTE: not tested on some earlier measurements"
       }
     },
     {
       "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ect1&group=condition&group=week&option=count_targets",
       "title": "ecn.ipmark.ect1",
-      "description": "Chart Description",
+      "description": "Observations of the IP ECN ECT1 codepoint",
       "conditions": [
         "ecn.ipmark.ect1.seen",
         "ecn.ipmark.ect1.not_seen"
@@ -193,8 +193,8 @@
         "ecn.ipmark.ect1.not_seen": "#CC1111"
       },
       "descriptions": {
-        "ecn.ipmark.ect1.seen": "Condition Description",
-        "ecn.ipmark.ect1.not_seen": "Condition Description"
+        "ecn.ipmark.ect1.seen": "At least one ECT1 mark observed",
+        "ecn.ipmark.ect1.not_seen": "No ECT0 marks observed. NOTE: not tested on some earlier measurements"
       }
     }
   ]
