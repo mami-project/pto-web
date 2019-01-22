@@ -3,9 +3,9 @@
     <head>
         <title>PTO 3</title>
         <meta charset="UTF-8">
-        <meta name="description" content="Path Transparency Observatory">
-        <meta name="keywords" content="Internet Path, Internet Observatory, Path Transparency, ECN, TFO">
-        <meta name="author" content="Rolf Scheuner">
+        <meta name="description" content="Path Transparency Observatory (PTO)">
+        <meta name="keywords" content="Internet Path, Path Transparency, Internet Observatory">
+        <meta name="author" content="MAMI Project">
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -18,7 +18,7 @@
         <!-- Header -->
         <div class="w3-center w3-container w3-theme w3-padding">
             <h1 class="w3-xxxlarge"><b>P</b>ath <b>T</b>ransparency <b>O</b>bservatory</h1>
-            <p><img src="static/img/pto-black.png" /></p>
+            <p><img src="https://mami.cloudlab.zhaw.ch/mami/pto/static/img/pto-black.png" /></p>
             <p>An open-source, public repository for measurement of path transparency and <br> impairments on new and existing network protocols in the Internet.</p>
         </div>
 
@@ -28,11 +28,10 @@
                 <div class="w3-twothird">
                     <h1>What is Path Transparency?</h1>
                     <h5 class="w3-padding-24 w3-justify">Given the increasing deployment of middleboxes in the Internet, we see an ossification of the protocol stack that makes it difficult to deploy new protocols or protocol extensions. The data provided by this observatory assists to quantify impairments on path transparency when traffic is altered or treated differently on a network path based on the protocol stack in use.</h5>
-                    <p class="w3-text-grey w3-justify">This front end provides you an overview of the available measurements and predifined visualizations of the data in the PTO.<p>
-                    <p class="w3-text-grey w3-justify">We also provide a Path Transparency Observatory API (PAPI) to run custom queries on the observation data base of the PTO based on a custom-tailored query language, called <a href="https://github.com/mami-project/pto-postgres/blob/master/IQL.md" target=_blank">Interesting Query Language (IQL)</a>. PAPI offers additional functionality enabling more complex queries than provided by our web-frontend. Some API methods are not public and require an API key. To receive an API key please <a href="mailto:mami@corvid.ch">contact us</a>.</p>
+                    <p class="w3-text-grey w3-justify">This front end provides you an overview of the available measurements and some predifined visualizations of the data in the PTO. Further, the PTO offeres a more powerful <a href="https://github.com/mami-project/pto3-go/tree/master/doc">restful API</a> to enable costum analysis of the data. In order to limit the load on the PTO, only cached queries can be accessed over this frontend without an API key. If you would like to receive an API, key please <a href="mailto:stephan.neuhaus@zhaw.ch">contact us</a>.</p>
                 </div>
                 <div class="w3-third w3-center w3-padding-48">
-                    <img src="static/img/path.png" />
+                    <img src="https://mami.cloudlab.zhaw.ch/mami/pto/static/img/path.png" />
                 </div>
             </div>
         </div>
@@ -41,7 +40,8 @@
         <div class="w3-row-padding w3-padding-64 w3-container">
             <div class="w3-content">
                 <h1>Available Measurements in the PTO</h1>
-                <h5 class="w3-padding-24 w3-justify">Following table indicates which measurements from which time periods are currently available in the PTO.</h5>
+                <h5 class="w3-padding-24 w3-justify">The measurement data in the PTO is mostly based on manual runs of specific studies at a certain point of interested. While repeated measurement enable to observe changes over times, e.g for 
+<a href="https://mami.cloudlab.zhaw.ch/mami/pto/static/charts.html?page=ecn">ECN negotiation</a>, it can also be see with a closer look at our results that many findings are rather stable with respect to path transparency.</h5>
                 <table id="directoryTable" class="pto-table">
                     <thead></thead>
                     <tbody></tbody>
