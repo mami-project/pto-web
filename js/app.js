@@ -124,6 +124,8 @@ function encodedQueryToQueryLink(query, onQueryCompleted, onQueryPending, onQuer
                     return response.json();
                 case 400:
                     return null;
+                case 404:
+                    return null;
                 default:
                     throw new Error();
             }
