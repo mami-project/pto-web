@@ -3,7 +3,7 @@
   "description": "Explicit Congestion Notification (ECN) allows end-to-end notification of network congestion, avoiding packet drops. These observations test successful negotiation of ECN, as well as ECN-dependent connectivity and ECN IP signaling.",
   "charts": [
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.connectivity&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.connectivity&group=condition&group=week",
       "title": "ecn.connectivity",
       "description": "Effect of attempts to negotiate ECN on end-to-end connectivity",
       "conditions": [
@@ -52,7 +52,7 @@
       }
     },
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.connectivity&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.connectivity&group=condition&group=week",
       "title": "ecn.multipoint.connectivity",
       "description": "Path dependency tests for ECN connectivity. Multiple measuremends from different vantage points to localize ",
       "conditions": [
@@ -81,7 +81,7 @@
       }
     },
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.negotiation&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.negotiation&group=condition&group=week",
       "title": "ecn.negotiation",
       "description": "In this tests we tried to negotiate ECN with the target.",
       "conditions": [
@@ -101,7 +101,7 @@
       }
     },
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.stable.negotiation&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.stable.negotiation&group=condition&group=week",
       "title": "ecn.stable.negotiation",
       "description": "Stabilized ECN negotiation tests. Multiple measurements from the same vantage point are performed to each target.",
       "conditions": [
@@ -121,7 +121,7 @@
       }
     },
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.negotiation&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.multipoint.negotiation&group=condition&group=week",
       "title": "ecn.multipoint.negotiation",
       "description": "Multiple vantage point ECN negotiation tests.",
       "conditions": [
@@ -147,7 +147,7 @@
       }
     },
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ce&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ce&group=condition&group=week",
       "title": "ecn.ipmark.ce",
       "description": "Observations of the IP ECN CE codepoint",
       "conditions": [
@@ -164,7 +164,7 @@
       }
     },
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ect0&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ect0&group=condition&group=week",
       "title": "ecn.ipmark.ect0",
       "description": "Observations of the IP ECN ECT0 codepoint",
       "conditions": [
@@ -181,7 +181,7 @@
       }
     },
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ect1&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.ipmark.ect1&group=condition&group=week",
       "title": "ecn.ipmark.ect1",
       "description": "Observations of the IP ECN ECT1 codepoint",
       "conditions": [
