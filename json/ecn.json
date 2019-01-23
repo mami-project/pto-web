@@ -26,7 +26,7 @@
       }
     },
     {
-      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.stable.connectivity&group=condition&group=week&option=count_targets",
+      "query": "time_start=2014-01-01T00%3A00%3A00Z&time_end=2020-12-31T23%3A59%3A59Z&aspect=ecn.stable.connectivity&group=condition&group=week",
       "title": "ecn.stable.connectivity",
       "description": "Stabilized ECN connectivity tests. Multiple measurements from the same vantage point are performed to each target.",
       "conditions": [
