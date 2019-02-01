@@ -1,4 +1,4 @@
-const baseUrl = "https://mami.cloudlab.zhaw.ch/mami/pto";
+const baseUrl = "https://observatory.mami-project.eu/";
 const retrieveBaseUrl = baseUrl + "/query/retrieve";
 const submitBaseUrl = baseUrl + "/query/submit";
 
